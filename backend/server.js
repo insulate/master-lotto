@@ -1,6 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-import authRoutes from './routes/auth.routes.js';
+import routes from './routes/index.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -13,16 +13,17 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Routes
+// Health check
 app.get('/', (req, res) => {
   res.json({
     message: 'Lotto System API',
+    version: '1.0.0',
     status: 'running'
   });
 });
 
-// API v1 Routes
-app.use('/api/v1/auth', authRoutes);
+// API Routes
+app.use('/api/v1', routes);
 
 // Start server
 app.listen(PORT, () => {
