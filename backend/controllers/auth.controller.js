@@ -1,12 +1,8 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import User from '../models/user.model.js';
-import {
-  successResponse,
-  errorResponse,
-  unauthorizedResponse,
-  forbiddenResponse
-} from '../utils/response.js';
+import AppError from '../utils/AppError.js';
+import { successResponse } from '../utils/response.js';
 
 // Generate JWT Access Token
 const generateAccessToken = (user) => {
@@ -17,7 +13,7 @@ const generateAccessToken = (user) => {
       role: user.role
     },
     process.env.JWT_SECRET || 'your-secret-key',
-    { expiresIn: '15m' } // Short-lived access token
+    { expiresIn: '15m' }
   );
 };
 
@@ -29,18 +25,18 @@ const generateRefreshToken = (user) => {
       username: user.username
     },
     process.env.JWT_REFRESH_SECRET || 'your-refresh-secret-key',
-    { expiresIn: '7d' } // Long-lived refresh token
+    { expiresIn: '7d' }
   );
 };
 
 // POST /api/v1/auth/login
-export const login = async (req, res) => {
+export const login = async (req, res, next) => {
   try {
     const { username, password } = req.body;
 
     // Validate input
     if (!username || !password) {
-      return errorResponse(res, 'Please provide username and password', [], 400);
+      throw new AppError('Please provide username and password', 400);
     }
 
     // TODO: Find user from database
@@ -58,18 +54,18 @@ export const login = async (req, res) => {
 
     // Check if user exists
     // if (!user) {
-    //   return unauthorizedResponse(res, 'Invalid credentials');
+    //   throw new AppError('Invalid credentials', 401);
     // }
 
     // Check if user is active
     if (mockUser.status === 'suspended') {
-      return forbiddenResponse(res, 'Account is suspended');
+      throw new AppError('Account is suspended', 403);
     }
 
     // Verify password
     const isPasswordValid = await bcrypt.compare(password, mockUser.password);
     if (!isPasswordValid) {
-      return unauthorizedResponse(res, 'Invalid credentials');
+      throw new AppError('Invalid credentials', 401);
     }
 
     // Generate tokens
@@ -85,13 +81,12 @@ export const login = async (req, res) => {
       refreshToken
     }, 200);
   } catch (error) {
-    console.error('Login error:', error);
-    return errorResponse(res, 'Server error', [], 500);
+    next(error);
   }
 };
 
 // POST /api/v1/auth/logout
-export const logout = async (req, res) => {
+export const logout = async (req, res, next) => {
   try {
     const userId = req.user.id;
 
@@ -100,15 +95,13 @@ export const logout = async (req, res) => {
 
     return successResponse(res, 'Logout successful', null, 200);
   } catch (error) {
-    console.error('Logout error:', error);
-    return errorResponse(res, 'Server error', [], 500);
+    next(error);
   }
 };
 
 // GET /api/v1/auth/me
-export const getMe = async (req, res) => {
+export const getMe = async (req, res, next) => {
   try {
-    // req.user is set by authentication middleware
     const userId = req.user.id;
 
     // TODO: Get user from database
@@ -129,18 +122,17 @@ export const getMe = async (req, res) => {
       user: mockUser.toJSON()
     }, 200);
   } catch (error) {
-    console.error('Get me error:', error);
-    return errorResponse(res, 'Server error', [], 500);
+    next(error);
   }
 };
 
 // POST /api/v1/auth/refresh
-export const refresh = async (req, res) => {
+export const refresh = async (req, res, next) => {
   try {
     const { refreshToken } = req.body;
 
     if (!refreshToken) {
-      return errorResponse(res, 'Refresh token is required', [], 400);
+      throw new AppError('Refresh token is required', 400);
     }
 
     // Verify refresh token
@@ -151,13 +143,13 @@ export const refresh = async (req, res) => {
         process.env.JWT_REFRESH_SECRET || 'your-refresh-secret-key'
       );
     } catch (error) {
-      return unauthorizedResponse(res, 'Invalid or expired refresh token');
+      throw new AppError('Invalid or expired refresh token', 401);
     }
 
     // TODO: Check if refresh token exists in database
     // const isValidToken = await checkRefreshToken(decoded.id, refreshToken);
     // if (!isValidToken) {
-    //   return unauthorizedResponse(res, 'Invalid refresh token');
+    //   throw new AppError('Invalid refresh token', 401);
     // }
 
     // TODO: Get user from database
@@ -179,24 +171,23 @@ export const refresh = async (req, res) => {
       accessToken: newAccessToken
     }, 200);
   } catch (error) {
-    console.error('Refresh token error:', error);
-    return errorResponse(res, 'Server error', [], 500);
+    next(error);
   }
 };
 
 // PUT /api/v1/auth/change-password
-export const changePassword = async (req, res) => {
+export const changePassword = async (req, res, next) => {
   try {
     const userId = req.user.id;
     const { currentPassword, newPassword } = req.body;
 
     if (!currentPassword || !newPassword) {
-      return errorResponse(res, 'Please provide current password and new password', [], 400);
+      throw new AppError('Please provide current password and new password', 400);
     }
 
     // Validate new password length
     if (newPassword.length < 6) {
-      return errorResponse(res, 'New password must be at least 6 characters long', [], 400);
+      throw new AppError('New password must be at least 6 characters long', 400);
     }
 
     // TODO: Get user from database
@@ -205,7 +196,7 @@ export const changePassword = async (req, res) => {
     // TODO: Verify current password
     // const isPasswordValid = await bcrypt.compare(currentPassword, user.password);
     // if (!isPasswordValid) {
-    //   return unauthorizedResponse(res, 'Current password is incorrect');
+    //   throw new AppError('Current password is incorrect', 401);
     // }
 
     // Hash new password
@@ -216,7 +207,6 @@ export const changePassword = async (req, res) => {
 
     return successResponse(res, 'Password changed successfully', null, 200);
   } catch (error) {
-    console.error('Change password error:', error);
-    return errorResponse(res, 'Server error', [], 500);
+    next(error);
   }
 };

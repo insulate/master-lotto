@@ -1,9 +1,5 @@
 import jwt from 'jsonwebtoken';
-import {
-  unauthorizedResponse,
-  forbiddenResponse,
-  errorResponse
-} from '../utils/response.js';
+import AppError from '../utils/AppError.js';
 
 // Authenticate JWT Token
 export const authenticate = (req, res, next) => {
@@ -12,7 +8,7 @@ export const authenticate = (req, res, next) => {
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return unauthorizedResponse(res, 'No token provided');
+      throw new AppError('No token provided', 401);
     }
 
     // Extract token
@@ -32,14 +28,13 @@ export const authenticate = (req, res, next) => {
       next();
     } catch (error) {
       if (error.name === 'TokenExpiredError') {
-        return unauthorizedResponse(res, 'Token expired');
+        throw new AppError('Token expired', 401);
       }
 
-      return unauthorizedResponse(res, 'Invalid token');
+      throw new AppError('Invalid token', 401);
     }
   } catch (error) {
-    console.error('Authentication error:', error);
-    return errorResponse(res, 'Server error', [], 500);
+    next(error);
   }
 };
 
@@ -48,17 +43,16 @@ export const authorize = (...allowedRoles) => {
   return (req, res, next) => {
     try {
       if (!req.user) {
-        return unauthorizedResponse(res, 'Not authenticated');
+        throw new AppError('Not authenticated', 401);
       }
 
       if (!allowedRoles.includes(req.user.role)) {
-        return forbiddenResponse(res, 'Not authorized to access this resource');
+        throw new AppError('Not authorized to access this resource', 403);
       }
 
       next();
     } catch (error) {
-      console.error('Authorization error:', error);
-      return errorResponse(res, 'Server error', [], 500);
+      next(error);
     }
   };
 };

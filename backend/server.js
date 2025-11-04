@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import routes from './routes/index.js';
+import { errorHandler, notFoundHandler } from './middlewares/error.middleware.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -24,6 +25,10 @@ app.get('/', (req, res) => {
 
 // API Routes
 app.use('/api/v1', routes);
+
+// Error Handlers (ต้องอยู่หลัง routes)
+app.use(notFoundHandler);
+app.use(errorHandler);
 
 // Start server
 app.listen(PORT, () => {
