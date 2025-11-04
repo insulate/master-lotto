@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import authRoutes from './routes/auth.routes.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -19,6 +20,9 @@ app.get('/', (req, res) => {
     status: 'running'
   });
 });
+
+// API v1 Routes
+app.use('/api/v1/auth', authRoutes);
 
 // Start server
 app.listen(PORT, () => {
