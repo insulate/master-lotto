@@ -1,4 +1,9 @@
 import jwt from 'jsonwebtoken';
+import {
+  unauthorizedResponse,
+  forbiddenResponse,
+  errorResponse
+} from '../utils/response.js';
 
 // Authenticate JWT Token
 export const authenticate = (req, res, next) => {
@@ -7,10 +12,7 @@ export const authenticate = (req, res, next) => {
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return res.status(401).json({
-        success: false,
-        message: 'No token provided'
-      });
+      return unauthorizedResponse(res, 'No token provided');
     }
 
     // Extract token
@@ -30,23 +32,14 @@ export const authenticate = (req, res, next) => {
       next();
     } catch (error) {
       if (error.name === 'TokenExpiredError') {
-        return res.status(401).json({
-          success: false,
-          message: 'Token expired'
-        });
+        return unauthorizedResponse(res, 'Token expired');
       }
 
-      return res.status(401).json({
-        success: false,
-        message: 'Invalid token'
-      });
+      return unauthorizedResponse(res, 'Invalid token');
     }
   } catch (error) {
     console.error('Authentication error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Server error'
-    });
+    return errorResponse(res, 'Server error', [], 500);
   }
 };
 
@@ -55,26 +48,17 @@ export const authorize = (...allowedRoles) => {
   return (req, res, next) => {
     try {
       if (!req.user) {
-        return res.status(401).json({
-          success: false,
-          message: 'Not authenticated'
-        });
+        return unauthorizedResponse(res, 'Not authenticated');
       }
 
       if (!allowedRoles.includes(req.user.role)) {
-        return res.status(403).json({
-          success: false,
-          message: 'Not authorized to access this resource'
-        });
+        return forbiddenResponse(res, 'Not authorized to access this resource');
       }
 
       next();
     } catch (error) {
       console.error('Authorization error:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Server error'
-      });
+      return errorResponse(res, 'Server error', [], 500);
     }
   };
 };
