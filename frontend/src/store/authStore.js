@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { persist, devtools } from 'zustand/middleware';
 import axios from 'axios';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1';
@@ -13,8 +13,9 @@ const api = axios.create({
 });
 
 export const useAuthStore = create(
-  persist(
-    (set, get) => ({
+  devtools(
+    persist(
+      (set, get) => ({
       // State
       user: null,
       accessToken: null,
@@ -188,15 +189,20 @@ export const useAuthStore = create(
           }
         }
       },
-    }),
-    {
-      name: 'auth-storage',
-      partialize: (state) => ({
-        user: state.user,
-        accessToken: state.accessToken,
-        refreshToken: state.refreshToken,
-        isAuthenticated: state.isAuthenticated,
       }),
+      {
+        name: 'auth-storage',
+        partialize: (state) => ({
+          user: state.user,
+          accessToken: state.accessToken,
+          refreshToken: state.refreshToken,
+          isAuthenticated: state.isAuthenticated,
+        }),
+      }
+    ),
+    {
+      name: 'AuthStore',
+      enabled: import.meta.env.DEV, // Enable only in development
     }
   )
 );
