@@ -36,7 +36,7 @@ export const login = async (req, res, next) => {
 
     // Validate input
     if (!username || !password) {
-      throw new AppError('Please provide username and password', 400);
+      throw new AppError('กรุณากรอกชื่อผู้ใช้และรหัสผ่าน', 400);
     }
 
     // Find user from database
@@ -44,18 +44,18 @@ export const login = async (req, res, next) => {
 
     // Check if user exists
     if (!user) {
-      throw new AppError('Invalid credentials', 401);
+      throw new AppError('ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง', 401);
     }
 
     // Check if user is active
     if (user.status === 'suspended') {
-      throw new AppError('Account is suspended', 403);
+      throw new AppError('บัญชีถูกระงับการใช้งาน', 403);
     }
 
     // Verify password
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      throw new AppError('Invalid credentials', 401);
+      throw new AppError('ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง', 401);
     }
 
     // Generate tokens
@@ -65,7 +65,7 @@ export const login = async (req, res, next) => {
     // Note: Refresh tokens can be stored in database for better security
     // For now, we'll use stateless JWT
 
-    return successResponse(res, 'Login successful', {
+    return successResponse(res, 'เข้าสู่ระบบสำเร็จ', {
       user: user.toJSON(),
       accessToken,
       refreshToken
@@ -83,7 +83,7 @@ export const logout = async (req, res, next) => {
     // const userId = req.user.id;
     // await removeRefreshToken(userId);
 
-    return successResponse(res, 'Logout successful', null, 200);
+    return successResponse(res, 'ออกจากระบบสำเร็จ', null, 200);
   } catch (error) {
     next(error);
   }
@@ -98,10 +98,10 @@ export const getMe = async (req, res, next) => {
     const user = await User.findById(userId);
 
     if (!user) {
-      throw new AppError('User not found', 404);
+      throw new AppError('ไม่พบผู้ใช้', 404);
     }
 
-    return successResponse(res, 'User retrieved successfully', {
+    return successResponse(res, 'ดึงข้อมูลผู้ใช้สำเร็จ', {
       user: user.toJSON()
     }, 200);
   } catch (error) {
@@ -115,7 +115,7 @@ export const refresh = async (req, res, next) => {
     const { refreshToken } = req.body;
 
     if (!refreshToken) {
-      throw new AppError('Refresh token is required', 400);
+      throw new AppError('กรุณาระบุ refresh token', 400);
     }
 
     // Verify refresh token
@@ -126,25 +126,25 @@ export const refresh = async (req, res, next) => {
         process.env.JWT_REFRESH_SECRET || 'your-refresh-secret-key'
       );
     } catch (error) {
-      throw new AppError('Invalid or expired refresh token', 401);
+      throw new AppError('Refresh token ไม่ถูกต้องหรือหมดอายุ', 401);
     }
 
     // Get user from database
     const user = await User.findById(decoded.id);
 
     if (!user) {
-      throw new AppError('User not found', 404);
+      throw new AppError('ไม่พบผู้ใช้', 404);
     }
 
     // Check if user is still active
     if (user.status === 'suspended') {
-      throw new AppError('Account is suspended', 403);
+      throw new AppError('บัญชีถูกระงับการใช้งาน', 403);
     }
 
     // Generate new access token
     const newAccessToken = generateAccessToken(user);
 
-    return successResponse(res, 'Token refreshed successfully', {
+    return successResponse(res, 'รีเฟรช token สำเร็จ', {
       accessToken: newAccessToken
     }, 200);
   } catch (error) {
@@ -159,25 +159,25 @@ export const changePassword = async (req, res, next) => {
     const { currentPassword, newPassword } = req.body;
 
     if (!currentPassword || !newPassword) {
-      throw new AppError('Please provide current password and new password', 400);
+      throw new AppError('กรุณากรอกรหัสผ่านปัจจุบันและรหัสผ่านใหม่', 400);
     }
 
     // Validate new password length
     if (newPassword.length < 6) {
-      throw new AppError('New password must be at least 6 characters long', 400);
+      throw new AppError('รหัสผ่านใหม่ต้องมีความยาวอย่างน้อย 6 ตัวอักษร', 400);
     }
 
     // Get user from database
     const user = await User.findById(userId);
 
     if (!user) {
-      throw new AppError('User not found', 404);
+      throw new AppError('ไม่พบผู้ใช้', 404);
     }
 
     // Verify current password
     const isPasswordValid = await bcrypt.compare(currentPassword, user.password);
     if (!isPasswordValid) {
-      throw new AppError('Current password is incorrect', 401);
+      throw new AppError('รหัสผ่านปัจจุบันไม่ถูกต้อง', 401);
     }
 
     // Hash new password
@@ -187,7 +187,7 @@ export const changePassword = async (req, res, next) => {
     user.password = hashedPassword;
     await user.save();
 
-    return successResponse(res, 'Password changed successfully', null, 200);
+    return successResponse(res, 'เปลี่ยนรหัสผ่านสำเร็จ', null, 200);
   } catch (error) {
     next(error);
   }
