@@ -13,12 +13,8 @@ const agentService = {
    * @returns {Promise} - { agents: [], total: number }
    */
   getAll: async () => {
-    try {
-      const response = await httpClient.get('/master/agents');
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
+    const response = await httpClient.get('/master/agents');
+    return response.data;
   },
 
   /**
@@ -28,12 +24,8 @@ const agentService = {
    * @returns {Promise} - { agent: {} }
    */
   getById: async (id) => {
-    try {
-      const response = await httpClient.get(`/master/agents/${id}`);
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
+    const response = await httpClient.get(`/master/agents/${id}`);
+    return response.data;
   },
 
   /**
@@ -48,12 +40,8 @@ const agentService = {
    * @returns {Promise} - { agent: {} }
    */
   create: async (data) => {
-    try {
-      const response = await httpClient.post('/master/agents', data);
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
+    const response = await httpClient.post('/master/agents', data);
+    return response.data;
   },
 
   /**
@@ -66,12 +54,8 @@ const agentService = {
    * @returns {Promise} - { agent: {} }
    */
   update: async (id, data) => {
-    try {
-      const response = await httpClient.put(`/master/agents/${id}`, data);
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
+    const response = await httpClient.put(`/master/agents/${id}`, data);
+    return response.data;
   },
 
   /**
@@ -82,14 +66,10 @@ const agentService = {
    * @returns {Promise} - { agent: {} }
    */
   toggleStatus: async (id, status) => {
-    try {
-      const response = await httpClient.patch(`/master/agents/${id}/status`, {
-        status,
-      });
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
+    const response = await httpClient.patch(`/master/agents/${id}/status`, {
+      status,
+    });
+    return response.data;
   },
 
   /**
@@ -101,15 +81,11 @@ const agentService = {
    * @returns {Promise} - { agent: {}, masterCredit: number }
    */
   adjustCredit: async (id, amount, action) => {
-    try {
-      const response = await httpClient.patch(`/master/agents/${id}/credit`, {
-        amount,
-        action,
-      });
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
+    const response = await httpClient.patch(`/master/agents/${id}/credit`, {
+      amount,
+      action,
+    });
+    return response.data;
   },
 
   /**
@@ -119,12 +95,8 @@ const agentService = {
    * @returns {Promise} - { transactions: [], total: number }
    */
   getCreditHistory: async (id) => {
-    try {
-      const response = await httpClient.get(`/master/agents/${id}/credit-history`);
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
+    const response = await httpClient.get(`/master/agents/${id}/credit-history`);
+    return response.data;
   },
 };
 

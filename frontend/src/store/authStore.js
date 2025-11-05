@@ -88,44 +88,36 @@ export const useAuthStore = create(
       },
 
       getMe: async () => {
-        try {
-          const { accessToken } = get();
+        const { accessToken } = get();
 
-          if (!accessToken) {
-            throw new Error('No access token available');
-          }
-
-          const response = await httpClient.get('/auth/me');
-
-          const { data } = response.data;
-
-          set({
-            user: data.user,
-          });
-
-          return data.user;
-        } catch (error) {
-          throw error;
+        if (!accessToken) {
+          throw new Error('No access token available');
         }
+
+        const response = await httpClient.get('/auth/me');
+
+        const { data } = response.data;
+
+        set({
+          user: data.user,
+        });
+
+        return data.user;
       },
 
       changePassword: async (currentPassword, newPassword) => {
-        try {
-          const { accessToken } = get();
+        const { accessToken } = get();
 
-          if (!accessToken) {
-            throw new Error('No access token available');
-          }
-
-          const response = await httpClient.put('/auth/change-password', {
-            currentPassword,
-            newPassword,
-          });
-
-          return response.data;
-        } catch (error) {
-          throw error;
+        if (!accessToken) {
+          throw new Error('No access token available');
         }
+
+        const response = await httpClient.put('/auth/change-password', {
+          currentPassword,
+          newPassword,
+        });
+
+        return response.data;
       },
 
       // Initialize auth state (check if token exists and is valid)

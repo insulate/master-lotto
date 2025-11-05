@@ -20,12 +20,8 @@ const lotteryDrawService = {
    * @returns {Promise} - { lotteryDraws: [], pagination: {} }
    */
   getAll: async (params = {}) => {
-    try {
-      const response = await httpClient.get('/master/lottery-draws', { params });
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
+    const response = await httpClient.get('/master/lottery-draws', { params });
+    return response.data;
   },
 
   /**
@@ -35,12 +31,8 @@ const lotteryDrawService = {
    * @returns {Promise} - { lotteryDraw: {} }
    */
   getById: async (id) => {
-    try {
-      const response = await httpClient.get(`/master/lottery-draws/${id}`);
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
+    const response = await httpClient.get(`/master/lottery-draws/${id}`);
+    return response.data;
   },
 
   /**
@@ -65,12 +57,8 @@ const lotteryDrawService = {
    * @returns {Promise} - { lotteryDraw: {} }
    */
   create: async (data) => {
-    try {
-      const response = await httpClient.post('/master/lottery-draws', data);
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
+    const response = await httpClient.post('/master/lottery-draws', data);
+    return response.data;
   },
 
   /**
@@ -85,12 +73,8 @@ const lotteryDrawService = {
    * @returns {Promise} - { lotteryDraw: {} }
    */
   update: async (id, data) => {
-    try {
-      const response = await httpClient.put(`/master/lottery-draws/${id}`, data);
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
+    const response = await httpClient.put(`/master/lottery-draws/${id}`, data);
+    return response.data;
   },
 
   /**
@@ -101,14 +85,10 @@ const lotteryDrawService = {
    * @returns {Promise} - { lotteryDraw: {} }
    */
   updateStatus: async (id, status) => {
-    try {
-      const response = await httpClient.patch(`/master/lottery-draws/${id}/status`, {
-        status,
-      });
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
+    const response = await httpClient.patch(`/master/lottery-draws/${id}/status`, {
+      status,
+    });
+    return response.data;
   },
 
   /**
@@ -124,14 +104,10 @@ const lotteryDrawService = {
    * @returns {Promise} - { lotteryDraw: {} }
    */
   updateResult: async (id, result) => {
-    try {
-      const response = await httpClient.patch(`/master/lottery-draws/${id}/result`, {
-        result,
-      });
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
+    const response = await httpClient.patch(`/master/lottery-draws/${id}/result`, {
+      result,
+    });
+    return response.data;
   },
 
   /**
@@ -141,12 +117,8 @@ const lotteryDrawService = {
    * @returns {Promise} - { message: string }
    */
   delete: async (id) => {
-    try {
-      const response = await httpClient.delete(`/master/lottery-draws/${id}`);
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
+    const response = await httpClient.delete(`/master/lottery-draws/${id}`);
+    return response.data;
   },
 };
 

@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useState, useEffect, useCallback } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useAuthStore } from '../../../store/authStore';
 import lotteryDrawService from './lotteryDrawService';
 import DataTable from '../../../components/common/DataTable';
@@ -18,7 +18,6 @@ import toast from 'react-hot-toast';
 const LotteryDrawManagement = () => {
   // Authentication
   const { user } = useAuthStore();
-  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
   // Get lottery type from URL
@@ -93,13 +92,8 @@ const LotteryDrawManagement = () => {
     { value: 'cancelled', label: 'ยกเลิก', color: 'text-accent-error border-accent-error bg-accent-error/10' },
   ];
 
-  // Fetch lottery draws on component mount and filter change
-  useEffect(() => {
-    fetchLotteryDraws();
-  }, [currentPage, lotteryTypeFilter, statusFilter]);
-
   // Fetch all lottery draws
-  const fetchLotteryDraws = async () => {
+  const fetchLotteryDraws = useCallback(async () => {
     try {
       setLoading(true);
 
@@ -128,7 +122,12 @@ const LotteryDrawManagement = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentPage, lotteryTypeFilter, statusFilter]);
+
+  // Fetch lottery draws on component mount and filter change
+  useEffect(() => {
+    fetchLotteryDraws();
+  }, [fetchLotteryDraws]);
 
   // Reset to page 1 when filter changes
   useEffect(() => {

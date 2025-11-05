@@ -564,7 +564,6 @@ const CreateAgentModal = ({
   submitLoading,
   setSubmitLoading,
   fetchAgents,
-  masterCredit,
 }) => {
   const [errors, setErrors] = useState({});
 
@@ -1030,7 +1029,6 @@ const AdjustCreditModal = ({
   submitLoading,
   setSubmitLoading,
   fetchAgents,
-  masterCredit,
 }) => {
   const [errors, setErrors] = useState({});
 

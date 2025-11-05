@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../../store/authStore';
 import lotteryDrawService from '../lottery-draws/lotteryDrawService';
@@ -17,8 +17,8 @@ const LotteryTypesOverview = () => {
   const [loading, setLoading] = useState(true);
   const [lotteryStats, setLotteryStats] = useState([]);
 
-  // Lottery type definitions
-  const lotteryTypes = [
+  // Lottery type definitions (memoized to prevent re-render issues)
+  const lotteryTypes = useMemo(() => [
     {
       value: 'government',
       label: 'หวยรัฐบาล',
@@ -43,13 +43,9 @@ const LotteryTypesOverview = () => {
       description: 'หวยฮานอย VIP ออกทุกวัน เวลา 21:00 น.',
       icon: '⭐'
     },
-  ];
+  ], []);
 
-  useEffect(() => {
-    fetchLotteryStats();
-  }, []);
-
-  const fetchLotteryStats = async () => {
+  const fetchLotteryStats = useCallback(async () => {
     try {
       setLoading(true);
 
@@ -113,7 +109,11 @@ const LotteryTypesOverview = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [lotteryTypes]);
+
+  useEffect(() => {
+    fetchLotteryStats();
+  }, [fetchLotteryStats]);
 
   const handleManageClick = (lotteryType) => {
     navigate(`/master/lottery-draws?type=${lotteryType}`);
