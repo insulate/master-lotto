@@ -5,6 +5,7 @@ import Layout from './components/layout/Layout';
 import PrivateRoute from './components/auth/PrivateRoute';
 import Login from './pages/auth/Login';
 import MasterDashboard from './pages/master/MasterDashboard';
+import AgentManagement from './pages/master/agents';
 import { useAuthStore } from './store/authStore';
 
 function App() {
@@ -75,6 +76,18 @@ function App() {
               <PrivateRoute>
                 <Layout>
                   <MasterDashboard />
+                </Layout>
+              </PrivateRoute>
+            }
+          />
+
+          {/* Master Routes */}
+          <Route
+            path="/master/agents"
+            element={
+              <PrivateRoute>
+                <Layout>
+                  <AgentManagement />
                 </Layout>
               </PrivateRoute>
             }

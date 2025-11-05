@@ -1,16 +1,6 @@
 import { create } from 'zustand';
 import { persist, devtools } from 'zustand/middleware';
-import axios from 'axios';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1';
-
-// Create axios instance
-const api = axios.create({
-  baseURL: API_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
+import httpClient from '../lib/httpClient';
 
 export const useAuthStore = create(
   devtools(
@@ -26,7 +16,7 @@ export const useAuthStore = create(
       // Actions
       login: async (username, password) => {
         try {
-          const response = await api.post('/auth/login', {
+          const response = await httpClient.post('/auth/login', {
             username,
             password,
           });
@@ -39,9 +29,6 @@ export const useAuthStore = create(
             refreshToken: data.refreshToken,
             isAuthenticated: true,
           });
-
-          // Set default authorization header
-          api.defaults.headers.common['Authorization'] = `Bearer ${data.accessToken}`;
 
           return data;
         } catch (error) {
@@ -60,15 +47,7 @@ export const useAuthStore = create(
           const { accessToken } = get();
 
           if (accessToken) {
-            await api.post(
-              '/auth/logout',
-              {},
-              {
-                headers: {
-                  Authorization: `Bearer ${accessToken}`,
-                },
-              }
-            );
+            await httpClient.post('/auth/logout');
           }
         } catch (error) {
           console.error('Logout error:', error);
@@ -79,9 +58,6 @@ export const useAuthStore = create(
             refreshToken: null,
             isAuthenticated: false,
           });
-
-          // Remove authorization header
-          delete api.defaults.headers.common['Authorization'];
         }
       },
 
@@ -93,7 +69,7 @@ export const useAuthStore = create(
             throw new Error('No refresh token available');
           }
 
-          const response = await api.post('/auth/refresh', {
+          const response = await httpClient.post('/auth/refresh', {
             refreshToken,
           });
 
@@ -102,9 +78,6 @@ export const useAuthStore = create(
           set({
             accessToken: data.accessToken,
           });
-
-          // Update authorization header
-          api.defaults.headers.common['Authorization'] = `Bearer ${data.accessToken}`;
 
           return data.accessToken;
         } catch (error) {
@@ -122,11 +95,7 @@ export const useAuthStore = create(
             throw new Error('No access token available');
           }
 
-          const response = await api.get('/auth/me', {
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-            },
-          });
+          const response = await httpClient.get('/auth/me');
 
           const { data } = response.data;
 
@@ -148,18 +117,10 @@ export const useAuthStore = create(
             throw new Error('No access token available');
           }
 
-          const response = await api.put(
-            '/auth/change-password',
-            {
-              currentPassword,
-              newPassword,
-            },
-            {
-              headers: {
-                Authorization: `Bearer ${accessToken}`,
-              },
-            }
-          );
+          const response = await httpClient.put('/auth/change-password', {
+            currentPassword,
+            newPassword,
+          });
 
           return response.data;
         } catch (error) {
@@ -173,9 +134,6 @@ export const useAuthStore = create(
 
         if (accessToken) {
           try {
-            // Set authorization header
-            api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
-
             // Try to get user info
             await get().getMe();
           } catch (error) {
@@ -211,6 +169,3 @@ export const useAuthStore = create(
     }
   )
 );
-
-// Export axios instance for use in other services
-export { api };
