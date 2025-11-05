@@ -61,7 +61,7 @@ const ConfirmDialog = ({
           <button
             onClick={onClose}
             disabled={loading}
-            className="px-4 py-2 bg-bg-dark-light text-white rounded-lg hover:bg-bg-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-4 py-2 bg-[#6c757d] text-white rounded-lg hover:bg-[#5a6268] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {cancelText}
           </button>

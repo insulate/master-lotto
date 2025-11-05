@@ -340,7 +340,7 @@ const AgentManagement = () => {
             <button
               onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
               disabled={currentPage === 1}
-              className="px-4 py-2 bg-bg-dark-light text-white rounded hover:bg-bg-dark disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="px-4 py-2 bg-[#6c757d] text-white rounded hover:bg-[#5a6268] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               ก่อนหน้า
             </button>
@@ -352,7 +352,7 @@ const AgentManagement = () => {
             <button
               onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
               disabled={currentPage === totalPages}
-              className="px-4 py-2 bg-bg-dark-light text-white rounded hover:bg-bg-dark disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="px-4 py-2 bg-[#6c757d] text-white rounded hover:bg-[#5a6268] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               ถัดไป
             </button>
@@ -669,7 +669,7 @@ const CreateAgentModal = ({
             type="button"
             onClick={onClose}
             disabled={submitLoading}
-            className="px-6 py-2 bg-bg-dark-light text-white rounded-lg hover:bg-bg-dark transition-colors disabled:opacity-50"
+            className="px-6 py-2 bg-[#6c757d] text-white rounded-lg hover:bg-[#5a6268] transition-colors disabled:opacity-50"
           >
             ยกเลิก
           </button>
@@ -877,7 +877,7 @@ const EditAgentModal = ({
             type="button"
             onClick={onClose}
             disabled={submitLoading}
-            className="px-6 py-2 bg-bg-dark-light text-white rounded-lg hover:bg-bg-dark transition-colors disabled:opacity-50"
+            className="px-6 py-2 bg-[#6c757d] text-white rounded-lg hover:bg-[#5a6268] transition-colors disabled:opacity-50"
           >
             ยกเลิก
           </button>
@@ -1101,7 +1101,7 @@ const AdjustCreditModal = ({
             type="button"
             onClick={onClose}
             disabled={submitLoading}
-            className="px-6 py-2 bg-bg-dark-light text-white rounded-lg hover:bg-bg-dark transition-colors disabled:opacity-50"
+            className="px-6 py-2 bg-[#6c757d] text-white rounded-lg hover:bg-[#5a6268] transition-colors disabled:opacity-50"
           >
             ยกเลิก
           </button>
