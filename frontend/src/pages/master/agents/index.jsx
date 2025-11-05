@@ -993,20 +993,20 @@ const AdjustCreditModal = ({
       <form onSubmit={handleSubmit}>
         <div className="space-y-4">
           {/* Agent Info */}
-          <div className="bg-bg-dark-light p-4 rounded-lg">
+          <div className="bg-bg-light-cream p-4 rounded-lg border border-border-default">
             <div className="flex justify-between items-center mb-2">
               <span className="text-sm text-text-secondary">เอเย่นต์:</span>
-              <span className="font-semibold text-white">{selectedAgent.username}</span>
+              <span className="font-semibold text-text-primary">{selectedAgent.username}</span>
             </div>
             <div className="flex justify-between items-center mb-2">
               <span className="text-sm text-text-secondary">เครดิตปัจจุบัน:</span>
-              <span className="font-semibold text-primary-light-gold">
+              <span className="font-semibold text-primary-dark-gold">
                 {formatCurrency(selectedAgent.credit)}
               </span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-sm text-text-secondary">เครดิตคงเหลือของคุณ:</span>
-              <span className="font-semibold text-green-400">{formatCurrency(masterCredit)}</span>
+              <span className="font-semibold text-accent-success">{formatCurrency(masterCredit)}</span>
             </div>
           </div>
 
@@ -1022,10 +1022,10 @@ const AdjustCreditModal = ({
                   setCreditFormData({ ...creditFormData, action: 'add' });
                   setErrors({});
                 }}
-                className={`px-4 py-3 rounded-lg font-medium transition-colors ${
+                className={`px-4 py-3 rounded-lg font-medium transition-colors border ${
                   creditFormData.action === 'add'
-                    ? 'bg-accent-success text-white'
-                    : 'bg-bg-dark-light text-text-secondary hover:bg-bg-dark'
+                    ? 'bg-accent-success text-white border-accent-success'
+                    : 'bg-bg-light-cream text-text-secondary border-border-default hover:bg-bg-cream'
                 }`}
               >
                 เพิ่มเครดิต
@@ -1036,10 +1036,10 @@ const AdjustCreditModal = ({
                   setCreditFormData({ ...creditFormData, action: 'deduct' });
                   setErrors({});
                 }}
-                className={`px-4 py-3 rounded-lg font-medium transition-colors ${
+                className={`px-4 py-3 rounded-lg font-medium transition-colors border ${
                   creditFormData.action === 'deduct'
-                    ? 'bg-accent-error text-white'
-                    : 'bg-bg-dark-light text-text-secondary hover:bg-bg-dark'
+                    ? 'bg-accent-error text-white border-accent-error'
+                    : 'bg-bg-light-cream text-text-secondary border-border-default hover:bg-bg-cream'
                 }`}
               >
                 หักเครดิต
@@ -1070,10 +1070,10 @@ const AdjustCreditModal = ({
 
           {/* Preview */}
           {creditFormData.amount > 0 && (
-            <div className="bg-accent-info/20 border border-accent-info p-4 rounded-lg">
-              <p className="text-sm text-accent-info">
+            <div className="bg-bg-light-cream border border-primary-gold/50 p-4 rounded-lg">
+              <p className="text-sm text-text-secondary">
                 {creditFormData.action === 'add' ? 'เครดิตหลังเพิ่ม:' : 'เครดิตหลังหัก:'}{' '}
-                <span className="font-semibold text-primary-light-gold">
+                <span className="font-semibold text-primary-dark-gold">
                   {formatCurrency(
                     creditFormData.action === 'add'
                       ? selectedAgent.credit + creditFormData.amount
@@ -1081,9 +1081,9 @@ const AdjustCreditModal = ({
                   )}
                 </span>
               </p>
-              <p className="text-sm text-accent-info mt-1">
+              <p className="text-sm text-text-secondary mt-1">
                 เครดิตคงเหลือของคุณ:{' '}
-                <span className="font-semibold text-green-400">
+                <span className="font-semibold text-accent-success">
                   {formatCurrency(
                     creditFormData.action === 'add'
                       ? masterCredit - creditFormData.amount
