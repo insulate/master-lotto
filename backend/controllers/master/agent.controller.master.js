@@ -85,10 +85,7 @@ export const createAgent = async (req, res, next) => {
       throw new AppError('เครดิตไม่สามารถเป็นค่าลบได้', 400);
     }
 
-    // Check if master has enough credit
-    if (master.credit < agentCredit) {
-      throw new AppError('เครดิตไม่เพียงพอ', 400);
-    }
+    // Master doesn't need credit check - can give unlimited credit to agents
 
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -113,9 +110,7 @@ export const createAgent = async (req, res, next) => {
       status: 'active'
     });
 
-    // Deduct credit from master
-    master.credit -= agentCredit;
-    await master.save();
+    // Master credit is not affected - master has unlimited credit
 
     return successResponse(res, 'สร้างเอเย่นต์สำเร็จ', {
       agent
@@ -231,27 +226,20 @@ export const adjustAgentCredit = async (req, res, next) => {
     }
 
     if (action === 'add') {
-      // Check if master has enough credit
-      if (master.credit < creditAmount) {
-        throw new AppError('เครดิตไม่เพียงพอ', 400);
-      }
-
-      // Add credit to agent, deduct from master
+      // Master doesn't need credit check - can give unlimited credit to agents
       agent.credit += creditAmount;
-      master.credit -= creditAmount;
     } else if (action === 'deduct') {
       // Check if agent has enough credit
       if (agent.credit < creditAmount) {
         throw new AppError('เครดิตของเอเย่นต์ไม่เพียงพอ', 400);
       }
 
-      // Deduct credit from agent, add back to master
+      // Deduct credit from agent (master credit is not affected)
       agent.credit -= creditAmount;
-      master.credit += creditAmount;
     }
 
     await agent.save();
-    await master.save();
+    // Master credit is not affected - no need to save master
 
     const actionText = action === 'add' ? 'เพิ่ม' : 'ลด';
     return successResponse(res, `${actionText}เครดิตเอเย่นต์สำเร็จ`, {

@@ -259,10 +259,7 @@ const AgentManagement = () => {
         <div>
           <h1 className="text-3xl font-bold text-primary-light-gold">จัดการเอเย่นต์</h1>
           <p className="text-text-muted mt-1">
-            ผู้ใช้: {user?.name} | เครดิตคงเหลือ:{' '}
-            <span className="text-primary-light-gold font-semibold">
-              {formatCurrency(user?.credit || 0)}
-            </span>
+            ผู้ใช้: {user?.name}
           </p>
         </div>
         <button
@@ -479,10 +476,6 @@ const CreateAgentModal = ({
       newErrors.credit = 'เครดิตต้องไม่น้อยกว่า 0';
     }
 
-    if (formData.credit > masterCredit) {
-      newErrors.credit = `เครดิตต้องไม่เกิน ${formatCurrency(masterCredit)} (เครดิตคงเหลือของคุณ)`;
-    }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -567,9 +560,6 @@ const CreateAgentModal = ({
           <div>
             <label className="block text-sm font-medium text-text-secondary mb-2">
               เครดิตเริ่มต้น
-              <span className="text-text-muted text-xs ml-2">
-                (คงเหลือ: {formatCurrency(masterCredit)})
-              </span>
             </label>
             <input
               type="number"
@@ -940,10 +930,6 @@ const AdjustCreditModal = ({
       newErrors.amount = 'กรุณากรอกจำนวนเครดิตที่ถูกต้อง (มากกว่า 0)';
     }
 
-    if (creditFormData.action === 'add' && creditFormData.amount > masterCredit) {
-      newErrors.amount = `จำนวนเครดิตต้องไม่เกิน ${formatCurrency(masterCredit)} (เครดิตคงเหลือของคุณ)`;
-    }
-
     if (
       creditFormData.action === 'deduct' &&
       creditFormData.amount > (selectedAgent?.credit || 0)
@@ -998,15 +984,11 @@ const AdjustCreditModal = ({
               <span className="text-sm text-text-secondary">เอเย่นต์:</span>
               <span className="font-semibold text-text-primary">{selectedAgent.username}</span>
             </div>
-            <div className="flex justify-between items-center mb-2">
+            <div className="flex justify-between items-center">
               <span className="text-sm text-text-secondary">เครดิตปัจจุบัน:</span>
               <span className="font-semibold text-primary-dark-gold">
                 {formatCurrency(selectedAgent.credit)}
               </span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-text-secondary">เครดิตคงเหลือของคุณ:</span>
-              <span className="font-semibold text-accent-success">{formatCurrency(masterCredit)}</span>
             </div>
           </div>
 
@@ -1078,16 +1060,6 @@ const AdjustCreditModal = ({
                     creditFormData.action === 'add'
                       ? selectedAgent.credit + creditFormData.amount
                       : selectedAgent.credit - creditFormData.amount
-                  )}
-                </span>
-              </p>
-              <p className="text-sm text-text-secondary mt-1">
-                เครดิตคงเหลือของคุณ:{' '}
-                <span className="font-semibold text-accent-success">
-                  {formatCurrency(
-                    creditFormData.action === 'add'
-                      ? masterCredit - creditFormData.amount
-                      : masterCredit + creditFormData.amount
                   )}
                 </span>
               </p>

@@ -117,19 +117,23 @@ export default function Layout({ children }) {
 
           {/* Right Side - Balance & User Menu */}
           <div className="flex items-center gap-3">
-            {/* Balance Display */}
-            <div className="hidden md:flex items-center gap-2 px-4 py-2 bg-bg-dark-gray/50 rounded-lg border border-primary-gold/30">
-              <Wallet className="w-5 h-5 text-primary-light-gold" />
-              <div className="text-left">
-                <p className="text-xs text-text-primary font-medium">เครดิตคงเหลือ</p>
-                <p className="text-sm font-bold text-primary-light-gold">
-                  {totalBalance.toLocaleString()} บาท
-                </p>
-              </div>
-            </div>
+            {/* Balance Display - Hidden for master as they have unlimited credit */}
+            {user?.role !== 'master' && (
+              <>
+                <div className="hidden md:flex items-center gap-2 px-4 py-2 bg-bg-dark-gray/50 rounded-lg border border-primary-gold/30">
+                  <Wallet className="w-5 h-5 text-primary-light-gold" />
+                  <div className="text-left">
+                    <p className="text-xs text-text-primary font-medium">เครดิตคงเหลือ</p>
+                    <p className="text-sm font-bold text-primary-light-gold">
+                      {totalBalance.toLocaleString()} บาท
+                    </p>
+                  </div>
+                </div>
 
-            {/* Divider */}
-            <div className="w-px h-8 bg-primary-dark-gold"></div>
+                {/* Divider */}
+                <div className="w-px h-8 bg-primary-dark-gold"></div>
+              </>
+            )}
 
             {/* User Info */}
             <div className="flex items-center gap-3">

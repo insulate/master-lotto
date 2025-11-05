@@ -31,8 +31,8 @@ export const seedUsers = async () => {
       password: hashedPassword,
       role: 'master',
       parent_id: null,
-      credit: 100000.00,
-      balance: 50000.00,
+      credit: 0,
+      balance: 0,
       commission_rate: {
         three_top: 30,
         three_tod: 30,
