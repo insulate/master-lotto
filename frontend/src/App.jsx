@@ -5,9 +5,9 @@ import Layout from './components/layout/Layout';
 import PrivateRoute from './components/auth/PrivateRoute';
 import Login from './pages/auth/Login';
 import MasterDashboard from './pages/master/MasterDashboard';
-import AgentManagement from './pages/master/agents';
-import LotteryTypesOverview from './pages/master/lottery-types';
-import LotteryDrawManagement from './pages/master/lottery-draws';
+import AgentManagement from './pages/master/agents/AgentsPage';
+import LotteryTypesOverview from './pages/master/lottery-types/LotteryTypesPage';
+import LotteryDrawManagement from './pages/master/lottery-draws/LotteryDrawsPage';
 import { useAuthStore } from './store/authStore';
 
 function App() {
