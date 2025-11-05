@@ -4,6 +4,7 @@ Base URL: `http://localhost:3000/api/v1`
 
 ## สารบัญ
 - [การยืนยันตัวตน (Authentication)](#การยืนยันตัวตน-authentication)
+- [จัดการเอเย่นต์ (Agent Management - Master)](#จัดการเอเย่นต์-agent-management---master)
 - [รูปแบบ Response](#รูปแบบ-response)
 - [รหัสข้อผิดพลาด (Error Codes)](#รหัสข้อผิดพลาด-error-codes)
 
@@ -241,6 +242,484 @@ curl -X PUT http://localhost:3000/api/v1/auth/change-password \
   -d '{
     "currentPassword": "oldpassword123",
     "newPassword": "newpassword456"
+  }'
+```
+
+---
+
+## จัดการเอเย่นต์ (Agent Management - Master)
+
+APIs สำหรับ Master ในการจัดการเอเย่นต์ (Agent) ที่อยู่ภายใต้การดูแล
+
+**ต้องการ Authentication:** ใช่ (Master role เท่านั้น)
+
+### 1. ดึงรายการเอเย่นต์ทั้งหมด (Get All Agents)
+
+ดึงรายการเอเย่นต์ทั้งหมดที่อยู่ภายใต้ Master ที่ login อยู่
+
+**Endpoint:** `GET /master/agents`
+
+**ต้องการสิทธิ์:** Master
+
+**Request Headers:**
+```
+Authorization: Bearer <access_token>
+```
+
+**Response:** `200 OK`
+```json
+{
+  "success": true,
+  "message": "ดึงข้อมูลเอเย่นต์สำเร็จ",
+  "data": {
+    "agents": [
+      {
+        "_id": "690ad7ccab89858ec41eaa2e",
+        "username": "agent01",
+        "name": "Agent Name",
+        "role": "agent",
+        "parent_id": "690abf7d3da89da188649b87",
+        "credit": 10000,
+        "balance": 0,
+        "commission_rate": {
+          "three_top": 25,
+          "three_tod": 25,
+          "two_top": 25,
+          "two_bottom": 25,
+          "run_top": 25,
+          "run_bottom": 25,
+          "_id": "690ad7ccab89858ec41eaa2f"
+        },
+        "status": "active",
+        "createdAt": "2025-11-05T04:51:24.426Z",
+        "updatedAt": "2025-11-05T04:51:24.426Z"
+      }
+    ],
+    "total": 1
+  }
+}
+```
+
+**ข้อผิดพลาด:**
+- `401 Unauthorized` - Token ไม่ถูกต้องหรือหมดอายุ
+- `403 Forbidden` - ไม่มีสิทธิ์เข้าถึง (ต้องเป็น Master)
+
+**ตัวอย่าง:**
+```bash
+curl -X GET http://localhost:3000/api/v1/master/agents \
+  -H "Authorization: Bearer <access_token>"
+```
+
+---
+
+### 2. ดึงข้อมูลเอเย่นต์ตาม ID (Get Agent By ID)
+
+ดึงข้อมูลเอเย่นต์รายเดียวตาม ID (ต้องเป็นเอเย่นต์ของ Master ที่ login เท่านั้น)
+
+**Endpoint:** `GET /master/agents/:id`
+
+**ต้องการสิทธิ์:** Master
+
+**Request Headers:**
+```
+Authorization: Bearer <access_token>
+```
+
+**URL Parameters:**
+- `id` (string, required) - Agent ID
+
+**Response:** `200 OK`
+```json
+{
+  "success": true,
+  "message": "ดึงข้อมูลเอเย่นต์สำเร็จ",
+  "data": {
+    "agent": {
+      "_id": "690ad7ccab89858ec41eaa2e",
+      "username": "agent01",
+      "name": "Agent Name",
+      "role": "agent",
+      "parent_id": "690abf7d3da89da188649b87",
+      "credit": 10000,
+      "balance": 0,
+      "commission_rate": {
+        "three_top": 25,
+        "three_tod": 25,
+        "two_top": 25,
+        "two_bottom": 25,
+        "run_top": 25,
+        "run_bottom": 25,
+        "_id": "690ad7ccab89858ec41eaa2f"
+      },
+      "status": "active",
+      "createdAt": "2025-11-05T04:51:24.426Z",
+      "updatedAt": "2025-11-05T04:51:24.426Z"
+    }
+  }
+}
+```
+
+**ข้อผิดพลาด:**
+- `401 Unauthorized` - Token ไม่ถูกต้องหรือหมดอายุ
+- `403 Forbidden` - ไม่มีสิทธิ์เข้าถึง
+- `404 Not Found` - ไม่พบเอเย่นต์หรือไม่มีสิทธิ์เข้าถึง
+
+**ตัวอย่าง:**
+```bash
+curl -X GET http://localhost:3000/api/v1/master/agents/690ad7ccab89858ec41eaa2e \
+  -H "Authorization: Bearer <access_token>"
+```
+
+---
+
+### 3. สร้างเอเย่นต์ใหม่ (Create Agent)
+
+สร้างเอเย่นต์ใหม่ภายใต้ Master ที่ login อยู่ (จะหัก credit จาก Master)
+
+**Endpoint:** `POST /master/agents`
+
+**ต้องการสิทธิ์:** Master
+
+**Request Headers:**
+```
+Authorization: Bearer <access_token>
+Content-Type: application/json
+```
+
+**Request Body:**
+```json
+{
+  "username": "string (required)",
+  "name": "string (required)",
+  "password": "string (required, min 6 characters)",
+  "credit": "number (optional, default: 0)",
+  "commission_rate": {
+    "three_top": "number (optional, default: 0)",
+    "three_tod": "number (optional, default: 0)",
+    "two_top": "number (optional, default: 0)",
+    "two_bottom": "number (optional, default: 0)",
+    "run_top": "number (optional, default: 0)",
+    "run_bottom": "number (optional, default: 0)"
+  }
+}
+```
+
+**Response:** `201 Created`
+```json
+{
+  "success": true,
+  "message": "สร้างเอเย่นต์สำเร็จ",
+  "data": {
+    "agent": {
+      "_id": "690ad7ccab89858ec41eaa2e",
+      "username": "agent01",
+      "name": "Agent Name",
+      "role": "agent",
+      "parent_id": "690abf7d3da89da188649b87",
+      "credit": 5000,
+      "balance": 0,
+      "commission_rate": {
+        "three_top": 20,
+        "three_tod": 20,
+        "two_top": 20,
+        "two_bottom": 20,
+        "run_top": 20,
+        "run_bottom": 20,
+        "_id": "690ad7ccab89858ec41eaa2f"
+      },
+      "status": "active",
+      "createdAt": "2025-11-05T04:51:24.426Z",
+      "updatedAt": "2025-11-05T04:51:24.426Z"
+    }
+  }
+}
+```
+
+**ข้อผิดพลาด:**
+- `400 Bad Request` - ข้อมูลไม่ครบถ้วนหรือไม่ถูกต้อง
+  - กรุณากรอกข้อมูลให้ครบถ้วน
+  - รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร
+  - ชื่อผู้ใช้นี้ถูกใช้งานแล้ว
+  - เครดิตไม่สามารถเป็นค่าลบได้
+  - เครดิตไม่เพียงพอ
+- `401 Unauthorized` - Token ไม่ถูกต้องหรือหมดอายุ
+- `403 Forbidden` - ไม่มีสิทธิ์เข้าถึง
+- `404 Not Found` - ไม่พบข้อมูลผู้ใช้
+
+**ตัวอย่าง:**
+```bash
+curl -X POST http://localhost:3000/api/v1/master/agents \
+  -H "Authorization: Bearer <access_token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username": "agent01",
+    "name": "Agent Name",
+    "password": "password123",
+    "credit": 5000,
+    "commission_rate": {
+      "three_top": 20,
+      "three_tod": 20,
+      "two_top": 20,
+      "two_bottom": 20,
+      "run_top": 20,
+      "run_bottom": 20
+    }
+  }'
+```
+
+---
+
+### 4. แก้ไขข้อมูลเอเย่นต์ (Update Agent)
+
+แก้ไขข้อมูลเอเย่นต์ (ชื่อและ commission rate เท่านั้น)
+
+**Endpoint:** `PUT /master/agents/:id`
+
+**ต้องการสิทธิ์:** Master
+
+**Request Headers:**
+```
+Authorization: Bearer <access_token>
+Content-Type: application/json
+```
+
+**URL Parameters:**
+- `id` (string, required) - Agent ID
+
+**Request Body:**
+```json
+{
+  "name": "string (optional)",
+  "commission_rate": {
+    "three_top": "number (optional)",
+    "three_tod": "number (optional)",
+    "two_top": "number (optional)",
+    "two_bottom": "number (optional)",
+    "run_top": "number (optional)",
+    "run_bottom": "number (optional)"
+  }
+}
+```
+
+**Response:** `200 OK`
+```json
+{
+  "success": true,
+  "message": "อัพเดทข้อมูลเอเย่นต์สำเร็จ",
+  "data": {
+    "agent": {
+      "_id": "690ad7ccab89858ec41eaa2e",
+      "username": "agent01",
+      "name": "Updated Agent Name",
+      "role": "agent",
+      "parent_id": "690abf7d3da89da188649b87",
+      "credit": 10000,
+      "balance": 0,
+      "commission_rate": {
+        "three_top": 30,
+        "three_tod": 30,
+        "two_top": 30,
+        "two_bottom": 30,
+        "run_top": 30,
+        "run_bottom": 30,
+        "_id": "690ad7ccab89858ec41eaa2f"
+      },
+      "status": "active",
+      "createdAt": "2025-11-05T04:51:24.426Z",
+      "updatedAt": "2025-11-05T05:30:00.000Z"
+    }
+  }
+}
+```
+
+**ข้อผิดพลาด:**
+- `401 Unauthorized` - Token ไม่ถูกต้องหรือหมดอายุ
+- `403 Forbidden` - ไม่มีสิทธิ์เข้าถึง
+- `404 Not Found` - ไม่พบเอเย่นต์หรือไม่มีสิทธิ์เข้าถึง
+
+**ตัวอย่าง:**
+```bash
+curl -X PUT http://localhost:3000/api/v1/master/agents/690ad7ccab89858ec41eaa2e \
+  -H "Authorization: Bearer <access_token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Updated Agent Name",
+    "commission_rate": {
+      "three_top": 30,
+      "three_tod": 30,
+      "two_top": 30,
+      "two_bottom": 30,
+      "run_top": 30,
+      "run_bottom": 30
+    }
+  }'
+```
+
+---
+
+### 5. เปลี่ยนสถานะเอเย่นต์ (Toggle Agent Status)
+
+เปิด/ปิดการใช้งานเอเย่นต์ (active/suspended)
+
+**Endpoint:** `PATCH /master/agents/:id/status`
+
+**ต้องการสิทธิ์:** Master
+
+**Request Headers:**
+```
+Authorization: Bearer <access_token>
+Content-Type: application/json
+```
+
+**URL Parameters:**
+- `id` (string, required) - Agent ID
+
+**Request Body:**
+```json
+{
+  "status": "active|suspended (required)"
+}
+```
+
+**Response:** `200 OK`
+```json
+{
+  "success": true,
+  "message": "เปิดใช้งานเอเย่นต์สำเร็จ",
+  "data": {
+    "agent": {
+      "_id": "690ad7ccab89858ec41eaa2e",
+      "username": "agent01",
+      "name": "Agent Name",
+      "role": "agent",
+      "parent_id": "690abf7d3da89da188649b87",
+      "credit": 10000,
+      "balance": 0,
+      "commission_rate": {
+        "three_top": 25,
+        "three_tod": 25,
+        "two_top": 25,
+        "two_bottom": 25,
+        "run_top": 25,
+        "run_bottom": 25,
+        "_id": "690ad7ccab89858ec41eaa2f"
+      },
+      "status": "active",
+      "createdAt": "2025-11-05T04:51:24.426Z",
+      "updatedAt": "2025-11-05T05:35:00.000Z"
+    }
+  }
+}
+```
+
+**ข้อผิดพลาด:**
+- `400 Bad Request` - สถานะไม่ถูกต้อง (active หรือ suspended)
+- `401 Unauthorized` - Token ไม่ถูกต้องหรือหมดอายุ
+- `403 Forbidden` - ไม่มีสิทธิ์เข้าถึง
+- `404 Not Found` - ไม่พบเอเย่นต์หรือไม่มีสิทธิ์เข้าถึง
+
+**ตัวอย่าง:**
+```bash
+# เปิดใช้งาน
+curl -X PATCH http://localhost:3000/api/v1/master/agents/690ad7ccab89858ec41eaa2e/status \
+  -H "Authorization: Bearer <access_token>" \
+  -H "Content-Type: application/json" \
+  -d '{"status": "active"}'
+
+# ระงับการใช้งาน
+curl -X PATCH http://localhost:3000/api/v1/master/agents/690ad7ccab89858ec41eaa2e/status \
+  -H "Authorization: Bearer <access_token>" \
+  -H "Content-Type: application/json" \
+  -d '{"status": "suspended"}'
+```
+
+---
+
+### 6. ปรับเครดิตเอเย่นต์ (Adjust Agent Credit)
+
+เพิ่มหรือลดเครดิตของเอเย่นต์ (จะโอนเครดิตระหว่าง Master และ Agent)
+
+**Endpoint:** `PATCH /master/agents/:id/credit`
+
+**ต้องการสิทธิ์:** Master
+
+**Request Headers:**
+```
+Authorization: Bearer <access_token>
+Content-Type: application/json
+```
+
+**URL Parameters:**
+- `id` (string, required) - Agent ID
+
+**Request Body:**
+```json
+{
+  "amount": "number (required, > 0)",
+  "action": "add|deduct (required)"
+}
+```
+
+**Response:** `200 OK`
+```json
+{
+  "success": true,
+  "message": "เพิ่มเครดิตเอเย่นต์สำเร็จ",
+  "data": {
+    "agent": {
+      "_id": "690ad7ccab89858ec41eaa2e",
+      "username": "agent01",
+      "name": "Agent Name",
+      "role": "agent",
+      "parent_id": "690abf7d3da89da188649b87",
+      "credit": 15000,
+      "balance": 0,
+      "commission_rate": {
+        "three_top": 25,
+        "three_tod": 25,
+        "two_top": 25,
+        "two_bottom": 25,
+        "run_top": 25,
+        "run_bottom": 25,
+        "_id": "690ad7ccab89858ec41eaa2f"
+      },
+      "status": "active",
+      "createdAt": "2025-11-05T04:51:24.426Z",
+      "updatedAt": "2025-11-05T05:40:00.000Z"
+    },
+    "masterCredit": 85000
+  }
+}
+```
+
+**ข้อผิดพลาด:**
+- `400 Bad Request` - ข้อมูลไม่ถูกต้อง
+  - กรุณาระบุจำนวนเครดิตและประเภทการทำรายการ (add หรือ deduct)
+  - จำนวนเครดิตต้องเป็นตัวเลขที่มากกว่า 0
+  - เครดิตไม่เพียงพอ (Master)
+  - เครดิตของเอเย่นต์ไม่เพียงพอ (Agent)
+- `401 Unauthorized` - Token ไม่ถูกต้องหรือหมดอายุ
+- `403 Forbidden` - ไม่มีสิทธิ์เข้าถึง
+- `404 Not Found` - ไม่พบเอเย่นต์หรือไม่มีสิทธิ์เข้าถึง
+
+**ตัวอย่าง:**
+```bash
+# เพิ่มเครดิต 5000
+curl -X PATCH http://localhost:3000/api/v1/master/agents/690ad7ccab89858ec41eaa2e/credit \
+  -H "Authorization: Bearer <access_token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "amount": 5000,
+    "action": "add"
+  }'
+
+# ลดเครดิต 3000
+curl -X PATCH http://localhost:3000/api/v1/master/agents/690ad7ccab89858ec41eaa2e/credit \
+  -H "Authorization: Bearer <access_token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "amount": 3000,
+    "action": "deduct"
   }'
 ```
 

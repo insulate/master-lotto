@@ -78,22 +78,21 @@ const userSchema = new mongoose.Schema(
   {
     timestamps: true, // Auto create createdAt and updatedAt
     toJSON: {
-      virtuals: true,
+      virtuals: false, // Disable virtuals to prevent auto 'id' field
       transform: function (doc, ret) {
         // Remove password from JSON output
         delete ret.password;
-        // Rename _id to id
-        ret.id = ret._id;
-        delete ret._id;
+        // Remove auto-generated 'id' field (keep only _id)
+        delete ret.id;
         delete ret.__v;
         return ret;
       }
     },
     toObject: {
-      virtuals: true,
+      virtuals: false, // Disable virtuals to prevent auto 'id' field
       transform: function (doc, ret) {
-        ret.id = ret._id;
-        delete ret._id;
+        // Remove auto-generated 'id' field (keep only _id)
+        delete ret.id;
         delete ret.__v;
         return ret;
       }
@@ -107,26 +106,12 @@ userSchema.index({ role: 1 });
 userSchema.index({ parent_id: 1 });
 userSchema.index({ status: 1 });
 
-// Virtual for full user hierarchy
-userSchema.virtual('parent', {
-  ref: 'User',
-  localField: 'parent_id',
-  foreignField: '_id',
-  justOne: true
-});
-
-userSchema.virtual('children', {
-  ref: 'User',
-  localField: '_id',
-  foreignField: 'parent_id'
-});
-
 // Instance method to get JSON without password
 userSchema.methods.toJSON = function () {
   const obj = this.toObject();
   delete obj.password;
-  obj.id = obj._id;
-  delete obj._id;
+  // Remove auto-generated 'id' field (keep only _id)
+  delete obj.id;
   delete obj.__v;
   return obj;
 };
