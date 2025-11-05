@@ -1,10 +1,12 @@
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { cn } from '../../lib/utils';
 import { Wallet } from 'lucide-react';
+import { useAuthStore } from '../../store/authStore';
+import toast from 'react-hot-toast';
 
-// Menu items definition
-const menuItems = [
+// Menu items definition with role-based access
+const allMenuItems = [
   {
     id: 'dashboard',
     label: 'แดชบอร์ด',
@@ -14,21 +16,37 @@ const menuItems = [
       </svg>
     ),
     href: '/dashboard',
+    roles: ['master', 'agent', 'member'], // Available for all roles
+  },
+  {
+    id: 'agents',
+    label: 'จัดการเอเย่นต์',
+    icon: (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+      </svg>
+    ),
+    href: '/agents',
+    roles: ['master'], // Only available for master
   },
 ];
 
 export default function Layout({ children }) {
   const location = useLocation();
+  const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // Mock user data - will be replaced with actual auth
-  const user = {
-    name: 'Master Admin',
-    role: 'master',
-  };
+  // Get user data and logout function from auth store
+  const user = useAuthStore((state) => state.user);
+  const logout = useAuthStore((state) => state.logout);
 
-  // Mock balance - will be replaced with actual data
-  const balance = 10000;
+  // Filter menu items based on user role
+  const menuItems = allMenuItems.filter((item) =>
+    item.roles.includes(user?.role)
+  );
+
+  // Calculate total balance (credit + balance)
+  const totalBalance = (user?.credit || 0) + (user?.balance || 0);
 
   // Detect screen size and auto-open sidebar on large screens
   useEffect(() => {
@@ -50,6 +68,13 @@ export default function Layout({ children }) {
     if (window.innerWidth < 1024) {
       setSidebarOpen(false);
     }
+  };
+
+  // Handle logout
+  const handleLogout = () => {
+    logout();
+    toast.success('ออกจากระบบสำเร็จ');
+    navigate('/login');
   };
 
   // Get active item
@@ -93,9 +118,9 @@ export default function Layout({ children }) {
             <div className="hidden md:flex items-center gap-2 px-4 py-2 bg-bg-dark-gray/50 rounded-lg border border-primary-gold/30">
               <Wallet className="w-5 h-5 text-primary-light-gold" />
               <div className="text-left">
-                <p className="text-xs text-text-muted">เครดิตคงเหลือ</p>
+                <p className="text-xs text-text-primary font-medium">เครดิตคงเหลือ</p>
                 <p className="text-sm font-bold text-primary-light-gold">
-                  {balance.toLocaleString()} บาท
+                  {totalBalance.toLocaleString()} บาท
                 </p>
               </div>
             </div>
@@ -164,7 +189,7 @@ export default function Layout({ children }) {
         {/* Bottom Section - Logout */}
         <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-primary-dark-gold/30 bg-bg-dark-gray space-y-2">
           <button
-            onClick={() => console.log('Logout')}
+            onClick={handleLogout}
             className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-text-light hover:bg-accent-error/20 hover:text-accent-error transition-all duration-200"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
