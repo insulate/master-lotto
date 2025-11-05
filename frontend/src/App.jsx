@@ -1,9 +1,19 @@
+import { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import Layout from './components/layout/Layout';
+import PrivateRoute from './components/auth/PrivateRoute';
+import Login from './pages/auth/Login';
 import MasterDashboard from './pages/master/MasterDashboard';
+import { useAuthStore } from './store/authStore';
 
 function App() {
+  const initialize = useAuthStore((state) => state.initialize);
+
+  useEffect(() => {
+    initialize();
+  }, [initialize]);
+
   return (
     <>
       <Toaster
@@ -55,13 +65,18 @@ function App() {
       />
       <Router>
         <Routes>
-          {/* Master Routes with Layout */}
+          {/* Login Route */}
+          <Route path="/login" element={<Login />} />
+
+          {/* Protected Routes with Layout */}
           <Route
             path="/dashboard"
             element={
-              <Layout>
-                <MasterDashboard />
-              </Layout>
+              <PrivateRoute>
+                <Layout>
+                  <MasterDashboard />
+                </Layout>
+              </PrivateRoute>
             }
           />
 
