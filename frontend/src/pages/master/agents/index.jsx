@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useAuthStore } from '../../../store/authStore';
 import agentService from './agentService';
 import DataTable from '../../../components/common/DataTable';
@@ -49,6 +49,10 @@ const AgentManagement = () => {
   // Credit History State
   const [creditHistory, setCreditHistory] = useState([]);
   const [historyLoading, setHistoryLoading] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(() => {
+    const today = new Date();
+    return today.toISOString().split('T')[0]; // Format: YYYY-MM-DD
+  });
 
   // Form States
   const [formData, setFormData] = useState({
@@ -70,6 +74,14 @@ const AgentManagement = () => {
 
   // Loading States
   const [submitLoading, setSubmitLoading] = useState(false);
+
+  // Filter credit history by selected date
+  const filteredHistory = useMemo(() => {
+    return creditHistory.filter((transaction) => {
+      const transactionDate = new Date(transaction.createdAt).toISOString().split('T')[0];
+      return transactionDate === selectedDate;
+    });
+  }, [creditHistory, selectedDate]);
 
   // Fetch agents on component mount
   useEffect(() => {
@@ -247,6 +259,10 @@ const AgentManagement = () => {
     setSelectedAgent(agent);
     setCreditHistoryModalOpen(true);
     setHistoryLoading(true);
+
+    // Reset to today's date
+    const today = new Date();
+    setSelectedDate(today.toISOString().split('T')[0]);
 
     try {
       const result = await agentService.getCreditHistory(agent._id);
@@ -470,6 +486,17 @@ const AgentManagement = () => {
         title={`ประวัติเครดิต - ${selectedAgent?.name || ''}`}
         size="large"
       >
+        {/* Date Filter */}
+        <div className="mb-4 flex items-center gap-3">
+          <label className="text-sm font-medium text-text-secondary">เลือกวันที่:</label>
+          <input
+            type="date"
+            value={selectedDate}
+            onChange={(e) => setSelectedDate(e.target.value)}
+            className="px-4 py-2 bg-bg-light-cream text-text-primary border border-border-default rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-gold focus:border-transparent"
+          />
+        </div>
+
         {historyLoading ? (
           <div className="flex justify-center items-center py-12">
             <svg
@@ -493,9 +520,9 @@ const AgentManagement = () => {
               ></path>
             </svg>
           </div>
-        ) : creditHistory.length === 0 ? (
+        ) : filteredHistory.length === 0 ? (
           <div className="text-center py-12 text-text-muted">
-            <p>ยังไม่มีประวัติการเติม-ถอนเครดิต</p>
+            <p>ไม่มีประวัติการเติม-ลดเครดิตในวันที่เลือก</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -511,7 +538,7 @@ const AgentManagement = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-border-default">
-                {creditHistory.map((transaction) => (
+                {filteredHistory.map((transaction) => (
                   <tr key={transaction._id} className="hover:bg-bg-cream/50 transition-colors">
                     <td className="px-4 py-3 text-sm text-text-primary">
                       {formatDateTime(transaction.createdAt)}
