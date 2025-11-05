@@ -13,23 +13,13 @@ export const seedUsers = async () => {
   try {
     console.log('🌱 Starting user seed...');
 
+    // ลบข้อมูล users ทั้งหมดก่อน
+    const deletedCount = await User.deleteMany({});
+    console.log(`🗑️  Deleted ${deletedCount.deletedCount} existing users`);
+
     // ข้อมูล Master user
     const masterUsername = 'master';
     const masterPassword = 'master123';
-
-    // ตรวจสอบว่ามี master user อยู่แล้วหรือไม่
-    const existingUser = await User.findOne({ username: masterUsername });
-
-    if (existingUser) {
-      console.log(`⏭️  User already exists: ${masterUsername}`);
-      console.log('\n📝 Default Credentials:');
-      console.log('-----------------------------------');
-      console.log('Username: master');
-      console.log('Password: master123');
-      console.log('Role: master');
-      console.log('-----------------------------------\n');
-      return true;
-    }
 
     // Hash password
     const hashedPassword = await bcrypt.hash(masterPassword, 10);
