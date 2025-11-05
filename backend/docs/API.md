@@ -97,7 +97,8 @@ Authorization: Bearer <access_token>
 ```json
 {
   "success": true,
-  "message": "Logout successful"
+  "message": "Logout successful",
+  "data": null
 }
 ```
 
@@ -129,6 +130,7 @@ Authorization: Bearer <access_token>
 ```json
 {
   "success": true,
+  "message": "User retrieved successfully",
   "data": {
     "user": {
       "id": "uuid",
@@ -222,7 +224,8 @@ Authorization: Bearer <access_token>
 ```json
 {
   "success": true,
-  "message": "Password changed successfully"
+  "message": "Password changed successfully",
+  "data": null
 }
 ```
 
@@ -258,7 +261,9 @@ curl -X PUT http://localhost:3000/api/v1/auth/change-password \
 ```json
 {
   "success": false,
-  "message": "string"
+  "message": "string",
+  "data": null,
+  "errors": []
 }
 ```
 
