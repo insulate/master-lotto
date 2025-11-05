@@ -39,11 +39,14 @@ export default function Layout({ children }) {
   // Get user data and logout function from auth store
   const user = useAuthStore((state) => state.user);
   const logout = useAuthStore((state) => state.logout);
+  const isInitializing = useAuthStore((state) => state.isInitializing);
 
   // Filter menu items based on user role
-  const menuItems = allMenuItems.filter((item) =>
-    item.roles.includes(user?.role)
-  );
+  // If still initializing and no user, show all items (will be filtered after init)
+  // Otherwise filter based on actual user role
+  const menuItems = !user && isInitializing
+    ? allMenuItems
+    : allMenuItems.filter((item) => item.roles.includes(user?.role));
 
   // Calculate total balance (credit + balance)
   const totalBalance = (user?.credit || 0) + (user?.balance || 0);

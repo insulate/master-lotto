@@ -21,6 +21,7 @@ export const useAuthStore = create(
       accessToken: null,
       refreshToken: null,
       isAuthenticated: false,
+      isInitializing: true,
 
       // Actions
       login: async (username, password) => {
@@ -130,10 +131,10 @@ export const useAuthStore = create(
           const { data } = response.data;
 
           set({
-            user: data,
+            user: data.user,
           });
 
-          return data;
+          return data.user;
         } catch (error) {
           throw error;
         }
@@ -188,6 +189,9 @@ export const useAuthStore = create(
             }
           }
         }
+
+        // Mark initialization as complete
+        set({ isInitializing: false });
       },
       }),
       {
@@ -197,6 +201,7 @@ export const useAuthStore = create(
           accessToken: state.accessToken,
           refreshToken: state.refreshToken,
           isAuthenticated: state.isAuthenticated,
+          // isInitializing is intentionally not persisted - always starts as true
         }),
       }
     ),
