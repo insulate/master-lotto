@@ -5,6 +5,9 @@ export default {
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
+    fontFamily: {
+      sans: ['Kanit', 'sans-serif'],
+    },
     extend: {
       colors: {
         // Luxury Muted Gold Theme (Master App Style)
