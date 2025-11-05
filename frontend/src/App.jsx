@@ -6,6 +6,8 @@ import PrivateRoute from './components/auth/PrivateRoute';
 import Login from './pages/auth/Login';
 import MasterDashboard from './pages/master/MasterDashboard';
 import AgentManagement from './pages/master/agents';
+import LotteryTypesOverview from './pages/master/lottery-types';
+import LotteryDrawManagement from './pages/master/lottery-draws';
 import { useAuthStore } from './store/authStore';
 
 function App() {
@@ -88,6 +90,28 @@ function App() {
               <PrivateRoute>
                 <Layout>
                   <AgentManagement />
+                </Layout>
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/master/lottery-types"
+            element={
+              <PrivateRoute>
+                <Layout>
+                  <LotteryTypesOverview />
+                </Layout>
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/master/lottery-draws"
+            element={
+              <PrivateRoute>
+                <Layout>
+                  <LotteryDrawManagement />
                 </Layout>
               </PrivateRoute>
             }
