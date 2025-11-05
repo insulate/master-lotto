@@ -1,82 +1,151 @@
-import { v4 as uuidv4 } from 'uuid';
+import mongoose from 'mongoose';
 
-class User {
-  constructor(data) {
-    this.id = data.id || uuidv4();
-    this.username = data.username;
-    this.name = data.name;
-    this.password = data.password;
-    this.role = data.role; // 'master', 'agent', 'member'
-    this.parent_id = data.parent_id || null;
-    this.credit = data.credit || 0;
-    this.balance = data.balance || 0;
-    this.commission_rate = data.commission_rate || {};
-    this.status = data.status || 'active'; // 'active', 'suspended'
-    this.created_at = data.created_at || new Date();
-    this.updated_at = data.updated_at || new Date();
+/**
+ * User Schema for MongoDB
+ * กำหนดโครงสร้างข้อมูล users ด้วย Mongoose
+ */
+
+const userSchema = new mongoose.Schema(
+  {
+    username: {
+      type: String,
+      required: [true, 'Username is required'],
+      unique: true,
+      trim: true,
+      maxlength: [50, 'Username must be 50 characters or less']
+    },
+    name: {
+      type: String,
+      required: [true, 'Name is required'],
+      trim: true,
+      maxlength: [50, 'Name must be 50 characters or less']
+    },
+    password: {
+      type: String,
+      required: [true, 'Password is required'],
+      select: true // Include password by default for auth operations
+    },
+    role: {
+      type: String,
+      enum: {
+        values: ['master', 'agent', 'member'],
+        message: 'Role must be master, agent, or member'
+      },
+      required: [true, 'Role is required']
+    },
+    parent_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      default: null
+    },
+    credit: {
+      type: Number,
+      default: 0,
+      min: [0, 'Credit cannot be negative']
+    },
+    balance: {
+      type: Number,
+      default: 0,
+      min: [0, 'Balance cannot be negative']
+    },
+    commission_rate: {
+      type: {
+        three_top: { type: Number, default: 0 },
+        three_tod: { type: Number, default: 0 },
+        two_top: { type: Number, default: 0 },
+        two_bottom: { type: Number, default: 0 },
+        run_top: { type: Number, default: 0 },
+        run_bottom: { type: Number, default: 0 }
+      },
+      default: {
+        three_top: 0,
+        three_tod: 0,
+        two_top: 0,
+        two_bottom: 0,
+        run_top: 0,
+        run_bottom: 0
+      }
+    },
+    status: {
+      type: String,
+      enum: {
+        values: ['active', 'suspended'],
+        message: 'Status must be active or suspended'
+      },
+      default: 'active'
+    }
+  },
+  {
+    timestamps: true, // Auto create createdAt and updatedAt
+    toJSON: {
+      virtuals: true,
+      transform: function (doc, ret) {
+        // Remove password from JSON output
+        delete ret.password;
+        // Rename _id to id
+        ret.id = ret._id;
+        delete ret._id;
+        delete ret.__v;
+        return ret;
+      }
+    },
+    toObject: {
+      virtuals: true,
+      transform: function (doc, ret) {
+        ret.id = ret._id;
+        delete ret._id;
+        delete ret.__v;
+        return ret;
+      }
+    }
   }
+);
 
-  // Validate user data
-  validate() {
-    const errors = [];
+// Indexes for better query performance
+userSchema.index({ username: 1 });
+userSchema.index({ role: 1 });
+userSchema.index({ parent_id: 1 });
+userSchema.index({ status: 1 });
 
-    if (!this.username || this.username.length > 50) {
-      errors.push('Username is required and must be 50 characters or less');
-    }
+// Virtual for full user hierarchy
+userSchema.virtual('parent', {
+  ref: 'User',
+  localField: 'parent_id',
+  foreignField: '_id',
+  justOne: true
+});
 
-    if (!this.name || this.name.length > 50) {
-      errors.push('Name is required and must be 50 characters or less');
-    }
+userSchema.virtual('children', {
+  ref: 'User',
+  localField: '_id',
+  foreignField: 'parent_id'
+});
 
-    if (!this.password) {
-      errors.push('Password is required');
-    }
+// Instance method to get JSON without password
+userSchema.methods.toJSON = function () {
+  const obj = this.toObject();
+  delete obj.password;
+  obj.id = obj._id;
+  delete obj._id;
+  delete obj.__v;
+  return obj;
+};
 
-    if (!['master', 'agent', 'member'].includes(this.role)) {
-      errors.push('Role must be master, agent, or member');
-    }
+// Static method to find by username
+userSchema.statics.findByUsername = function (username) {
+  return this.findOne({ username });
+};
 
-    if (!['active', 'suspended'].includes(this.status)) {
-      errors.push('Status must be active or suspended');
-    }
+// Static method to find by role
+userSchema.statics.findByRole = function (role) {
+  return this.find({ role });
+};
 
-    return errors;
-  }
+// Static method to find by parent
+userSchema.statics.findByParent = function (parentId) {
+  return this.find({ parent_id: parentId });
+};
 
-  // Convert to plain object (for JSON response)
-  toJSON() {
-    return {
-      id: this.id,
-      username: this.username,
-      name: this.name,
-      role: this.role,
-      parent_id: this.parent_id,
-      credit: this.credit,
-      balance: this.balance,
-      commission_rate: this.commission_rate,
-      status: this.status,
-      created_at: this.created_at,
-      updated_at: this.updated_at
-    };
-  }
-
-  // Convert to plain object with password (for database operations)
-  toDatabase() {
-    return {
-      id: this.id,
-      username: this.username,
-      name: this.name,
-      password: this.password,
-      role: this.role,
-      parent_id: this.parent_id,
-      credit: this.credit,
-      balance: this.balance,
-      commission_rate: JSON.stringify(this.commission_rate),
-      status: this.status,
-      created_at: this.created_at,
-      updated_at: this.updated_at
-    };
-  }
-}
+const User = mongoose.model('User', userSchema);
 
 export default User;

@@ -1,6 +1,6 @@
 # Database Migrations & Seeds
 
-โฟลเดอร์นี้เก็บ migration scripts และ seed data สำหรับ database
+โฟลเดอร์นี้เก็บ migration scripts และ seed data สำหรับ MongoDB
 
 ## ไฟล์ในโฟลเดอร์
 
@@ -10,46 +10,45 @@
 
 ## วิธีใช้งาน
 
-### 1. ตั้งค่า Environment Variables
+### 1. ติดตั้ง MongoDB
 
-แก้ไขไฟล์ `.env` ในโฟลเดอร์ backend:
+#### สำหรับ Local Development:
 
-```env
-DB_HOST=localhost
-DB_USER=root
-DB_PASSWORD=your_password
-DB_NAME=lotto_system
-DB_PORT=3306
+**macOS (Homebrew):**
+```bash
+brew tap mongodb/brew
+brew install mongodb-community@7.0
+brew services start mongodb-community@7.0
 ```
 
-### 2. สร้าง Database และ Tables
+**Windows:**
+ดาวน์โหลดจาก [MongoDB Download Center](https://www.mongodb.com/try/download/community)
 
-ก่อนรัน seed ต้องสร้าง database และ tables ก่อน:
+**Ubuntu:**
+```bash
+wget -qO - https://www.mongodb.org/static/pgp/server-7.0.asc | sudo apt-key add -
+echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/7.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-7.0.list
+sudo apt-get update
+sudo apt-get install -y mongodb-org
+sudo systemctl start mongod
+```
 
-```sql
--- สร้าง database
-CREATE DATABASE lotto_system;
-USE lotto_system;
+### 2. ตั้งค่า Environment Variables
 
--- สร้าง users table
-CREATE TABLE users (
-  id VARCHAR(36) PRIMARY KEY,
-  username VARCHAR(50) UNIQUE NOT NULL,
-  name VARCHAR(50) NOT NULL,
-  password VARCHAR(255) NOT NULL,
-  role ENUM('master', 'agent', 'member') NOT NULL,
-  parent_id VARCHAR(36),
-  credit DECIMAL(15,2) DEFAULT 0,
-  balance DECIMAL(15,2) DEFAULT 0,
-  commission_rate JSON,
-  status ENUM('active', 'suspended') DEFAULT 'active',
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  FOREIGN KEY (parent_id) REFERENCES users(id) ON DELETE SET NULL,
-  INDEX idx_users_parent_id (parent_id),
-  INDEX idx_users_role (role),
-  INDEX idx_users_status (status)
-);
+สร้างไฟล์ `.env` ในโฟลเดอร์ backend:
+
+```bash
+cp .env.example .env
+```
+
+แก้ไขไฟล์ `.env`:
+
+```env
+# Local MongoDB
+MONGODB_URI=mongodb://localhost:27017/lotto_system
+
+# MongoDB Atlas (Cloud)
+# MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/lotto_system?retryWrites=true&w=majority
 ```
 
 ### 3. รัน Seed
@@ -85,25 +84,22 @@ Status: active
 
 ## การเพิ่ม User ใหม่
 
-แก้ไข `seed-users.js` และเพิ่ม user ใหม่ใน array `users`:
+แก้ไข `seed-users.js` และเพิ่ม user ใหม่:
 
 ```javascript
-export const users = [
-  {
-    id: uuidv4(),
-    username: 'master',
-    name: 'Master Admin',
-    password: null,
-    role: 'master',
-    parent_id: null,
-    credit: 100000.00,
-    balance: 50000.00,
-    commission_rate: JSON.stringify({}),
-    status: 'active',
-    created_at: new Date(),
-    updated_at: new Date()
-  }
-];
+// สร้าง user เพิ่ม
+const newUser = new User({
+  username: 'agent1',
+  name: 'Agent One',
+  password: hashedPassword,
+  role: 'agent',
+  parent_id: masterId,
+  credit: 50000.00,
+  balance: 25000.00,
+  status: 'active'
+});
+
+await newUser.save();
 ```
 
 จากนั้นรัน seed ใหม่:
@@ -116,7 +112,7 @@ npm run seed
 - Script จะตรวจสอบว่ามี user อยู่แล้วหรือไม่ ถ้ามีจะข้ามการสร้าง
 - Password จะถูก hash ด้วย bcryptjs (10 rounds)
 - สามารถรัน seed ซ้ำได้โดยไม่สร้าง duplicate
-- ต้อง setup database และ tables ก่อนรัน seed
+- MongoDB จะสร้าง database และ collection อัตโนมัติ ไม่ต้องสร้างเอง
 
 ## Troubleshooting
 
@@ -128,23 +124,48 @@ cd backend
 npm install
 ```
 
-### Error: Access denied for user
+### Error: MongoServerError: connect ECONNREFUSED
 
 ```bash
-# ตรวจสอบ .env file
-# ตรวจสอบ MySQL username/password
+# ตรวจสอบว่า MongoDB กำลังรันอยู่หรือไม่
+# macOS:
+brew services list
+brew services start mongodb-community@7.0
+
+# Linux:
+sudo systemctl status mongod
+sudo systemctl start mongod
+
+# Windows:
+# เปิด Services และ start MongoDB
 ```
 
-### Error: Unknown database
+### Error: Authentication failed
 
 ```bash
-# สร้าง database ก่อน
-mysql -u root -p
-CREATE DATABASE lotto_system;
+# ตรวจสอบ MONGODB_URI ใน .env file
+# สำหรับ local ไม่ต้องใช้ username/password
+MONGODB_URI=mongodb://localhost:27017/lotto_system
 ```
 
-### Error: Table doesn't exist
+### Error: Invalid connection string
 
 ```bash
-# สร้าง tables ตาม SQL ในหัวข้อ "2. สร้าง Database และ Tables"
+# ตรวจสอบ format ของ MONGODB_URI
+# Local: mongodb://localhost:27017/database_name
+# Atlas: mongodb+srv://username:password@cluster.mongodb.net/database_name
 ```
+
+## MongoDB Atlas (Cloud Database)
+
+หากต้องการใช้ MongoDB Atlas (Free tier):
+
+1. สมัครที่ [MongoDB Atlas](https://www.mongodb.com/cloud/atlas/register)
+2. สร้าง Free Cluster
+3. สร้าง Database User
+4. เพิ่ม IP Address ให้เข้าถึงได้ (หรือใช้ 0.0.0.0/0 สำหรับทดสอบ)
+5. คัดลอก Connection String
+6. แก้ไข `.env`:
+   ```env
+   MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/lotto_system?retryWrites=true&w=majority
+   ```

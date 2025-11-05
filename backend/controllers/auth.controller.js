@@ -13,7 +13,7 @@ const generateAccessToken = (user) => {
       role: user.role
     },
     process.env.JWT_SECRET || 'your-secret-key',
-    { expiresIn: '15m' }
+    { expiresIn: process.env.ACCESS_TOKEN_EXPIRES_IN || '15m' }
   );
 };
 
@@ -25,7 +25,7 @@ const generateRefreshToken = (user) => {
       username: user.username
     },
     process.env.JWT_REFRESH_SECRET || 'your-refresh-secret-key',
-    { expiresIn: '7d' }
+    { expiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN || '7d' }
   );
 };
 
@@ -39,44 +39,34 @@ export const login = async (req, res, next) => {
       throw new AppError('Please provide username and password', 400);
     }
 
-    // TODO: Find user from database
-    // const user = await findUserByUsername(username);
-
-    // Mock user for demonstration
-    const mockUser = new User({
-      id: '123e4567-e89b-12d3-a456-426614174000',
-      username: 'admin',
-      name: 'Administrator',
-      password: await bcrypt.hash('password', 10),
-      role: 'master',
-      status: 'active'
-    });
+    // Find user from database
+    const user = await User.findOne({ username });
 
     // Check if user exists
-    // if (!user) {
-    //   throw new AppError('Invalid credentials', 401);
-    // }
+    if (!user) {
+      throw new AppError('Invalid credentials', 401);
+    }
 
     // Check if user is active
-    if (mockUser.status === 'suspended') {
+    if (user.status === 'suspended') {
       throw new AppError('Account is suspended', 403);
     }
 
     // Verify password
-    const isPasswordValid = await bcrypt.compare(password, mockUser.password);
+    const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
       throw new AppError('Invalid credentials', 401);
     }
 
     // Generate tokens
-    const accessToken = generateAccessToken(mockUser);
-    const refreshToken = generateRefreshToken(mockUser);
+    const accessToken = generateAccessToken(user);
+    const refreshToken = generateRefreshToken(user);
 
-    // TODO: Save refresh token to database
-    // await saveRefreshToken(mockUser.id, refreshToken);
+    // Note: Refresh tokens can be stored in database for better security
+    // For now, we'll use stateless JWT
 
     return successResponse(res, 'Login successful', {
-      user: mockUser.toJSON(),
+      user: user.toJSON(),
       accessToken,
       refreshToken
     }, 200);
@@ -88,9 +78,9 @@ export const login = async (req, res, next) => {
 // POST /api/v1/auth/logout
 export const logout = async (req, res, next) => {
   try {
-    const userId = req.user.id;
-
-    // TODO: Remove refresh token from database
+    // For stateless JWT, logout is handled client-side
+    // If using refresh token storage, remove it here
+    // const userId = req.user.id;
     // await removeRefreshToken(userId);
 
     return successResponse(res, 'Logout successful', null, 200);
@@ -104,22 +94,15 @@ export const getMe = async (req, res, next) => {
   try {
     const userId = req.user.id;
 
-    // TODO: Get user from database
-    // const user = await findUserById(userId);
+    // Get user from database
+    const user = await User.findById(userId);
 
-    // Mock user
-    const mockUser = new User({
-      id: userId,
-      username: req.user.username,
-      name: 'User Name',
-      role: req.user.role,
-      status: 'active',
-      credit: 1000,
-      balance: 500
-    });
+    if (!user) {
+      throw new AppError('User not found', 404);
+    }
 
     return successResponse(res, 'User retrieved successfully', {
-      user: mockUser.toJSON()
+      user: user.toJSON()
     }, 200);
   } catch (error) {
     next(error);
@@ -146,26 +129,20 @@ export const refresh = async (req, res, next) => {
       throw new AppError('Invalid or expired refresh token', 401);
     }
 
-    // TODO: Check if refresh token exists in database
-    // const isValidToken = await checkRefreshToken(decoded.id, refreshToken);
-    // if (!isValidToken) {
-    //   throw new AppError('Invalid refresh token', 401);
-    // }
+    // Get user from database
+    const user = await User.findById(decoded.id);
 
-    // TODO: Get user from database
-    // const user = await findUserById(decoded.id);
+    if (!user) {
+      throw new AppError('User not found', 404);
+    }
 
-    // Mock user
-    const mockUser = new User({
-      id: decoded.id,
-      username: decoded.username,
-      name: 'User Name',
-      role: 'master',
-      status: 'active'
-    });
+    // Check if user is still active
+    if (user.status === 'suspended') {
+      throw new AppError('Account is suspended', 403);
+    }
 
     // Generate new access token
-    const newAccessToken = generateAccessToken(mockUser);
+    const newAccessToken = generateAccessToken(user);
 
     return successResponse(res, 'Token refreshed successfully', {
       accessToken: newAccessToken
@@ -190,20 +167,25 @@ export const changePassword = async (req, res, next) => {
       throw new AppError('New password must be at least 6 characters long', 400);
     }
 
-    // TODO: Get user from database
-    // const user = await findUserById(userId);
+    // Get user from database
+    const user = await User.findById(userId);
 
-    // TODO: Verify current password
-    // const isPasswordValid = await bcrypt.compare(currentPassword, user.password);
-    // if (!isPasswordValid) {
-    //   throw new AppError('Current password is incorrect', 401);
-    // }
+    if (!user) {
+      throw new AppError('User not found', 404);
+    }
+
+    // Verify current password
+    const isPasswordValid = await bcrypt.compare(currentPassword, user.password);
+    if (!isPasswordValid) {
+      throw new AppError('Current password is incorrect', 401);
+    }
 
     // Hash new password
     const hashedPassword = await bcrypt.hash(newPassword, 10);
 
-    // TODO: Update password in database
-    // await updateUserPassword(userId, hashedPassword);
+    // Update password in database
+    user.password = hashedPassword;
+    await user.save();
 
     return successResponse(res, 'Password changed successfully', null, 200);
   } catch (error) {
