@@ -56,17 +56,17 @@ const Modal = ({
       onClick={handleBackdropClick}
     >
       <div
-        className={`bg-gray-800 rounded-lg shadow-xl w-full ${sizeClasses[size]} animate-slideUp`}
+        className={`bg-white rounded-lg shadow-xl w-full ${sizeClasses[size]} animate-slideUp border border-primary-gold/30`}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
         {(title || showCloseButton) && (
-          <div className="flex items-center justify-between p-6 border-b border-gray-700">
-            <h3 className="text-xl font-semibold text-yellow-400">{title}</h3>
+          <div className="flex items-center justify-between p-6 border-b border-border-default bg-bg-light-cream">
+            <h3 className="text-xl font-semibold text-primary-dark-gold">{title}</h3>
             {showCloseButton && (
               <button
                 onClick={onClose}
-                className="text-gray-400 hover:text-white transition-colors p-1"
+                className="text-text-muted hover:text-text-primary transition-colors p-1"
                 aria-label="Close"
               >
                 <svg
@@ -88,10 +88,10 @@ const Modal = ({
         )}
 
         {/* Body */}
-        <div className="p-6 max-h-[calc(100vh-200px)] overflow-y-auto">{children}</div>
+        <div className="p-6 max-h-[calc(100vh-200px)] overflow-y-auto bg-white">{children}</div>
 
         {/* Footer */}
-        {footer && <div className="p-6 border-t border-gray-700">{footer}</div>}
+        {footer && <div className="p-6 border-t border-border-default bg-bg-light-cream">{footer}</div>}
       </div>
     </div>
   );

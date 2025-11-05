@@ -125,7 +125,7 @@ const AgentManagement = () => {
       label: 'เครดิต',
       sortable: true,
       render: (value) => (
-        <span className="font-semibold text-yellow-400">{formatCurrency(value)}</span>
+        <span className="font-semibold text-primary-light-gold">{formatCurrency(value)}</span>
       ),
     },
     {
@@ -147,7 +147,7 @@ const AgentManagement = () => {
       label: 'วันที่สร้าง',
       sortable: true,
       render: (value) => (
-        <span className="text-gray-400 text-xs">{formatDateTime(value)}</span>
+        <span className="text-text-muted text-xs">{formatDateTime(value)}</span>
       ),
     },
     {
@@ -157,13 +157,13 @@ const AgentManagement = () => {
         <div className="flex space-x-2">
           <button
             onClick={() => handleEditClick(row)}
-            className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded transition-colors"
+            className="px-3 py-1 bg-accent-info hover:bg-accent-info/90 text-white text-xs rounded transition-colors"
           >
             แก้ไข
           </button>
           <button
             onClick={() => handleCreditClick(row)}
-            className="px-3 py-1 bg-yellow-600 hover:bg-yellow-700 text-white text-xs rounded transition-colors"
+            className="px-3 py-1 bg-primary-mustard hover:bg-primary-dark-gold text-white text-xs rounded transition-colors"
           >
             ปรับเครดิต
           </button>
@@ -171,8 +171,8 @@ const AgentManagement = () => {
             onClick={() => handleStatusClick(row)}
             className={`px-3 py-1 text-white text-xs rounded transition-colors ${
               row.status === 'active'
-                ? 'bg-red-600 hover:bg-red-700'
-                : 'bg-green-600 hover:bg-green-700'
+                ? 'bg-accent-error hover:bg-accent-error/90'
+                : 'bg-accent-success hover:bg-accent-success/90'
             }`}
           >
             {row.status === 'active' ? 'ระงับ' : 'เปิดใช้งาน'}
@@ -257,17 +257,17 @@ const AgentManagement = () => {
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-3xl font-bold text-yellow-400">จัดการเอเย่นต์</h1>
-          <p className="text-gray-400 mt-1">
+          <h1 className="text-3xl font-bold text-primary-light-gold">จัดการเอเย่นต์</h1>
+          <p className="text-text-muted mt-1">
             ผู้ใช้: {user?.name} | เครดิตคงเหลือ:{' '}
-            <span className="text-yellow-400 font-semibold">
+            <span className="text-primary-light-gold font-semibold">
               {formatCurrency(user?.credit || 0)}
             </span>
           </p>
         </div>
         <button
           onClick={handleCreateClick}
-          className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-colors flex items-center space-x-2"
+          className="px-6 py-3 bg-accent-success hover:bg-accent-success/90 text-white font-semibold rounded-lg transition-colors flex items-center space-x-2 shadow-md"
         >
           <span>+</span>
           <span>สร้างเอเย่นต์ใหม่</span>
@@ -276,40 +276,40 @@ const AgentManagement = () => {
 
       {/* Success Message */}
       {success && (
-        <div className="mb-4 p-4 bg-green-500/20 border border-green-500 rounded-lg text-green-400">
+        <div className="mb-4 p-4 bg-accent-success/20 border border-accent-success rounded-lg text-accent-success">
           {success}
         </div>
       )}
 
       {/* Error Message */}
       {error && (
-        <div className="mb-4 p-4 bg-red-500/20 border border-red-500 rounded-lg text-red-400">
+        <div className="mb-4 p-4 bg-accent-error/20 border border-accent-error rounded-lg text-accent-error">
           {error}
         </div>
       )}
 
       {/* Search & Filter */}
-      <div className="bg-gray-800 rounded-lg p-4 mb-6">
+      <div className="bg-bg-card rounded-lg p-4 mb-6 border border-border-default shadow-md">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Search */}
           <div>
-            <label className="block text-sm text-gray-300 mb-2">ค้นหา</label>
+            <label className="block text-sm text-text-secondary mb-2 font-medium">ค้นหา</label>
             <input
               type="text"
               placeholder="ค้นหาด้วย Username หรือชื่อ..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full px-4 py-2 bg-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400"
+              className="w-full px-4 py-2 bg-bg-light-cream text-text-primary border border-border-default rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-gold focus:border-transparent"
             />
           </div>
 
           {/* Status Filter */}
           <div>
-            <label className="block text-sm text-gray-300 mb-2">สถานะ</label>
+            <label className="block text-sm text-text-secondary mb-2 font-medium">สถานะ</label>
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full px-4 py-2 bg-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400"
+              className="w-full px-4 py-2 bg-bg-light-cream text-text-primary border border-border-default rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-gold focus:border-transparent"
             >
               <option value="all">ทั้งหมด</option>
               <option value="active">ใช้งาน</option>
@@ -319,14 +319,14 @@ const AgentManagement = () => {
         </div>
 
         {/* Results Count */}
-        <div className="mt-4 text-sm text-gray-400">
+        <div className="mt-4 text-sm text-text-muted">
           พบ {filteredAgents.length} รายการ
           {searchTerm && ` จากการค้นหา "${searchTerm}"`}
         </div>
       </div>
 
       {/* Data Table */}
-      <div className="bg-gray-800 rounded-lg overflow-hidden">
+      <div className="bg-bg-card rounded-lg overflow-hidden border border-border-default shadow-md">
         <DataTable
           columns={columns}
           data={paginatedAgents}
@@ -336,23 +336,23 @@ const AgentManagement = () => {
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="flex justify-center items-center space-x-2 p-4 border-t border-gray-700">
+          <div className="flex justify-center items-center space-x-2 p-4 border-t border-border-default bg-bg-light-cream">
             <button
               onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
               disabled={currentPage === 1}
-              className="px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-4 py-2 bg-bg-dark-light text-white rounded hover:bg-bg-dark disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               ก่อนหน้า
             </button>
 
-            <span className="text-gray-300">
+            <span className="text-text-secondary font-medium">
               หน้า {currentPage} / {totalPages}
             </span>
 
             <button
               onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
               disabled={currentPage === totalPages}
-              className="px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-4 py-2 bg-bg-dark-light text-white rounded hover:bg-bg-dark disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               ถัดไป
             </button>
@@ -514,60 +514,60 @@ const CreateAgentModal = ({
         <div className="space-y-4">
           {/* Username */}
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
-              Username <span className="text-red-500">*</span>
+            <label className="block text-sm font-medium text-text-secondary mb-2">
+              Username <span className="text-accent-error">*</span>
             </label>
             <input
               type="text"
               value={formData.username}
               onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-              className={`w-full px-4 py-2 bg-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 ${
-                errors.username ? 'ring-2 ring-red-500' : 'focus:ring-yellow-400'
+              className={`w-full px-4 py-2 bg-bg-light-cream text-text-primary border border-border-default rounded-lg focus:outline-none focus:ring-2 ${
+                errors.username ? 'ring-2 ring-accent-error border-accent-error' : 'focus:ring-primary-gold focus:border-transparent'
               }`}
               placeholder="ตัวอักษรและตัวเลข 3-20 ตัวอักษร"
             />
-            {errors.username && <p className="text-red-400 text-sm mt-1">{errors.username}</p>}
+            {errors.username && <p className="text-accent-error text-sm mt-1">{errors.username}</p>}
           </div>
 
           {/* Name */}
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
-              ชื่อ-นามสกุล <span className="text-red-500">*</span>
+            <label className="block text-sm font-medium text-text-secondary mb-2">
+              ชื่อ-นามสกุล <span className="text-accent-error">*</span>
             </label>
             <input
               type="text"
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              className={`w-full px-4 py-2 bg-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 ${
-                errors.name ? 'ring-2 ring-red-500' : 'focus:ring-yellow-400'
+              className={`w-full px-4 py-2 bg-bg-light-cream text-text-primary border border-border-default rounded-lg focus:outline-none focus:ring-2 ${
+                errors.name ? 'ring-2 ring-accent-error border-accent-error' : 'focus:ring-primary-gold focus:border-transparent'
               }`}
               placeholder="ชื่อและนามสกุล"
             />
-            {errors.name && <p className="text-red-400 text-sm mt-1">{errors.name}</p>}
+            {errors.name && <p className="text-accent-error text-sm mt-1">{errors.name}</p>}
           </div>
 
           {/* Password */}
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
-              รหัสผ่าน <span className="text-red-500">*</span>
+            <label className="block text-sm font-medium text-text-secondary mb-2">
+              รหัสผ่าน <span className="text-accent-error">*</span>
             </label>
             <input
               type="password"
               value={formData.password}
               onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-              className={`w-full px-4 py-2 bg-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 ${
-                errors.password ? 'ring-2 ring-red-500' : 'focus:ring-yellow-400'
+              className={`w-full px-4 py-2 bg-bg-light-cream text-text-primary border border-border-default rounded-lg focus:outline-none focus:ring-2 ${
+                errors.password ? 'ring-2 ring-accent-error border-accent-error' : 'focus:ring-primary-gold focus:border-transparent'
               }`}
               placeholder="อย่างน้อย 6 ตัวอักษร"
             />
-            {errors.password && <p className="text-red-400 text-sm mt-1">{errors.password}</p>}
+            {errors.password && <p className="text-accent-error text-sm mt-1">{errors.password}</p>}
           </div>
 
           {/* Credit */}
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-text-secondary mb-2">
               เครดิตเริ่มต้น
-              <span className="text-gray-400 text-xs ml-2">
+              <span className="text-text-muted text-xs ml-2">
                 (คงเหลือ: {formatCurrency(masterCredit)})
               </span>
             </label>
@@ -577,25 +577,25 @@ const CreateAgentModal = ({
               onChange={(e) =>
                 setFormData({ ...formData, credit: parseFloat(e.target.value) || 0 })
               }
-              className={`w-full px-4 py-2 bg-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 ${
-                errors.credit ? 'ring-2 ring-red-500' : 'focus:ring-yellow-400'
+              className={`w-full px-4 py-2 bg-bg-light-cream text-text-primary border border-border-default rounded-lg focus:outline-none focus:ring-2 ${
+                errors.credit ? 'ring-2 ring-accent-error border-accent-error' : 'focus:ring-primary-gold focus:border-transparent'
               }`}
               placeholder="0"
               min="0"
               step="0.01"
             />
-            {errors.credit && <p className="text-red-400 text-sm mt-1">{errors.credit}</p>}
+            {errors.credit && <p className="text-accent-error text-sm mt-1">{errors.credit}</p>}
           </div>
 
           {/* Commission Rate */}
-          <div className="border-t border-gray-700 pt-4">
-            <label className="block text-sm font-medium text-gray-300 mb-3">
+          <div className="border-t border-border-default pt-4">
+            <label className="block text-sm font-medium text-text-secondary mb-3">
               อัตราค่าคอมมิชชัน (%)
             </label>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className="block text-xs text-gray-400 mb-1">2 ตัวบน</label>
+                <label className="block text-xs text-text-muted mb-1">2 ตัวบน</label>
                 <input
                   type="number"
                   value={formData.commission_rate.two_digit_top}
@@ -608,7 +608,7 @@ const CreateAgentModal = ({
                       },
                     })
                   }
-                  className="w-full px-3 py-2 bg-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                  className="w-full px-3 py-2 bg-bg-light-cream text-text-primary border border-border-default rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-gold"
                   placeholder="0"
                   min="0"
                   max="100"
@@ -617,7 +617,7 @@ const CreateAgentModal = ({
               </div>
 
               <div>
-                <label className="block text-xs text-gray-400 mb-1">3 ตัวบน</label>
+                <label className="block text-xs text-text-muted mb-1">3 ตัวบน</label>
                 <input
                   type="number"
                   value={formData.commission_rate.three_digit_top}
@@ -630,7 +630,7 @@ const CreateAgentModal = ({
                       },
                     })
                   }
-                  className="w-full px-3 py-2 bg-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                  className="w-full px-3 py-2 bg-bg-light-cream text-text-primary border border-border-default rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-gold"
                   placeholder="0"
                   min="0"
                   max="100"
@@ -639,7 +639,7 @@ const CreateAgentModal = ({
               </div>
 
               <div>
-                <label className="block text-xs text-gray-400 mb-1">3 ตัวโต๊ด</label>
+                <label className="block text-xs text-text-muted mb-1">3 ตัวโต๊ด</label>
                 <input
                   type="number"
                   value={formData.commission_rate.three_digit_tote}
@@ -652,7 +652,7 @@ const CreateAgentModal = ({
                       },
                     })
                   }
-                  className="w-full px-3 py-2 bg-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                  className="w-full px-3 py-2 bg-bg-light-cream text-text-primary border border-border-default rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-gold"
                   placeholder="0"
                   min="0"
                   max="100"
@@ -669,14 +669,14 @@ const CreateAgentModal = ({
             type="button"
             onClick={onClose}
             disabled={submitLoading}
-            className="px-6 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors disabled:opacity-50"
+            className="px-6 py-2 bg-bg-dark-light text-white rounded-lg hover:bg-bg-dark transition-colors disabled:opacity-50"
           >
             ยกเลิก
           </button>
           <button
             type="submit"
             disabled={submitLoading}
-            className="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors disabled:opacity-50 flex items-center space-x-2"
+            className="px-6 py-2 bg-accent-success hover:bg-accent-success/90 text-white rounded-lg transition-colors disabled:opacity-50 flex items-center space-x-2"
           >
             {submitLoading && (
               <svg
@@ -768,42 +768,42 @@ const EditAgentModal = ({
         <div className="space-y-4">
           {/* Username (Read-only) */}
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">Username</label>
+            <label className="block text-sm font-medium text-text-secondary mb-2">Username</label>
             <input
               type="text"
               value={selectedAgent.username}
               disabled
-              className="w-full px-4 py-2 bg-gray-600 text-gray-400 rounded-lg cursor-not-allowed"
+              className="w-full px-4 py-2 bg-border-default/20 text-text-muted rounded-lg cursor-not-allowed"
             />
-            <p className="text-xs text-gray-400 mt-1">Username ไม่สามารถแก้ไขได้</p>
+            <p className="text-xs text-text-muted mt-1">Username ไม่สามารถแก้ไขได้</p>
           </div>
 
           {/* Name */}
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
-              ชื่อ-นามสกุล <span className="text-red-500">*</span>
+            <label className="block text-sm font-medium text-text-secondary mb-2">
+              ชื่อ-นามสกุล <span className="text-accent-error">*</span>
             </label>
             <input
               type="text"
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              className={`w-full px-4 py-2 bg-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 ${
-                errors.name ? 'ring-2 ring-red-500' : 'focus:ring-yellow-400'
+              className={`w-full px-4 py-2 bg-bg-light-cream text-text-primary border border-border-default rounded-lg focus:outline-none focus:ring-2 ${
+                errors.name ? 'ring-2 ring-accent-error border-accent-error' : 'focus:ring-primary-gold focus:border-transparent'
               }`}
               placeholder="ชื่อและนามสกุล"
             />
-            {errors.name && <p className="text-red-400 text-sm mt-1">{errors.name}</p>}
+            {errors.name && <p className="text-accent-error text-sm mt-1">{errors.name}</p>}
           </div>
 
           {/* Commission Rate */}
-          <div className="border-t border-gray-700 pt-4">
-            <label className="block text-sm font-medium text-gray-300 mb-3">
+          <div className="border-t border-border-default pt-4">
+            <label className="block text-sm font-medium text-text-secondary mb-3">
               อัตราค่าคอมมิชชัน (%)
             </label>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className="block text-xs text-gray-400 mb-1">2 ตัวบน</label>
+                <label className="block text-xs text-text-muted mb-1">2 ตัวบน</label>
                 <input
                   type="number"
                   value={formData.commission_rate.two_digit_top}
@@ -816,7 +816,7 @@ const EditAgentModal = ({
                       },
                     })
                   }
-                  className="w-full px-3 py-2 bg-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                  className="w-full px-3 py-2 bg-bg-light-cream text-text-primary border border-border-default rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-gold"
                   placeholder="0"
                   min="0"
                   max="100"
@@ -825,7 +825,7 @@ const EditAgentModal = ({
               </div>
 
               <div>
-                <label className="block text-xs text-gray-400 mb-1">3 ตัวบน</label>
+                <label className="block text-xs text-text-muted mb-1">3 ตัวบน</label>
                 <input
                   type="number"
                   value={formData.commission_rate.three_digit_top}
@@ -838,7 +838,7 @@ const EditAgentModal = ({
                       },
                     })
                   }
-                  className="w-full px-3 py-2 bg-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                  className="w-full px-3 py-2 bg-bg-light-cream text-text-primary border border-border-default rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-gold"
                   placeholder="0"
                   min="0"
                   max="100"
@@ -847,7 +847,7 @@ const EditAgentModal = ({
               </div>
 
               <div>
-                <label className="block text-xs text-gray-400 mb-1">3 ตัวโต๊ด</label>
+                <label className="block text-xs text-text-muted mb-1">3 ตัวโต๊ด</label>
                 <input
                   type="number"
                   value={formData.commission_rate.three_digit_tote}
@@ -860,7 +860,7 @@ const EditAgentModal = ({
                       },
                     })
                   }
-                  className="w-full px-3 py-2 bg-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                  className="w-full px-3 py-2 bg-bg-light-cream text-text-primary border border-border-default rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-gold"
                   placeholder="0"
                   min="0"
                   max="100"
@@ -877,14 +877,14 @@ const EditAgentModal = ({
             type="button"
             onClick={onClose}
             disabled={submitLoading}
-            className="px-6 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors disabled:opacity-50"
+            className="px-6 py-2 bg-bg-dark-light text-white rounded-lg hover:bg-bg-dark transition-colors disabled:opacity-50"
           >
             ยกเลิก
           </button>
           <button
             type="submit"
             disabled={submitLoading}
-            className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors disabled:opacity-50 flex items-center space-x-2"
+            className="px-6 py-2 bg-accent-info hover:bg-accent-info/90 text-white rounded-lg transition-colors disabled:opacity-50 flex items-center space-x-2"
           >
             {submitLoading && (
               <svg
@@ -993,26 +993,26 @@ const AdjustCreditModal = ({
       <form onSubmit={handleSubmit}>
         <div className="space-y-4">
           {/* Agent Info */}
-          <div className="bg-gray-700 p-4 rounded-lg">
+          <div className="bg-bg-dark-light p-4 rounded-lg">
             <div className="flex justify-between items-center mb-2">
-              <span className="text-sm text-gray-300">เอเย่นต์:</span>
+              <span className="text-sm text-text-secondary">เอเย่นต์:</span>
               <span className="font-semibold text-white">{selectedAgent.username}</span>
             </div>
             <div className="flex justify-between items-center mb-2">
-              <span className="text-sm text-gray-300">เครดิตปัจจุบัน:</span>
-              <span className="font-semibold text-yellow-400">
+              <span className="text-sm text-text-secondary">เครดิตปัจจุบัน:</span>
+              <span className="font-semibold text-primary-light-gold">
                 {formatCurrency(selectedAgent.credit)}
               </span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-300">เครดิตคงเหลือของคุณ:</span>
+              <span className="text-sm text-text-secondary">เครดิตคงเหลือของคุณ:</span>
               <span className="font-semibold text-green-400">{formatCurrency(masterCredit)}</span>
             </div>
           </div>
 
           {/* Action Type */}
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-text-secondary mb-2">
               ประเภทการทำรายการ
             </label>
             <div className="grid grid-cols-2 gap-4">
@@ -1024,8 +1024,8 @@ const AdjustCreditModal = ({
                 }}
                 className={`px-4 py-3 rounded-lg font-medium transition-colors ${
                   creditFormData.action === 'add'
-                    ? 'bg-green-600 text-white'
-                    : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                    ? 'bg-accent-success text-white'
+                    : 'bg-bg-dark-light text-text-secondary hover:bg-bg-dark'
                 }`}
               >
                 เพิ่มเครดิต
@@ -1038,8 +1038,8 @@ const AdjustCreditModal = ({
                 }}
                 className={`px-4 py-3 rounded-lg font-medium transition-colors ${
                   creditFormData.action === 'deduct'
-                    ? 'bg-red-600 text-white'
-                    : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                    ? 'bg-accent-error text-white'
+                    : 'bg-bg-dark-light text-text-secondary hover:bg-bg-dark'
                 }`}
               >
                 หักเครดิต
@@ -1049,8 +1049,8 @@ const AdjustCreditModal = ({
 
           {/* Amount */}
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
-              จำนวนเครดิต <span className="text-red-500">*</span>
+            <label className="block text-sm font-medium text-text-secondary mb-2">
+              จำนวนเครดิต <span className="text-accent-error">*</span>
             </label>
             <input
               type="number"
@@ -1058,22 +1058,22 @@ const AdjustCreditModal = ({
               onChange={(e) =>
                 setCreditFormData({ ...creditFormData, amount: parseFloat(e.target.value) || 0 })
               }
-              className={`w-full px-4 py-2 bg-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 ${
-                errors.amount ? 'ring-2 ring-red-500' : 'focus:ring-yellow-400'
+              className={`w-full px-4 py-2 bg-bg-light-cream text-text-primary border border-border-default rounded-lg focus:outline-none focus:ring-2 ${
+                errors.amount ? 'ring-2 ring-accent-error border-accent-error' : 'focus:ring-primary-gold focus:border-transparent'
               }`}
               placeholder="0.00"
               min="0"
               step="0.01"
             />
-            {errors.amount && <p className="text-red-400 text-sm mt-1">{errors.amount}</p>}
+            {errors.amount && <p className="text-accent-error text-sm mt-1">{errors.amount}</p>}
           </div>
 
           {/* Preview */}
           {creditFormData.amount > 0 && (
-            <div className="bg-blue-500/20 border border-blue-500 p-4 rounded-lg">
-              <p className="text-sm text-blue-300">
+            <div className="bg-accent-info/20 border border-accent-info p-4 rounded-lg">
+              <p className="text-sm text-accent-info">
                 {creditFormData.action === 'add' ? 'เครดิตหลังเพิ่ม:' : 'เครดิตหลังหัก:'}{' '}
-                <span className="font-semibold text-yellow-400">
+                <span className="font-semibold text-primary-light-gold">
                   {formatCurrency(
                     creditFormData.action === 'add'
                       ? selectedAgent.credit + creditFormData.amount
@@ -1081,7 +1081,7 @@ const AdjustCreditModal = ({
                   )}
                 </span>
               </p>
-              <p className="text-sm text-blue-300 mt-1">
+              <p className="text-sm text-accent-info mt-1">
                 เครดิตคงเหลือของคุณ:{' '}
                 <span className="font-semibold text-green-400">
                   {formatCurrency(
@@ -1101,7 +1101,7 @@ const AdjustCreditModal = ({
             type="button"
             onClick={onClose}
             disabled={submitLoading}
-            className="px-6 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors disabled:opacity-50"
+            className="px-6 py-2 bg-bg-dark-light text-white rounded-lg hover:bg-bg-dark transition-colors disabled:opacity-50"
           >
             ยกเลิก
           </button>
@@ -1110,8 +1110,8 @@ const AdjustCreditModal = ({
             disabled={submitLoading}
             className={`px-6 py-2 text-white rounded-lg transition-colors disabled:opacity-50 flex items-center space-x-2 ${
               creditFormData.action === 'add'
-                ? 'bg-green-600 hover:bg-green-700'
-                : 'bg-red-600 hover:bg-red-700'
+                ? 'bg-accent-success hover:bg-accent-success/90'
+                : 'bg-accent-error hover:bg-accent-error/90'
             }`}
           >
             {submitLoading && (

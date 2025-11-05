@@ -44,24 +44,24 @@ const ConfirmDialog = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50 backdrop-blur-sm animate-fadeIn">
-      <div className="bg-gray-800 rounded-lg shadow-xl w-full max-w-md animate-slideUp">
+      <div className="bg-white border border-primary-gold/30 rounded-lg shadow-xl w-full max-w-md animate-slideUp">
         {/* Header with Icon */}
-        <div className={`flex items-center space-x-3 p-6 border-b-2 ${config.borderColor}`}>
+        <div className={`flex items-center space-x-3 p-6 border-b-2 bg-bg-light-cream ${config.borderColor}`}>
           <span className="text-3xl">{config.icon}</span>
-          <h3 className="text-xl font-semibold text-white">{title}</h3>
+          <h3 className="text-xl font-semibold text-text-primary">{title}</h3>
         </div>
 
         {/* Body */}
-        <div className="p-6">
-          <p className="text-gray-300 text-base leading-relaxed">{message}</p>
+        <div className="p-6 bg-white">
+          <p className="text-text-secondary text-base leading-relaxed">{message}</p>
         </div>
 
         {/* Footer */}
-        <div className="flex justify-end space-x-3 p-6 border-t border-gray-700">
+        <div className="flex justify-end space-x-3 p-6 border-t bg-bg-light-cream border-border-default">
           <button
             onClick={onClose}
             disabled={loading}
-            className="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-4 py-2 bg-bg-dark-light text-white rounded-lg hover:bg-bg-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {cancelText}
           </button>
