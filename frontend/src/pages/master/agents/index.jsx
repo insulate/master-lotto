@@ -13,6 +13,7 @@ import {
   isValidUsername,
   isValidPassword,
 } from '../../../lib/utils';
+import toast from 'react-hot-toast';
 
 /**
  * Agent Management Page
@@ -25,8 +26,6 @@ const AgentManagement = () => {
   // State Management
   const [agents, setAgents] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
 
   // Search & Filter
   const [searchTerm, setSearchTerm] = useState('');
@@ -92,11 +91,10 @@ const AgentManagement = () => {
   const fetchAgents = async () => {
     try {
       setLoading(true);
-      setError('');
       const response = await agentService.getAll();
       setAgents(response.data.agents || []);
     } catch (err) {
-      setError(parseErrorMessage(err));
+      toast.error(parseErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -268,7 +266,7 @@ const AgentManagement = () => {
       const result = await agentService.getCreditHistory(agent._id);
       setCreditHistory(result.data.transactions || []);
     } catch (err) {
-      setError(parseErrorMessage(err));
+      toast.error(parseErrorMessage(err));
       setCreditHistory([]);
     } finally {
       setHistoryLoading(false);
@@ -283,18 +281,6 @@ const AgentManagement = () => {
     setCreditHistoryModalOpen(false);
     setStatusDialogOpen(false);
     setSelectedAgent(null);
-  };
-
-  // Show success message
-  const showSuccess = (message) => {
-    setSuccess(message);
-    setTimeout(() => setSuccess(''), 3000);
-  };
-
-  // Show error message
-  const showError = (message) => {
-    setError(message);
-    setTimeout(() => setError(''), 5000);
   };
 
   return (
@@ -315,20 +301,6 @@ const AgentManagement = () => {
           <span>สร้างเอเย่นต์ใหม่</span>
         </button>
       </div>
-
-      {/* Success Message */}
-      {success && (
-        <div className="mb-4 p-4 bg-accent-success/20 border border-accent-success rounded-lg text-accent-success">
-          {success}
-        </div>
-      )}
-
-      {/* Error Message */}
-      {error && (
-        <div className="mb-4 p-4 bg-accent-error/20 border border-accent-error rounded-lg text-accent-error">
-          {error}
-        </div>
-      )}
 
       {/* Search & Filter */}
       <div className="bg-bg-card rounded-lg p-4 mb-6 border border-border-default shadow-md">
@@ -411,8 +383,6 @@ const AgentManagement = () => {
         submitLoading={submitLoading}
         setSubmitLoading={setSubmitLoading}
         fetchAgents={fetchAgents}
-        showSuccess={showSuccess}
-        showError={showError}
         masterCredit={user?.credit || 0}
       />
 
@@ -426,8 +396,6 @@ const AgentManagement = () => {
         submitLoading={submitLoading}
         setSubmitLoading={setSubmitLoading}
         fetchAgents={fetchAgents}
-        showSuccess={showSuccess}
-        showError={showError}
       />
 
       {/* Adjust Credit Modal */}
@@ -440,8 +408,6 @@ const AgentManagement = () => {
         submitLoading={submitLoading}
         setSubmitLoading={setSubmitLoading}
         fetchAgents={fetchAgents}
-        showSuccess={showSuccess}
-        showError={showError}
         masterCredit={user?.credit || 0}
       />
 
@@ -454,7 +420,7 @@ const AgentManagement = () => {
             setSubmitLoading(true);
             const newStatus = selectedAgent.status === 'active' ? 'suspended' : 'active';
             await agentService.toggleStatus(selectedAgent._id, newStatus);
-            showSuccess(
+            toast.success(
               `${newStatus === 'active' ? 'เปิดใช้งาน' : 'ระงับ'}เอเย่นต์ ${
                 selectedAgent.username
               } สำเร็จ`
@@ -462,7 +428,7 @@ const AgentManagement = () => {
             fetchAgents();
             closeAllModals();
           } catch (err) {
-            showError(parseErrorMessage(err));
+            toast.error(parseErrorMessage(err));
           } finally {
             setSubmitLoading(false);
           }
@@ -598,8 +564,6 @@ const CreateAgentModal = ({
   submitLoading,
   setSubmitLoading,
   fetchAgents,
-  showSuccess,
-  showError,
   masterCredit,
 }) => {
   const [errors, setErrors] = useState({});
@@ -643,11 +607,11 @@ const CreateAgentModal = ({
     try {
       setSubmitLoading(true);
       await agentService.create(formData);
-      showSuccess(`สร้างเอเย่นต์ ${formData.username} สำเร็จ`);
+      toast.success(`สร้างเอเย่นต์ ${formData.username} สำเร็จ`);
       fetchAgents();
       onClose();
     } catch (err) {
-      showError(parseErrorMessage(err));
+      toast.error(parseErrorMessage(err));
     } finally {
       setSubmitLoading(false);
     }
@@ -860,8 +824,6 @@ const EditAgentModal = ({
   submitLoading,
   setSubmitLoading,
   fetchAgents,
-  showSuccess,
-  showError,
 }) => {
   const [errors, setErrors] = useState({});
 
@@ -892,11 +854,11 @@ const EditAgentModal = ({
         commission_rate: formData.commission_rate,
       };
       await agentService.update(selectedAgent._id, updateData);
-      showSuccess(`แก้ไขข้อมูลเอเย่นต์ ${selectedAgent.username} สำเร็จ`);
+      toast.success(`แก้ไขข้อมูลเอเย่นต์ ${selectedAgent.username} สำเร็จ`);
       fetchAgents();
       onClose();
     } catch (err) {
-      showError(parseErrorMessage(err));
+      toast.error(parseErrorMessage(err));
     } finally {
       setSubmitLoading(false);
     }
@@ -1068,8 +1030,6 @@ const AdjustCreditModal = ({
   submitLoading,
   setSubmitLoading,
   fetchAgents,
-  showSuccess,
-  showError,
   masterCredit,
 }) => {
   const [errors, setErrors] = useState({});
@@ -1110,7 +1070,7 @@ const AdjustCreditModal = ({
         creditFormData.amount,
         creditFormData.action
       );
-      showSuccess(
+      toast.success(
         `${creditFormData.action === 'add' ? 'เพิ่ม' : 'ลด'}เครดิตเอเย่นต์ ${
           selectedAgent.username
         } สำเร็จ`
@@ -1118,7 +1078,7 @@ const AdjustCreditModal = ({
       fetchAgents();
       onClose();
     } catch (err) {
-      showError(parseErrorMessage(err));
+      toast.error(parseErrorMessage(err));
     } finally {
       setSubmitLoading(false);
     }

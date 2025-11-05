@@ -9,6 +9,7 @@ import {
   formatDateTime,
   parseErrorMessage,
 } from '../../../lib/utils';
+import toast from 'react-hot-toast';
 
 /**
  * Lottery Draw Management Page
@@ -26,8 +27,6 @@ const LotteryDrawManagement = () => {
   // State Management
   const [lotteryDraws, setLotteryDraws] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
 
   // Filter States
   const [lotteryTypeFilter, setLotteryTypeFilter] = useState(typeFromUrl);
@@ -103,7 +102,6 @@ const LotteryDrawManagement = () => {
   const fetchLotteryDraws = async () => {
     try {
       setLoading(true);
-      setError('');
 
       const params = {
         page: currentPage,
@@ -126,7 +124,7 @@ const LotteryDrawManagement = () => {
         setTotal(response.data.pagination.total);
       }
     } catch (err) {
-      setError(parseErrorMessage(err));
+      toast.error(parseErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -333,17 +331,14 @@ const LotteryDrawManagement = () => {
 
     try {
       setSubmitLoading(true);
-      setError('');
 
       await lotteryDrawService.create(formData);
 
-      setSuccess('สร้างงวดหวยสำเร็จ');
+      toast.success('สร้างงวดหวยสำเร็จ');
       setCreateModalOpen(false);
       fetchLotteryDraws();
-
-      setTimeout(() => setSuccess(''), 3000);
     } catch (err) {
-      setError(parseErrorMessage(err));
+      toast.error(parseErrorMessage(err));
     } finally {
       setSubmitLoading(false);
     }
@@ -355,7 +350,6 @@ const LotteryDrawManagement = () => {
 
     try {
       setSubmitLoading(true);
-      setError('');
 
       const updateData = {
         draw_date: formData.draw_date,
@@ -366,13 +360,11 @@ const LotteryDrawManagement = () => {
 
       await lotteryDrawService.update(selectedDraw._id, updateData);
 
-      setSuccess('แก้ไขงวดหวยสำเร็จ');
+      toast.success('แก้ไขงวดหวยสำเร็จ');
       setEditModalOpen(false);
       fetchLotteryDraws();
-
-      setTimeout(() => setSuccess(''), 3000);
     } catch (err) {
-      setError(parseErrorMessage(err));
+      toast.error(parseErrorMessage(err));
     } finally {
       setSubmitLoading(false);
     }
@@ -384,17 +376,14 @@ const LotteryDrawManagement = () => {
 
     try {
       setSubmitLoading(true);
-      setError('');
 
       await lotteryDrawService.updateResult(selectedDraw._id, resultFormData);
 
-      setSuccess('ประกาศผลรางวัลสำเร็จ');
+      toast.success('ประกาศผลรางวัลสำเร็จ');
       setResultModalOpen(false);
       fetchLotteryDraws();
-
-      setTimeout(() => setSuccess(''), 3000);
     } catch (err) {
-      setError(parseErrorMessage(err));
+      toast.error(parseErrorMessage(err));
     } finally {
       setSubmitLoading(false);
     }
@@ -404,18 +393,15 @@ const LotteryDrawManagement = () => {
   const handleStatusChange = async () => {
     try {
       setSubmitLoading(true);
-      setError('');
 
       await lotteryDrawService.updateStatus(selectedDraw._id, targetStatus);
 
       const statusLabel = statusOptions.find(s => s.value === targetStatus)?.label || targetStatus;
-      setSuccess(`เปลี่ยนสถานะเป็น${statusLabel}สำเร็จ`);
+      toast.success(`เปลี่ยนสถานะเป็น${statusLabel}สำเร็จ`);
       setStatusDialogOpen(false);
       fetchLotteryDraws();
-
-      setTimeout(() => setSuccess(''), 3000);
     } catch (err) {
-      setError(parseErrorMessage(err));
+      toast.error(parseErrorMessage(err));
     } finally {
       setSubmitLoading(false);
     }
@@ -425,17 +411,14 @@ const LotteryDrawManagement = () => {
   const handleDelete = async () => {
     try {
       setSubmitLoading(true);
-      setError('');
 
       await lotteryDrawService.delete(selectedDraw._id);
 
-      setSuccess('ลบงวดหวยสำเร็จ');
+      toast.success('ลบงวดหวยสำเร็จ');
       setDeleteDialogOpen(false);
       fetchLotteryDraws();
-
-      setTimeout(() => setSuccess(''), 3000);
     } catch (err) {
-      setError(parseErrorMessage(err));
+      toast.error(parseErrorMessage(err));
     } finally {
       setSubmitLoading(false);
     }
@@ -448,18 +431,6 @@ const LotteryDrawManagement = () => {
         <h1 className="text-3xl font-bold text-primary-gold mb-2">จัดการงวดหวย</h1>
         <p className="text-text-muted">Master: {user?.name}</p>
       </div>
-
-      {/* Success/Error Messages */}
-      {success && (
-        <div className="mb-4 p-4 bg-accent-success/10 border border-accent-success text-accent-success rounded-lg">
-          {success}
-        </div>
-      )}
-      {error && (
-        <div className="mb-4 p-4 bg-accent-error/10 border border-accent-error text-accent-error rounded-lg">
-          {error}
-        </div>
-      )}
 
       {/* Filters and Create Button */}
       <div className="mb-6 flex flex-wrap gap-4 items-center justify-between">

@@ -4,7 +4,7 @@ import { useAuthStore } from '../../../store/authStore';
 import lotteryDrawService from '../lottery-draws/lotteryDrawService';
 import DataTable from '../../../components/common/DataTable';
 import { parseErrorMessage } from '../../../lib/utils';
-import { TrendingUp, Clock, CheckCircle, XCircle } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 /**
  * Lottery Types Overview Page
@@ -15,7 +15,6 @@ const LotteryTypesOverview = () => {
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
   const [lotteryStats, setLotteryStats] = useState([]);
 
   // Lottery type definitions
@@ -53,7 +52,6 @@ const LotteryTypesOverview = () => {
   const fetchLotteryStats = async () => {
     try {
       setLoading(true);
-      setError('');
 
       // Fetch stats for each lottery type
       const statsPromises = lotteryTypes.map(async (type) => {
@@ -111,7 +109,7 @@ const LotteryTypesOverview = () => {
       const stats = await Promise.all(statsPromises);
       setLotteryStats(stats);
     } catch (err) {
-      setError(parseErrorMessage(err));
+      toast.error(parseErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -199,13 +197,6 @@ const LotteryTypesOverview = () => {
         <h1 className="text-3xl font-bold text-gray-800 mb-2">จัดการหวย</h1>
         <p className="text-gray-600">Master: {user?.name}</p>
       </div>
-
-      {/* Error Message */}
-      {error && (
-        <div className="mb-4 p-4 bg-red-50 border border-red-300 text-red-700 rounded-lg">
-          {error}
-        </div>
-      )}
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
