@@ -1,5 +1,6 @@
 import bcrypt from 'bcryptjs';
 import User from '../../models/user.model.js';
+import CreditTransaction from '../../models/creditTransaction.model.js';
 import AppError from '../../utils/AppError.js';
 import { successResponse } from '../../utils/response.js';
 
@@ -190,6 +191,40 @@ export const toggleAgentStatus = async (req, res, next) => {
   }
 };
 
+// GET /api/v1/master/agents/:id/credit-history
+// Get credit transaction history for specific agent
+export const getAgentCreditHistory = async (req, res, next) => {
+  try {
+    const masterId = req.user.id;
+    const { id } = req.params;
+
+    // Verify agent belongs to current master
+    const agent = await User.findOne({
+      _id: id,
+      role: 'agent',
+      parent_id: masterId
+    });
+
+    if (!agent) {
+      throw new AppError('ไม่พบเอเย่นต์หรือไม่มีสิทธิ์เข้าถึง', 404);
+    }
+
+    // Get transaction history for this agent
+    const transactions = await CreditTransaction.find({
+      agent_id: id
+    })
+      .populate('performed_by', 'name username')
+      .sort({ createdAt: -1 }); // Sort by newest first
+
+    return successResponse(res, 'ดึงประวัติเครดิตสำเร็จ', {
+      transactions,
+      total: transactions.length
+    }, 200);
+  } catch (error) {
+    next(error);
+  }
+};
+
 // PATCH /api/v1/master/agents/:id/credit
 // Adjust agent credit (add or deduct)
 export const adjustAgentCredit = async (req, res, next) => {
@@ -225,9 +260,14 @@ export const adjustAgentCredit = async (req, res, next) => {
       throw new AppError('ไม่พบข้อมูลผู้ใช้', 404);
     }
 
+    // Store balance before transaction
+    const balanceBefore = agent.credit;
+    let balanceAfter;
+
     if (action === 'add') {
       // Master doesn't need credit check - can give unlimited credit to agents
       agent.credit += creditAmount;
+      balanceAfter = agent.credit;
     } else if (action === 'deduct') {
       // Check if agent has enough credit
       if (agent.credit < creditAmount) {
@@ -236,10 +276,22 @@ export const adjustAgentCredit = async (req, res, next) => {
 
       // Deduct credit from agent (master credit is not affected)
       agent.credit -= creditAmount;
+      balanceAfter = agent.credit;
     }
 
     await agent.save();
     // Master credit is not affected - no need to save master
+
+    // Save transaction history
+    await CreditTransaction.create({
+      performed_by: masterId,
+      agent_id: id,
+      action: action,
+      amount: creditAmount,
+      balance_before: balanceBefore,
+      balance_after: balanceAfter,
+      note: req.body.note || ''
+    });
 
     const actionText = action === 'add' ? 'เพิ่ม' : 'ลด';
     return successResponse(res, `${actionText}เครดิตเอเย่นต์สำเร็จ`, {

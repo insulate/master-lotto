@@ -6,7 +6,8 @@ import {
   createAgent,
   updateAgent,
   toggleAgentStatus,
-  adjustAgentCredit
+  adjustAgentCredit,
+  getAgentCreditHistory
 } from '../../controllers/master/agent.controller.master.js';
 
 const router = express.Router();
@@ -49,6 +50,13 @@ router.put('/:id', updateAgent);
  * @access  Private (Master only)
  */
 router.patch('/:id/status', toggleAgentStatus);
+
+/**
+ * @route   GET /api/v1/master/agents/:id/credit-history
+ * @desc    Get credit transaction history for specific agent
+ * @access  Private (Master only)
+ */
+router.get('/:id/credit-history', getAgentCreditHistory);
 
 /**
  * @route   PATCH /api/v1/master/agents/:id/credit

@@ -40,10 +40,15 @@ const AgentManagement = () => {
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [creditModalOpen, setCreditModalOpen] = useState(false);
+  const [creditHistoryModalOpen, setCreditHistoryModalOpen] = useState(false);
   const [statusDialogOpen, setStatusDialogOpen] = useState(false);
 
   // Selected Agent
   const [selectedAgent, setSelectedAgent] = useState(null);
+
+  // Credit History State
+  const [creditHistory, setCreditHistory] = useState([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
 
   // Form States
   const [formData, setFormData] = useState({
@@ -168,6 +173,12 @@ const AgentManagement = () => {
             ปรับเครดิต
           </button>
           <button
+            onClick={() => handleCreditHistoryClick(row)}
+            className="px-3 py-1 bg-primary-gold hover:bg-primary-light-gold text-white text-xs rounded transition-colors"
+          >
+            ประวัติเครดิต
+          </button>
+          <button
             onClick={() => handleStatusClick(row)}
             className={`px-3 py-1 text-white text-xs rounded transition-colors ${
               row.status === 'active'
@@ -231,11 +242,29 @@ const AgentManagement = () => {
     setStatusDialogOpen(true);
   };
 
+  // Handle Credit History Click
+  const handleCreditHistoryClick = async (agent) => {
+    setSelectedAgent(agent);
+    setCreditHistoryModalOpen(true);
+    setHistoryLoading(true);
+
+    try {
+      const result = await agentService.getCreditHistory(agent._id);
+      setCreditHistory(result.data.transactions || []);
+    } catch (err) {
+      setError(parseErrorMessage(err));
+      setCreditHistory([]);
+    } finally {
+      setHistoryLoading(false);
+    }
+  };
+
   // Close all modals
   const closeAllModals = () => {
     setCreateModalOpen(false);
     setEditModalOpen(false);
     setCreditModalOpen(false);
+    setCreditHistoryModalOpen(false);
     setStatusDialogOpen(false);
     setSelectedAgent(null);
   };
@@ -433,6 +462,102 @@ const AgentManagement = () => {
         type={selectedAgent?.status === 'active' ? 'danger' : 'warning'}
         loading={submitLoading}
       />
+
+      {/* Credit History Modal */}
+      <Modal
+        isOpen={creditHistoryModalOpen}
+        onClose={closeAllModals}
+        title={`ประวัติเครดิต - ${selectedAgent?.name || ''}`}
+        size="large"
+      >
+        {historyLoading ? (
+          <div className="flex justify-center items-center py-12">
+            <svg
+              className="animate-spin h-8 w-8 text-primary-gold"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              ></circle>
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              ></path>
+            </svg>
+          </div>
+        ) : creditHistory.length === 0 ? (
+          <div className="text-center py-12 text-text-muted">
+            <p>ยังไม่มีประวัติการเติม-ถอนเครดิต</p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-bg-dark-gray border-b border-border-default">
+                <tr>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-white uppercase">วันที่</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-white uppercase">ประเภท</th>
+                  <th className="px-4 py-3 text-right text-xs font-semibold text-white uppercase">จำนวน</th>
+                  <th className="px-4 py-3 text-right text-xs font-semibold text-white uppercase">ก่อนทำรายการ</th>
+                  <th className="px-4 py-3 text-right text-xs font-semibold text-white uppercase">หลังทำรายการ</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-white uppercase">ดำเนินการโดย</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border-default">
+                {creditHistory.map((transaction) => (
+                  <tr key={transaction._id} className="hover:bg-bg-cream/50 transition-colors">
+                    <td className="px-4 py-3 text-sm text-text-primary">
+                      {formatDateTime(transaction.createdAt)}
+                    </td>
+                    <td className="px-4 py-3">
+                      <span
+                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                          transaction.action === 'add'
+                            ? 'bg-accent-success/10 text-accent-success'
+                            : 'bg-accent-error/10 text-accent-error'
+                        }`}
+                      >
+                        {transaction.action === 'add' ? 'เพิ่มเครดิต' : 'ลดเครดิต'}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-sm text-right font-semibold text-text-primary">
+                      {transaction.action === 'add' ? '+' : '-'}
+                      {formatCurrency(transaction.amount)}
+                    </td>
+                    <td className="px-4 py-3 text-sm text-right text-text-muted">
+                      {formatCurrency(transaction.balance_before)}
+                    </td>
+                    <td className="px-4 py-3 text-sm text-right font-semibold text-primary-gold">
+                      {formatCurrency(transaction.balance_after)}
+                    </td>
+                    <td className="px-4 py-3 text-sm text-text-primary">
+                      {transaction.performed_by?.name || 'N/A'}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        {/* Footer */}
+        <div className="flex justify-end mt-6">
+          <button
+            type="button"
+            onClick={closeAllModals}
+            className="px-6 py-2 bg-[#6c757d] text-white rounded-lg hover:bg-[#5a6268] transition-colors"
+          >
+            ปิด
+          </button>
+        </div>
+      </Modal>
     </div>
   );
 };
@@ -959,7 +1084,7 @@ const AdjustCreditModal = ({
         creditFormData.action
       );
       showSuccess(
-        `${creditFormData.action === 'add' ? 'เพิ่ม' : 'หัก'}เครดิตเอเย่นต์ ${
+        `${creditFormData.action === 'add' ? 'เพิ่ม' : 'ลด'}เครดิตเอเย่นต์ ${
           selectedAgent.username
         } สำเร็จ`
       );
@@ -1024,7 +1149,7 @@ const AdjustCreditModal = ({
                     : 'bg-bg-light-cream text-text-secondary border-border-default hover:bg-bg-cream'
                 }`}
               >
-                หักเครดิต
+                ลดเครดิต
               </button>
             </div>
           </div>
@@ -1054,7 +1179,7 @@ const AdjustCreditModal = ({
           {creditFormData.amount > 0 && (
             <div className="bg-bg-light-cream border border-primary-gold/50 p-4 rounded-lg">
               <p className="text-sm text-text-secondary">
-                {creditFormData.action === 'add' ? 'เครดิตหลังเพิ่ม:' : 'เครดิตหลังหัก:'}{' '}
+                {creditFormData.action === 'add' ? 'เครดิตหลังเพิ่ม:' : 'เครดิตหลังลด:'}{' '}
                 <span className="font-semibold text-primary-dark-gold">
                   {formatCurrency(
                     creditFormData.action === 'add'
@@ -1113,7 +1238,7 @@ const AdjustCreditModal = ({
                 ? 'กำลังดำเนินการ...'
                 : creditFormData.action === 'add'
                 ? 'เพิ่มเครดิต'
-                : 'หักเครดิต'}
+                : 'ลดเครดิต'}
             </span>
           </button>
         </div>

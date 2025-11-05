@@ -111,6 +111,21 @@ const agentService = {
       throw error;
     }
   },
+
+  /**
+   * ดึงประวัติการเติม-ถอนเครดิต
+   * GET /master/agents/:id/credit-history
+   * @param {string} id - Agent ID
+   * @returns {Promise} - { transactions: [], total: number }
+   */
+  getCreditHistory: async (id) => {
+    try {
+      const response = await httpClient.get(`/master/agents/${id}/credit-history`);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
 };
 
 export default agentService;
