@@ -102,7 +102,7 @@ const userSchema = new mongoose.Schema(
 );
 
 // Indexes for better query performance
-userSchema.index({ username: 1 });
+// Note: username already has unique index, no need to add another
 userSchema.index({ role: 1 });
 userSchema.index({ parent_id: 1 });
 userSchema.index({ status: 1 });
