@@ -67,8 +67,8 @@ const LotteryDrawManagement = () => {
     three_top: '',
     two_top: '',
     two_bottom: '',
-    run_top: [],
-    run_bottom: [],
+    run_top: '',
+    run_bottom: '',
   });
 
   const [targetStatus, setTargetStatus] = useState('');
@@ -292,8 +292,8 @@ const LotteryDrawManagement = () => {
       three_top: '',
       two_top: '',
       two_bottom: '',
-      run_top: [],
-      run_bottom: [],
+      run_top: '',
+      run_bottom: '',
     });
     setResultModalOpen(true);
   };
@@ -301,12 +301,13 @@ const LotteryDrawManagement = () => {
   // Handle View Result Click
   const handleViewResultClick = (draw) => {
     setSelectedDraw(draw);
-    setResultFormData(draw.result || {
-      three_top: '',
-      two_top: '',
-      two_bottom: '',
-      run_top: [],
-      run_bottom: [],
+    const result = draw.result || {};
+    setResultFormData({
+      three_top: result.three_top || '',
+      two_top: result.two_top || '',
+      two_bottom: result.two_bottom || '',
+      run_top: Array.isArray(result.run_top) ? result.run_top.join(',') : '',
+      run_bottom: Array.isArray(result.run_bottom) ? result.run_bottom.join(',') : '',
     });
     setResultModalOpen(true);
   };
@@ -376,7 +377,22 @@ const LotteryDrawManagement = () => {
     try {
       setSubmitLoading(true);
 
-      await lotteryDrawService.updateResult(selectedDraw._id, resultFormData);
+      // Convert comma-separated strings to arrays
+      const resultData = {
+        three_top: resultFormData.three_top,
+        two_top: resultFormData.two_top,
+        two_bottom: resultFormData.two_bottom,
+        run_top: resultFormData.run_top
+          .split(',')
+          .map(s => s.trim())
+          .filter(s => s),
+        run_bottom: resultFormData.run_bottom
+          .split(',')
+          .map(s => s.trim())
+          .filter(s => s),
+      };
+
+      await lotteryDrawService.updateResult(selectedDraw._id, resultData);
 
       toast.success('ประกาศผลรางวัลสำเร็จ');
       setResultModalOpen(false);
@@ -709,10 +725,10 @@ const LotteryDrawManagement = () => {
             <label className="block text-sm font-medium mb-2">วิ่งบน (คั่นด้วยเครื่องหมายจุลภาค)</label>
             <input
               type="text"
-              value={Array.isArray(resultFormData.run_top) ? resultFormData.run_top.join(',') : ''}
+              value={resultFormData.run_top}
               onChange={(e) => setResultFormData({
                 ...resultFormData,
-                run_top: e.target.value.split(',').map(s => s.trim()).filter(s => s)
+                run_top: e.target.value
               })}
               className="w-full px-4 py-2 bg-neutral-charcoal border border-neutral-gray rounded-lg focus:outline-none focus:border-primary-gold"
               placeholder="เช่น 1,2,3"
@@ -725,10 +741,10 @@ const LotteryDrawManagement = () => {
             <label className="block text-sm font-medium mb-2">วิ่งล่าง (คั่นด้วยเครื่องหมายจุลภาค)</label>
             <input
               type="text"
-              value={Array.isArray(resultFormData.run_bottom) ? resultFormData.run_bottom.join(',') : ''}
+              value={resultFormData.run_bottom}
               onChange={(e) => setResultFormData({
                 ...resultFormData,
-                run_bottom: e.target.value.split(',').map(s => s.trim()).filter(s => s)
+                run_bottom: e.target.value
               })}
               className="w-full px-4 py-2 bg-neutral-charcoal border border-neutral-gray rounded-lg focus:outline-none focus:border-primary-gold"
               placeholder="เช่น 4,5,6"
