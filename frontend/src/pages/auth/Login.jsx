@@ -33,31 +33,37 @@ function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 px-4">
-      <div className="max-w-md w-full bg-white rounded-2xl shadow-2xl p-8">
+    <div className="min-h-screen flex items-center justify-center bg-bg-cream px-4">
+      {/* Background Pattern */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-5">
+        <div className="absolute top-0 -left-4 w-96 h-96 bg-primary-gold rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 -right-4 w-96 h-96 bg-primary-dark-gold rounded-full blur-3xl"></div>
+      </div>
+
+      <div className="max-w-md w-full bg-bg-dark border-2 border-primary-gold/30 rounded-2xl shadow-2xl p-8 relative z-10">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-indigo-600 rounded-full mb-4">
-            <LogIn className="w-8 h-8 text-white" />
+          <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-primary-gold to-primary-dark-gold rounded-2xl mb-4 shadow-lg">
+            <span className="text-4xl">🎰</span>
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">ระบบหวย</h1>
-          <p className="text-gray-600">เข้าสู่ระบบเพื่อดำเนินการต่อ</p>
+          <h1 className="text-3xl font-bold text-primary-light-gold mb-2">ระบบหวยออนไลน์</h1>
+          <p className="text-text-light/80">เข้าสู่ระบบเพื่อดำเนินการต่อ</p>
         </div>
 
         {/* Login Form */}
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           {/* Username Field */}
           <div>
-            <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="username" className="block text-sm font-medium text-text-light mb-2">
               ชื่อผู้ใช้
             </label>
             <input
               id="username"
               type="text"
               autoComplete="username"
-              className={`w-full px-4 py-3 rounded-lg border ${
-                errors.username ? 'border-red-500' : 'border-gray-300'
-              } focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors`}
+              className={`w-full px-4 py-3 rounded-lg border-2 bg-bg-dark-gray/50 text-text-light placeholder:text-text-light/40 ${
+                errors.username ? 'border-accent-error' : 'border-primary-gold/30'
+              } focus:outline-none focus:ring-2 focus:ring-primary-gold focus:border-primary-gold transition-all`}
               placeholder="กรอกชื่อผู้ใช้"
               {...register('username', {
                 required: 'กรุณากรอกชื่อผู้ใช้',
@@ -68,13 +74,13 @@ function Login() {
               })}
             />
             {errors.username && (
-              <p className="mt-1 text-sm text-red-500">{errors.username.message}</p>
+              <p className="mt-1 text-sm text-accent-error">{errors.username.message}</p>
             )}
           </div>
 
           {/* Password Field */}
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="password" className="block text-sm font-medium text-text-light mb-2">
               รหัสผ่าน
             </label>
             <div className="relative">
@@ -82,9 +88,9 @@ function Login() {
                 id="password"
                 type={showPassword ? 'text' : 'password'}
                 autoComplete="current-password"
-                className={`w-full px-4 py-3 rounded-lg border ${
-                  errors.password ? 'border-red-500' : 'border-gray-300'
-                } focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors pr-12`}
+                className={`w-full px-4 py-3 rounded-lg border-2 bg-bg-dark-gray/50 text-text-light placeholder:text-text-light/40 ${
+                  errors.password ? 'border-accent-error' : 'border-primary-gold/30'
+                } focus:outline-none focus:ring-2 focus:ring-primary-gold focus:border-primary-gold transition-all pr-12`}
                 placeholder="กรอกรหัสผ่าน"
                 {...register('password', {
                   required: 'กรุณากรอกรหัสผ่าน',
@@ -97,13 +103,13 @@ function Login() {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-text-light/60 hover:text-primary-gold focus:outline-none transition-colors"
               >
                 {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
               </button>
             </div>
             {errors.password && (
-              <p className="mt-1 text-sm text-red-500">{errors.password.message}</p>
+              <p className="mt-1 text-sm text-accent-error">{errors.password.message}</p>
             )}
           </div>
 
@@ -111,7 +117,7 @@ function Login() {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-indigo-600 text-white py-3 rounded-lg font-medium hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+            className="w-full bg-gradient-to-r from-primary-gold to-primary-dark-gold text-bg-dark py-3 rounded-lg font-semibold hover:from-primary-dark-gold hover:to-primary-gold focus:outline-none focus:ring-2 focus:ring-primary-gold focus:ring-offset-2 focus:ring-offset-bg-dark transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transform hover:scale-[1.02] active:scale-[0.98]"
           >
             {isLoading ? (
               <>
@@ -128,8 +134,10 @@ function Login() {
         </form>
 
         {/* Footer */}
-        <div className="mt-6 text-center text-sm text-gray-600">
-          <p>ติดต่อผู้ดูแลระบบหากมีปัญหาการเข้าสู่ระบบ</p>
+        <div className="mt-8 pt-6 border-t border-primary-gold/20">
+          <p className="text-center text-sm text-text-secondary">
+            ติดต่อผู้ดูแลระบบหากมีปัญหาการเข้าสู่ระบบ
+          </p>
         </div>
       </div>
     </div>
