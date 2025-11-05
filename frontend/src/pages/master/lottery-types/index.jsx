@@ -225,11 +225,12 @@ const LotteryTypesOverview = () => {
       </div>
 
       {/* Data Table */}
-      {loading ? (
-        <div className="text-center py-12 text-gray-600">กำลังโหลด...</div>
-      ) : (
-        <DataTable columns={columns} data={lotteryStats} />
-      )}
+      <DataTable
+        columns={columns}
+        data={lotteryStats}
+        loading={loading}
+        emptyMessage="ไม่พบข้อมูลประเภทหวย"
+      />
     </div>
   );
 };
