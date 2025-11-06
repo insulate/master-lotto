@@ -70,36 +70,28 @@ const HomePage = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-6 max-w-4xl">
-      {/* Header */}
-      <div className="mb-6">
-        <button
-          onClick={() => navigate(-1)}
-          className="flex items-center gap-2 text-white hover:text-yellow-400 transition-colors mb-4"
-        >
-          <ChevronLeft className="w-5 h-5" />
-          <span>แทงหวย</span>
-        </button>
-      </div>
-
-      {/* Lottery Sections */}
-      <div className="space-y-8">
+    <div className="min-h-screen flex items-center justify-center py-8">
+      <div className="w-[800px]">
+        {/* Main Card */}
+        <div className="bg-white border-2 border-primary-gold/30 rounded-xl shadow-2xl p-6">
+          {/* Lottery Sections */}
+          <div className="space-y-8">
         {lotteryTypes.map((section) => (
           <div key={section.id}>
             {/* Section Header */}
             <div className="flex items-center gap-2 mb-4">
               {section.id === 1 ? (
-                <Crown className="w-5 h-5 text-yellow-400" />
+                <Crown className="w-5 h-5 text-primary-gold" />
               ) : section.id === 2 ? (
-                <Star className="w-5 h-5 text-red-400" />
+                <Star className="w-5 h-5 text-primary-gold" />
               ) : (
-                <Star className="w-5 h-5 text-blue-400" />
+                <Star className="w-5 h-5 text-primary-dark-gold" />
               )}
-              <h2 className="text-white text-lg font-bold">{section.name}</h2>
+              <h2 className="text-bg-dark text-lg font-bold">{section.name}</h2>
             </div>
 
             {/* Lottery Cards Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-3 gap-3">
               {section.items.map((lottery) => (
                 <button
                   key={lottery.id}
@@ -108,15 +100,15 @@ const HomePage = () => {
                   className={`relative p-4 rounded-xl text-left transition-all ${
                     lottery.status === 'open'
                       ? lottery.vip
-                        ? 'bg-gradient-to-br from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 border-2 border-yellow-400 shadow-lg hover:shadow-xl transform hover:scale-105'
-                        : 'bg-gradient-to-br from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 border-2 border-blue-400 shadow-lg hover:shadow-xl transform hover:scale-105'
-                      : 'bg-gray-600 border-2 border-gray-500 opacity-75 cursor-not-allowed'
+                        ? 'bg-gradient-to-br from-primary-gold to-primary-dark-gold hover:from-primary-dark-gold hover:to-primary-gold border-2 border-primary-gold shadow-gold-lg hover:shadow-gold-xl transform hover:scale-105'
+                        : 'bg-white border-2 border-primary-gold/50 hover:border-primary-gold shadow-lg hover:shadow-xl transform hover:scale-105'
+                      : 'bg-gray-100 border-2 border-gray-300 opacity-60 cursor-not-allowed'
                   }`}
                 >
                   {/* VIP Badge */}
                   {lottery.vip && (
                     <div className="absolute top-3 right-3">
-                      <span className="bg-yellow-400 text-red-800 text-xs font-bold px-2 py-1 rounded">
+                      <span className="bg-bg-dark text-primary-gold text-xs font-bold px-2 py-1 rounded border border-bg-dark">
                         VIP
                       </span>
                     </div>
@@ -127,8 +119,8 @@ const HomePage = () => {
                     <div className="absolute top-3 right-3">
                       <span className={`text-xs font-bold px-2 py-1 rounded ${
                         lottery.status === 'open'
-                          ? 'bg-white/20 text-white'
-                          : 'bg-gray-700 text-gray-300'
+                          ? 'bg-primary-gold/20 text-primary-gold border border-primary-gold/30'
+                          : 'bg-gray-200 text-gray-500 border border-gray-300'
                       }`}>
                         {lottery.status === 'open' ? 'เปิดรับ' : 'ปิดรับ'}
                       </span>
@@ -142,21 +134,27 @@ const HomePage = () => {
 
                   {/* Lottery Name */}
                   <h3 className={`text-lg font-bold mb-1 pr-16 ${
-                    lottery.status === 'open' ? 'text-white' : 'text-gray-300'
+                    lottery.status === 'open'
+                      ? lottery.vip ? 'text-bg-dark' : 'text-gray-800'
+                      : 'text-gray-400'
                   }`}>
                     {lottery.name}
                   </h3>
 
                   {/* Round/Subtitle */}
                   <div className={`text-2xl font-bold mb-1 ${
-                    lottery.status === 'open' ? 'text-yellow-300' : 'text-gray-400'
+                    lottery.status === 'open'
+                      ? lottery.vip ? 'text-bg-dark' : 'text-primary-gold'
+                      : 'text-gray-400'
                   }`}>
                     {lottery.round || lottery.subName}
                   </div>
 
                   {/* Closing Time */}
                   <div className={`text-sm ${
-                    lottery.status === 'open' ? 'text-white/80' : 'text-gray-400'
+                    lottery.status === 'open'
+                      ? lottery.vip ? 'text-bg-dark/80' : 'text-gray-600'
+                      : 'text-gray-400'
                   }`}>
                     ปิดรับ {lottery.closingTime}
                   </div>
@@ -165,6 +163,8 @@ const HomePage = () => {
             </div>
           </div>
         ))}
+          </div>
+        </div>
       </div>
     </div>
   );
