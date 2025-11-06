@@ -56,7 +56,10 @@ const allMenuItems = [
 export default function Layout({ children }) {
   const location = useLocation();
   const navigate = useNavigate();
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(() => {
+    // Initialize based on screen size to prevent animation on load
+    return typeof window !== 'undefined' && window.innerWidth >= 1024;
+  });
 
   // Get user data and logout function from auth store
   const user = useAuthStore((state) => state.user);
