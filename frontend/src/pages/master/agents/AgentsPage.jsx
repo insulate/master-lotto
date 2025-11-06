@@ -16,6 +16,7 @@ import {
   isValidPassword,
 } from '../../../lib/utils';
 import toast from 'react-hot-toast';
+import { Edit, Percent, Wallet, History, Ban, CheckCircle } from 'lucide-react';
 
 /**
  * Agent Management Page
@@ -190,41 +191,60 @@ const AgentManagement = () => {
       key: 'actions',
       label: 'จัดการ',
       render: (_, row) => (
-        <div className="flex space-x-2">
+        <div className="flex space-x-1">
           <button
             onClick={() => handleEditClick(row)}
-            className="px-3 py-1 bg-accent-info hover:bg-accent-info/90 text-white text-xs rounded transition-colors"
+            className="p-2 bg-accent-info hover:bg-accent-info/90 text-white rounded transition-colors group relative"
+            title="แก้ไข"
           >
-            แก้ไข
+            <Edit size={16} />
+            <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+              แก้ไข
+            </span>
           </button>
           <button
             onClick={() => handleCommissionClick(row)}
-            className="px-3 py-1 bg-accent-info hover:bg-accent-info/90 text-white text-xs rounded transition-colors"
+            className="p-2 bg-accent-info hover:bg-accent-info/90 text-white rounded transition-colors group relative"
             title="จัดการค่าคอมมิชชัน"
           >
-            จัดการค่าคอม
+            <Percent size={16} />
+            <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+              จัดการค่าคอม
+            </span>
           </button>
           <button
             onClick={() => handleCreditClick(row)}
-            className="px-3 py-1 bg-primary-mustard hover:bg-primary-dark-gold text-white text-xs rounded transition-colors"
+            className="p-2 bg-primary-mustard hover:bg-primary-dark-gold text-white rounded transition-colors group relative"
+            title="ปรับเครดิต"
           >
-            ปรับเครดิต
+            <Wallet size={16} />
+            <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+              ปรับเครดิต
+            </span>
           </button>
           <button
             onClick={() => handleCreditHistoryClick(row)}
-            className="px-3 py-1 bg-primary-gold hover:bg-primary-light-gold text-white text-xs rounded transition-colors"
+            className="p-2 bg-primary-gold hover:bg-primary-light-gold text-white rounded transition-colors group relative"
+            title="ประวัติเครดิต"
           >
-            ประวัติเครดิต
+            <History size={16} />
+            <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+              ประวัติเครดิต
+            </span>
           </button>
           <button
             onClick={() => handleStatusClick(row)}
-            className={`px-3 py-1 text-white text-xs rounded transition-colors ${
+            className={`p-2 text-white rounded transition-colors group relative ${
               row.status === 'active'
                 ? 'bg-accent-error hover:bg-accent-error/90'
                 : 'bg-accent-success hover:bg-accent-success/90'
             }`}
+            title={row.status === 'active' ? 'ระงับการใช้งาน' : 'เปิดใช้งาน'}
           >
-            {row.status === 'active' ? 'ระงับ' : 'เปิดใช้งาน'}
+            {row.status === 'active' ? <Ban size={16} /> : <CheckCircle size={16} />}
+            <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+              {row.status === 'active' ? 'ระงับ' : 'เปิดใช้งาน'}
+            </span>
           </button>
         </div>
       ),
