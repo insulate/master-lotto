@@ -45,6 +45,13 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
+    // If error is 403 (Forbidden - Not authorized), redirect to login
+    if (error.response?.status === 403) {
+      localStorage.removeItem('auth-storage');
+      window.location.href = '/login';
+      return Promise.reject(error);
+    }
+
     // If error is 401 and we haven't retried yet
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
