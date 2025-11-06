@@ -77,7 +77,7 @@ const AutoCreateModal = ({ isOpen, onClose, onSubmit, loading }) => {
       isOpen={isOpen}
       onClose={handleClose}
       title="สร้างงวดหวยอัตโนมัติ"
-      size="large"
+      size="medium"
     >
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Lottery Type Selection (Single) */}
@@ -217,13 +217,13 @@ const AutoCreateModal = ({ isOpen, onClose, onSubmit, loading }) => {
             <input
               type="number"
               min="1"
-              max="168"
+              max="8760"
               value={Math.abs(formData.open_time_offset) / 60}
               onChange={(e) => setFormData({ ...formData, open_time_offset: -parseInt(e.target.value) * 60 })}
               className="w-full px-4 py-2 bg-neutral-charcoal border border-neutral-gray rounded-lg focus:outline-none focus:border-primary-gold"
               required
             />
-            <p className="text-xs text-text-muted mt-1">ค่าเริ่มต้น: 24 ชั่วโมง</p>
+            <p className="text-xs text-text-muted mt-1">ค่าเริ่มต้น: 24 ชั่วโมง (สูงสุด: 365 วัน)</p>
           </div>
 
           {/* Close Time Offset */}
