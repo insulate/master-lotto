@@ -8,6 +8,7 @@ import {
   updateDrawStatus,
   updateDrawResult,
   deleteLotteryDraw,
+  bulkCreateLotteryDraws,
 } from '../../controllers/master/lotteryDraw.controller.master.js';
 
 const router = express.Router();
@@ -30,6 +31,13 @@ router.get('/', getLotteryDraws);
  * @access  Private (Master only)
  */
 router.get('/:id', getLotteryDrawById);
+
+/**
+ * @route   POST /api/v1/master/lottery-draws/bulk-create
+ * @desc    Create multiple lottery draws at once
+ * @access  Private (Master only)
+ */
+router.post('/bulk-create', bulkCreateLotteryDraws);
 
 /**
  * @route   POST /api/v1/master/lottery-draws

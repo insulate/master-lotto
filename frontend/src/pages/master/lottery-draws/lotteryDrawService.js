@@ -120,6 +120,25 @@ const lotteryDrawService = {
     const response = await httpClient.delete(`/master/lottery-draws/${id}`);
     return response.data;
   },
+
+  /**
+   * สร้างงวดหวยหลายงวดพร้อมกัน (Bulk Create)
+   * POST /master/lottery-draws/bulk-create
+   * @param {Object} data - Bulk create configuration
+   * @param {Array<string>} data.lottery_types - Array of lottery types to create
+   * @param {number} data.days_ahead - Number of days to create ahead (1-365)
+   * @param {string} data.frequency - Frequency: 'daily', 'weekly', or 'custom'
+   * @param {Array<number>} data.custom_days - Day numbers for custom frequency (0-6, 0 = Sunday)
+   * @param {number} data.open_time_offset - Minutes before draw_date to open (e.g., -1440 = 24 hours before)
+   * @param {number} data.close_time_offset - Minutes before draw_date to close (e.g., -30 = 30 minutes before)
+   * @param {string} data.draw_time - Time of day for draw (HH:MM format)
+   * @param {Object} data.bet_settings - Default bet settings for all draws (optional)
+   * @returns {Promise} - { created: number, lotteryDraws: [], errors: [] }
+   */
+  bulkCreate: async (data) => {
+    const response = await httpClient.post('/master/lottery-draws/bulk-create', data);
+    return response.data;
+  },
 };
 
 export default lotteryDrawService;

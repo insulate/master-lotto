@@ -6,6 +6,7 @@ import DataTable from '../../../components/common/DataTable';
 import Modal from '../../../components/common/Modal';
 import ConfirmDialog from '../../../components/common/ConfirmDialog';
 import PageHeader from '../../../components/common/PageHeader';
+import AutoCreateModal from './AutoCreateModal';
 import {
   formatDateTime,
   parseErrorMessage,
@@ -40,6 +41,7 @@ const LotteryDrawManagement = () => {
 
   // Modal States
   const [createModalOpen, setCreateModalOpen] = useState(false);
+  const [autoCreateModalOpen, setAutoCreateModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [resultModalOpen, setResultModalOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -440,6 +442,31 @@ const LotteryDrawManagement = () => {
     }
   };
 
+  // Handle Auto Create
+  const handleAutoCreate = async (formData) => {
+    try {
+      setSubmitLoading(true);
+
+      const response = await lotteryDrawService.bulkCreate(formData);
+
+      // Show success message
+      toast.success(response.message || `สร้างงวดหวยสำเร็จ ${response.data.created} งวด`);
+
+      // Show errors if any
+      if (response.data.errors && response.data.errors.length > 0) {
+        toast.error(`พบข้อผิดพลาด ${response.data.errors.length} รายการ กรุณาตรวจสอบ`);
+        console.error('Bulk create errors:', response.data.errors);
+      }
+
+      setAutoCreateModalOpen(false);
+      fetchLotteryDraws();
+    } catch (err) {
+      toast.error(parseErrorMessage(err));
+    } finally {
+      setSubmitLoading(false);
+    }
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Header */}
@@ -480,12 +507,20 @@ const LotteryDrawManagement = () => {
           </select>
         </div>
 
-        <button
-          onClick={handleCreateClick}
-          className="px-6 py-2 bg-primary-gold hover:bg-primary-light-gold text-neutral-charcoal font-semibold rounded-lg transition-colors"
-        >
-          + สร้างงวดหวยใหม่
-        </button>
+        <div className="flex gap-3">
+          <button
+            onClick={() => setAutoCreateModalOpen(true)}
+            className="px-6 py-2 bg-accent-info hover:bg-accent-info/90 text-white font-semibold rounded-lg transition-colors"
+          >
+            ⚡ สร้างอัตโนมัติ
+          </button>
+          <button
+            onClick={handleCreateClick}
+            className="px-6 py-2 bg-primary-gold hover:bg-primary-light-gold text-neutral-charcoal font-semibold rounded-lg transition-colors"
+          >
+            + สร้างงวดหวยใหม่
+          </button>
+        </div>
       </div>
 
       {/* Data Table */}
@@ -807,6 +842,14 @@ const LotteryDrawManagement = () => {
         loading={submitLoading}
         confirmText="ลบ"
         confirmButtonClass="bg-accent-error hover:bg-accent-error/90"
+      />
+
+      {/* Auto Create Modal */}
+      <AutoCreateModal
+        isOpen={autoCreateModalOpen}
+        onClose={() => setAutoCreateModalOpen(false)}
+        onSubmit={handleAutoCreate}
+        loading={submitLoading}
       />
     </div>
   );
