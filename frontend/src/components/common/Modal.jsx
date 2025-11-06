@@ -10,14 +10,15 @@ const Modal = ({
   title = '',
   children,
   size = 'md', // 'sm', 'md', 'lg', 'xl'
-  showCloseButton = true,
-  closeOnBackdropClick = true,
+  showCloseButton = false, // เปลี่ยน default เป็น false
+  closeOnBackdropClick = false, // เปลี่ยน default เป็น false
+  closeOnEsc = false, // เพิ่ม prop ใหม่สำหรับควบคุม ESC key
   footer = null,
 }) => {
   // Handle ESC key press
   useEffect(() => {
     const handleEsc = (e) => {
-      if (e.key === 'Escape' && isOpen) {
+      if (e.key === 'Escape' && isOpen && closeOnEsc) {
         onClose();
       }
     };
@@ -32,7 +33,7 @@ const Modal = ({
       document.removeEventListener('keydown', handleEsc);
       document.body.style.overflow = 'unset';
     };
-  }, [isOpen, onClose]);
+  }, [isOpen, onClose, closeOnEsc]);
 
   if (!isOpen) return null;
 

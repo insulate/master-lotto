@@ -2,12 +2,15 @@ import { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import Layout from './components/layout/Layout';
+import AgentLayout from './pages/agent/AgentLayout';
 import PrivateRoute from './components/auth/PrivateRoute';
 import Login from './pages/auth/Login';
 import MasterDashboard from './pages/master/MasterDashboard';
 import AgentManagement from './pages/master/agents/AgentsPage';
 import LotteryTypesOverview from './pages/master/lottery-types/LotteryTypesPage';
 import LotteryDrawManagement from './pages/master/lottery-draws/LotteryDrawsPage';
+import AgentDashboard from './pages/agent/AgentDashboard';
+import MemberManagement from './pages/agent/members/MembersPage';
 import { useAuthStore } from './store/authStore';
 
 function App() {
@@ -113,6 +116,29 @@ function App() {
                 <Layout>
                   <LotteryDrawManagement />
                 </Layout>
+              </PrivateRoute>
+            }
+          />
+
+          {/* Agent Routes */}
+          <Route
+            path="/agent/dashboard"
+            element={
+              <PrivateRoute>
+                <AgentLayout>
+                  <AgentDashboard />
+                </AgentLayout>
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/agent/members"
+            element={
+              <PrivateRoute>
+                <AgentLayout>
+                  <MemberManagement />
+                </AgentLayout>
               </PrivateRoute>
             }
           />

@@ -5,8 +5,8 @@ import { Wallet } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import toast from 'react-hot-toast';
 
-// Menu items definition with role-based access
-const allMenuItems = [
+// Menu items for Agent role
+const agentMenuItems = [
   {
     id: 'dashboard',
     label: 'แดชบอร์ด',
@@ -15,45 +15,21 @@ const allMenuItems = [
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
       </svg>
     ),
-    href: '/dashboard',
-    roles: ['master', 'agent', 'member'], // Available for all roles
-  },
-  {
-    id: 'agents',
-    label: 'จัดการเอเย่นต์',
-    icon: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-      </svg>
-    ),
-    href: '/master/agents',
-    roles: ['master'], // Only available for master
-  },
-  {
-    id: 'lottery-types',
-    label: 'จัดการหวย',
-    icon: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
-      </svg>
-    ),
-    href: '/master/lottery-types',
-    roles: ['master'], // Only available for master
+    href: '/agent/dashboard',
   },
   {
     id: 'members',
     label: 'จัดการผู้เล่น',
     icon: (
       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
       </svg>
     ),
     href: '/agent/members',
-    roles: ['agent'], // Only available for agent
   },
 ];
 
-export default function Layout({ children }) {
+export default function AgentLayout({ children }) {
   const location = useLocation();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -61,14 +37,6 @@ export default function Layout({ children }) {
   // Get user data and logout function from auth store
   const user = useAuthStore((state) => state.user);
   const logout = useAuthStore((state) => state.logout);
-  const isInitializing = useAuthStore((state) => state.isInitializing);
-
-  // Filter menu items based on user role
-  // If still initializing and no user, show all items (will be filtered after init)
-  // Otherwise filter based on actual user role
-  const menuItems = !user && isInitializing
-    ? allMenuItems
-    : allMenuItems.filter((item) => item.roles.includes(user?.role));
 
   // Calculate total balance (credit + balance)
   const totalBalance = (user?.credit || 0) + (user?.balance || 0);
@@ -103,7 +71,7 @@ export default function Layout({ children }) {
   };
 
   // Get active item
-  const activeItem = menuItems.find(item => location.pathname === item.href)?.id || 'dashboard';
+  const activeItem = agentMenuItems.find(item => location.pathname === item.href)?.id || 'dashboard';
 
   return (
     <div className="min-h-screen bg-bg-cream">
@@ -132,43 +100,35 @@ export default function Layout({ children }) {
                 <span className="text-xl">🎰</span>
               </div>
               <h1 className="text-xl font-bold text-text-primary hidden md:block">
-                ระบบหวยออนไลน์
+                ระบบหวยออนไลน์ - เอเย่นต์
               </h1>
             </div>
           </div>
 
           {/* Right Side - Balance & User Menu */}
           <div className="flex items-center gap-3">
-            {/* Balance Display - Hidden for master as they have unlimited credit */}
-            {user?.role !== 'master' && (
-              <>
-                <div className="hidden md:flex items-center gap-2 px-4 py-2 bg-bg-dark-gray/50 rounded-lg border border-primary-gold/30">
-                  <Wallet className="w-5 h-5 text-primary-light-gold" />
-                  <div className="text-left">
-                    <p className="text-xs text-text-primary font-medium">เครดิตคงเหลือ</p>
-                    <p className="text-sm font-bold text-primary-light-gold">
-                      {totalBalance.toLocaleString()} บาท
-                    </p>
-                  </div>
-                </div>
+            {/* Balance Display */}
+            <div className="hidden md:flex items-center gap-2 px-4 py-2 bg-bg-dark-gray/50 rounded-lg border border-primary-gold/30">
+              <Wallet className="w-5 h-5 text-primary-light-gold" />
+              <div className="text-left">
+                <p className="text-xs text-text-primary font-medium">เครดิตคงเหลือ</p>
+                <p className="text-sm font-bold text-primary-light-gold">
+                  {totalBalance.toLocaleString()} บาท
+                </p>
+              </div>
+            </div>
 
-                {/* Divider */}
-                <div className="w-px h-8 bg-primary-dark-gold"></div>
-              </>
-            )}
+            {/* Divider */}
+            <div className="w-px h-8 bg-primary-dark-gold"></div>
 
             {/* User Info */}
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary-gold to-primary-dark-gold flex items-center justify-center text-sm font-semibold text-text-primary">
-                {user?.name?.charAt(0).toUpperCase() || 'M'}
+                {user?.name?.charAt(0).toUpperCase() || 'A'}
               </div>
               <div className="hidden md:block text-left">
                 <p className="text-sm font-medium text-text-primary">{user?.name}</p>
-                <p className="text-xs text-text-secondary">
-                  {user?.role === 'master' && 'ผู้ดูแลระบบ'}
-                  {user?.role === 'agent' && 'เอเย่นต์'}
-                  {user?.role === 'member' && 'สมาชิก'}
-                </p>
+                <p className="text-xs text-text-secondary">เอเย่นต์</p>
               </div>
             </div>
           </div>
@@ -193,7 +153,7 @@ export default function Layout({ children }) {
       >
         <nav className="h-full overflow-y-auto p-4 pb-20">
           <ul className="space-y-1">
-            {menuItems.map((item) => (
+            {agentMenuItems.map((item) => (
               <li key={item.id}>
                 <Link
                   to={item.href}
