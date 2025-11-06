@@ -335,8 +335,9 @@ export const bulkCreateLotteryDraws = async (req, res, next) => {
     const {
       lottery_types,  // Array of lottery types to create
       days_ahead,     // Number of days to create ahead
-      frequency,      // 'daily', 'weekly', or 'custom'
+      frequency,      // 'daily', 'weekly', 'custom', or 'monthly'
       custom_days,    // Array of day numbers (0-6, where 0 = Sunday) for weekly frequency
+      monthly_dates,  // Array of date numbers (1-31) for monthly frequency
       open_time_offset, // Minutes before draw_date to open betting (e.g., -1440 = 24 hours before)
       close_time_offset, // Minutes before draw_date to close betting (e.g., -30 = 30 minutes before)
       draw_time,      // Time of day for draw (HH:MM format, e.g., "16:30")
@@ -352,12 +353,16 @@ export const bulkCreateLotteryDraws = async (req, res, next) => {
       throw new AppError('กรุณาระบุจำนวนวันที่ถูกต้อง (1-365 วัน)', 400);
     }
 
-    if (!frequency || !['daily', 'weekly', 'custom'].includes(frequency)) {
-      throw new AppError('กรุณาระบุความถี่ที่ถูกต้อง (daily, weekly, custom)', 400);
+    if (!frequency || !['daily', 'weekly', 'custom', 'monthly'].includes(frequency)) {
+      throw new AppError('กรุณาระบุความถี่ที่ถูกต้อง (daily, weekly, custom, monthly)', 400);
     }
 
     if (frequency === 'custom' && (!custom_days || !Array.isArray(custom_days) || custom_days.length === 0)) {
       throw new AppError('กรุณาเลือกวันในสัปดาห์สำหรับการสร้างแบบกำหนดเอง', 400);
+    }
+
+    if (frequency === 'monthly' && (!monthly_dates || !Array.isArray(monthly_dates) || monthly_dates.length === 0)) {
+      throw new AppError('กรุณาเลือกวันที่ในเดือนสำหรับการสร้างแบบรายเดือน', 400);
     }
 
     if (!draw_time || !/^\d{2}:\d{2}$/.test(draw_time)) {
@@ -384,6 +389,7 @@ export const bulkCreateLotteryDraws = async (req, res, next) => {
       currentDate.setDate(startDate.getDate() + i);
 
       const dayOfWeek = currentDate.getDay(); // 0 = Sunday, 6 = Saturday
+      const dayOfMonth = currentDate.getDate(); // 1-31
 
       // Check if this date should be included based on frequency
       let includeDate = false;
@@ -396,6 +402,9 @@ export const bulkCreateLotteryDraws = async (req, res, next) => {
       } else if (frequency === 'custom') {
         // For custom, check if current day is in custom_days array
         includeDate = custom_days.includes(dayOfWeek);
+      } else if (frequency === 'monthly') {
+        // For monthly, check if current date is in monthly_dates array
+        includeDate = monthly_dates.includes(dayOfMonth);
       }
 
       if (includeDate) {

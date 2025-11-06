@@ -11,6 +11,7 @@ const AutoCreateModal = ({ isOpen, onClose, onSubmit, loading }) => {
     days_ahead: 30,
     frequency: 'daily',
     custom_days: [],
+    monthly_dates: [],
     draw_time: '16:30',
     open_time_offset: -1440, // 24 hours before
     close_time_offset: -30,   // 30 minutes before
@@ -42,6 +43,15 @@ const AutoCreateModal = ({ isOpen, onClose, onSubmit, loading }) => {
     }));
   };
 
+  const handleMonthlyDateToggle = (date) => {
+    setFormData(prev => ({
+      ...prev,
+      monthly_dates: prev.monthly_dates.includes(date)
+        ? prev.monthly_dates.filter(d => d !== date)
+        : [...prev.monthly_dates, date]
+    }));
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     onSubmit(formData);
@@ -54,6 +64,7 @@ const AutoCreateModal = ({ isOpen, onClose, onSubmit, loading }) => {
       days_ahead: 30,
       frequency: 'daily',
       custom_days: [],
+      monthly_dates: [],
       draw_time: '16:30',
       open_time_offset: -1440,
       close_time_offset: -30,
@@ -112,13 +123,14 @@ const AutoCreateModal = ({ isOpen, onClose, onSubmit, loading }) => {
           </label>
           <select
             value={formData.frequency}
-            onChange={(e) => setFormData({ ...formData, frequency: e.target.value, custom_days: [] })}
+            onChange={(e) => setFormData({ ...formData, frequency: e.target.value, custom_days: [], monthly_dates: [] })}
             className="w-full px-4 py-2 bg-neutral-charcoal border border-neutral-gray rounded-lg focus:outline-none focus:border-primary-gold"
             required
           >
             <option value="daily">ทุกวัน</option>
             <option value="weekly">ทุกสัปดาห์ (วันเดียวกันกับวันนี้)</option>
             <option value="custom">กำหนดเอง (เลือกวันในสัปดาห์)</option>
+            <option value="monthly">รายเดือน (เลือกวันที่)</option>
           </select>
         </div>
 
@@ -148,6 +160,36 @@ const AutoCreateModal = ({ isOpen, onClose, onSubmit, loading }) => {
                 </label>
               ))}
             </div>
+          </div>
+        )}
+
+        {/* Monthly Dates (only show when frequency is 'monthly') */}
+        {formData.frequency === 'monthly' && (
+          <div>
+            <label className="block text-sm font-medium mb-3">
+              เลือกวันที่ในเดือน <span className="text-accent-error">*</span>
+            </label>
+            <div className="grid grid-cols-7 gap-2">
+              {Array.from({ length: 31 }, (_, i) => i + 1).map((date) => (
+                <label
+                  key={date}
+                  className={`flex items-center justify-center p-2 rounded-lg border cursor-pointer transition-all ${
+                    formData.monthly_dates.includes(date)
+                      ? 'bg-primary-gold/20 border-primary-gold'
+                      : 'bg-neutral-charcoal border-neutral-gray hover:border-primary-gold/50'
+                  }`}
+                >
+                  <input
+                    type="checkbox"
+                    checked={formData.monthly_dates.includes(date)}
+                    onChange={() => handleMonthlyDateToggle(date)}
+                    className="hidden"
+                  />
+                  <span className="text-xs font-medium">{date}</span>
+                </label>
+              ))}
+            </div>
+            <p className="text-xs text-text-muted mt-2">เช่น เลือก 1 และ 16 สำหรับหวยรัฐบาล</p>
           </div>
         )}
 
@@ -222,7 +264,7 @@ const AutoCreateModal = ({ isOpen, onClose, onSubmit, loading }) => {
           </button>
           <button
             type="submit"
-            disabled={loading || (formData.frequency === 'custom' && formData.custom_days.length === 0)}
+            disabled={loading || (formData.frequency === 'custom' && formData.custom_days.length === 0) || (formData.frequency === 'monthly' && formData.monthly_dates.length === 0)}
             className="px-6 py-2 bg-primary-gold hover:bg-primary-light-gold text-neutral-charcoal font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? 'กำลังสร้าง...' : 'สร้างงวดหวย'}

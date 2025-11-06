@@ -127,8 +127,9 @@ const lotteryDrawService = {
    * @param {Object} data - Bulk create configuration
    * @param {Array<string>} data.lottery_types - Array of lottery types to create
    * @param {number} data.days_ahead - Number of days to create ahead (1-365)
-   * @param {string} data.frequency - Frequency: 'daily', 'weekly', or 'custom'
+   * @param {string} data.frequency - Frequency: 'daily', 'weekly', 'custom', or 'monthly'
    * @param {Array<number>} data.custom_days - Day numbers for custom frequency (0-6, 0 = Sunday)
+   * @param {Array<number>} data.monthly_dates - Date numbers for monthly frequency (1-31)
    * @param {number} data.open_time_offset - Minutes before draw_date to open (e.g., -1440 = 24 hours before)
    * @param {number} data.close_time_offset - Minutes before draw_date to close (e.g., -30 = 30 minutes before)
    * @param {string} data.draw_time - Time of day for draw (HH:MM format)
