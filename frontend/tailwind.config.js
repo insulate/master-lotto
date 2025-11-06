@@ -12,13 +12,13 @@ export default {
       colors: {
         // Luxury Muted Gold Theme (Master App Style)
         'primary': {
-          DEFAULT: '#DAA520',
-          'gold': '#DAA520',
-          'light-gold': '#E6BE5A',
-          'dark-gold': '#B8860B',
-          'dark': '#B8860B',
-          'light': '#E6BE5A',
-          'mustard': '#C4941F',
+          DEFAULT: '#FFCD50',
+          'gold': '#FFCD50',
+          'light-gold': '#FFD970',
+          'dark-gold': '#E6B840',
+          'dark': '#E6B840',
+          'light': '#FFD970',
+          'mustard': '#F0C040',
         },
         'bg': {
           'dark': '#5D4037',
@@ -50,8 +50,8 @@ export default {
         },
       },
       boxShadow: {
-        'gold': '0 4px 14px 0 rgba(218, 165, 32, 0.3)',
-        'gold-lg': '0 10px 30px 0 rgba(218, 165, 32, 0.3)',
+        'gold': '0 4px 14px 0 rgba(255, 205, 80, 0.3)',
+        'gold-lg': '0 10px 30px 0 rgba(255, 205, 80, 0.3)',
       },
       keyframes: {
         'slide-in-right': {

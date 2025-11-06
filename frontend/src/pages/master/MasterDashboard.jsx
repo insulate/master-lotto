@@ -97,7 +97,7 @@ export default function MasterDashboard() {
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-text-primary">
+          <h1 className="text-2xl md:text-3xl font-bold text-primary-light-gold">
             Dashboard
           </h1>
           <p className="text-text-muted mt-1">

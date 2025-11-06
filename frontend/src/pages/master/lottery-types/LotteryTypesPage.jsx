@@ -242,8 +242,8 @@ const LotteryTypesOverview = () => {
     <div className="container mx-auto px-4 py-8">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-800 mb-2">จัดการหวย</h1>
-        <p className="text-gray-600">Master: {user?.name}</p>
+        <h1 className="text-3xl font-bold text-primary-light-gold mb-2">จัดการหวย</h1>
+        <p className="text-text-muted">Master: {user?.name}</p>
       </div>
 
       {/* Summary Cards */}
@@ -295,7 +295,7 @@ const LotteryTypesOverview = () => {
         message={`คุณต้องการ${
           selectedType?.enabled ? 'ปิด' : 'เปิด'
         }ใช้งาน ${selectedType?.label} หรือไม่?`}
-        type={selectedType?.enabled ? 'warning' : 'info'}
+        type="warning"
         loading={submitLoading}
       />
     </div>
