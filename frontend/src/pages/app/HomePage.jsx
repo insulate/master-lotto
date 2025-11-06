@@ -68,9 +68,11 @@ const HomePage = () => {
   };
 
   // Fetch lottery types and open draws from API
-  const fetchLotteryTypes = useCallback(async () => {
+  const fetchLotteryTypes = useCallback(async (silent = false) => {
     try {
-      setLoading(true);
+      if (!silent) {
+        setLoading(true);
+      }
 
       // Fetch open lottery draws (includes lottery types and their latest open draw)
       const response = await lotteryService.getOpenLotteryDraws();
@@ -187,22 +189,41 @@ const HomePage = () => {
     };
   }, [fetchLotteryTypes]);
 
-  // Update time every second and refetch lottery types every minute
+  // Update time every second and check if need to refetch
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(new Date());
+
+      // Check if any lottery's countdown has just reached 0 or passed it
+      const needsRefetch = lotteryTypes.some(section =>
+        section.items?.some(lottery => {
+          if (lottery.countdownTime) {
+            const now = new Date();
+            const target = new Date(lottery.countdownTime);
+            const diff = target - now;
+            // If countdown is within 3 seconds of reaching 0 or just passed 0, refetch
+            return diff > -1000 && diff <= 3000;
+          }
+          return false;
+        })
+      );
+
+      if (needsRefetch) {
+        console.log('🔄 Auto-refetching due to countdown reaching 0');
+        fetchLotteryTypes(true); // Silent refetch
+      }
     }, 1000);
 
-    // Refetch lottery types every minute to update status
+    // Also refetch lottery types every minute as backup
     const refetchTimer = setInterval(() => {
-      fetchLotteryTypes();
+      fetchLotteryTypes(true); // Silent refetch
     }, 60000); // 60 seconds
 
     return () => {
       clearInterval(timer);
       clearInterval(refetchTimer);
     };
-  }, [fetchLotteryTypes]);
+  }, [fetchLotteryTypes, lotteryTypes]);
 
   const formatTime = (date) => {
     return date.toLocaleTimeString('th-TH', {
