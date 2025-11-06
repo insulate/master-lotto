@@ -1,4 +1,5 @@
 import { Users, TrendingUp, DollarSign, Activity } from 'lucide-react';
+import PageHeader from '../../components/common/PageHeader';
 
 // Mock data - will be replaced with actual API calls
 const stats = [
@@ -95,26 +96,22 @@ export default function MasterDashboard() {
   return (
     <div className="space-y-6">
       {/* Page Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-primary">
-            Dashboard
-          </h1>
-          <p className="text-text-muted mt-1">
-            ภาพรวมระบบหวยออนไลน์
-          </p>
-        </div>
-        <div className="text-right">
-          <p className="text-sm text-text-muted">วันนี้</p>
-          <p className="text-lg font-semibold text-text-primary">
-            {new Date().toLocaleDateString('th-TH', {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric',
-            })}
-          </p>
-        </div>
-      </div>
+      <PageHeader
+        title="Dashboard"
+        subtitle="ภาพรวมระบบหวยออนไลน์"
+        rightContent={
+          <div className="text-right">
+            <p className="text-sm text-text-muted">วันนี้</p>
+            <p className="text-lg font-semibold text-text-primary">
+              {new Date().toLocaleDateString('th-TH', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+              })}
+            </p>
+          </div>
+        }
+      />
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">

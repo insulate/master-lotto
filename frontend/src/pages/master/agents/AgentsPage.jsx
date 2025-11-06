@@ -4,6 +4,7 @@ import agentService from './agentService';
 import DataTable from '../../../components/common/DataTable';
 import Modal from '../../../components/common/Modal';
 import ConfirmDialog from '../../../components/common/ConfirmDialog';
+import PageHeader from '../../../components/common/PageHeader';
 import {
   formatCurrency,
   formatDateTime,
@@ -286,21 +287,19 @@ const AgentManagement = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Header */}
-      <div className="flex justify-between items-center mb-6">
-        <div>
-          <h1 className="text-3xl font-bold text-primary">จัดการเอเย่นต์</h1>
-          <p className="text-text-muted mt-1">
-            ผู้ใช้: {user?.name}
-          </p>
-        </div>
-        <button
-          onClick={handleCreateClick}
-          className="px-6 py-3 bg-accent-success hover:bg-accent-success/90 text-white font-semibold rounded-lg transition-colors flex items-center space-x-2 shadow-md"
-        >
-          <span>+</span>
-          <span>สร้างเอเย่นต์ใหม่</span>
-        </button>
-      </div>
+      <PageHeader
+        title="จัดการเอเย่นต์"
+        subtitle={`ผู้ใช้: ${user?.name}`}
+        rightContent={
+          <button
+            onClick={handleCreateClick}
+            className="px-6 py-3 bg-accent-success hover:bg-accent-success/90 text-white font-semibold rounded-lg transition-colors flex items-center space-x-2 shadow-md"
+          >
+            <span>+</span>
+            <span>สร้างเอเย่นต์ใหม่</span>
+          </button>
+        }
+      />
 
       {/* Search & Filter */}
       <div className="bg-bg-card rounded-lg p-4 mb-6 border border-border-default shadow-md">

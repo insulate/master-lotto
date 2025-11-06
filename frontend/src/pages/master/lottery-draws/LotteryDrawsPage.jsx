@@ -5,6 +5,7 @@ import lotteryDrawService from './lotteryDrawService';
 import DataTable from '../../../components/common/DataTable';
 import Modal from '../../../components/common/Modal';
 import ConfirmDialog from '../../../components/common/ConfirmDialog';
+import PageHeader from '../../../components/common/PageHeader';
 import {
   formatDateTime,
   parseErrorMessage,
@@ -442,10 +443,10 @@ const LotteryDrawManagement = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold text-primary mb-2">จัดการงวดหวย</h1>
-        <p className="text-text-muted">Master: {user?.name}</p>
-      </div>
+      <PageHeader
+        title="จัดการงวดหวย"
+        subtitle={`Master: ${user?.name}`}
+      />
 
       {/* Filters and Create Button */}
       <div className="mb-6 flex flex-wrap gap-4 items-center justify-between">

@@ -5,6 +5,7 @@ import lotteryDrawService from '../lottery-draws/lotteryDrawService';
 import lotteryTypeService from './lotteryTypeService';
 import DataTable from '../../../components/common/DataTable';
 import ConfirmDialog from '../../../components/common/ConfirmDialog';
+import PageHeader from '../../../components/common/PageHeader';
 import { parseErrorMessage } from '../../../lib/utils';
 import toast from 'react-hot-toast';
 
@@ -241,10 +242,10 @@ const LotteryTypesOverview = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold text-primary mb-2">จัดการหวย</h1>
-        <p className="text-text-muted">Master: {user?.name}</p>
-      </div>
+      <PageHeader
+        title="จัดการหวย"
+        subtitle={`Master: ${user?.name}`}
+      />
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
