@@ -2,7 +2,6 @@ import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../../store/authStore';
 import memberService from './memberService';
-import lotteryTypeService from '../lottery-types/lotteryTypeService';
 import DataTable from '../../../components/common/DataTable';
 import Modal from '../../../components/common/Modal';
 import ConfirmDialog from '../../../components/common/ConfirmDialog';
@@ -17,7 +16,7 @@ import {
   isValidPassword,
 } from '../../../lib/utils';
 import toast from 'react-hot-toast';
-import { Edit, Percent, Wallet, History, Ban, CheckCircle } from 'lucide-react';
+import { Edit, Percent, Wallet, History, Ban, CheckCircle, Key } from 'lucide-react';
 
 /**
  * Member Management Page
@@ -31,7 +30,6 @@ const MemberManagement = () => {
   // State Management
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [lotteryTypes, setLotteryTypes] = useState([]);
 
   // Search & Filter
   const [searchTerm, setSearchTerm] = useState('');
@@ -47,6 +45,7 @@ const MemberManagement = () => {
   const [creditModalOpen, setCreditModalOpen] = useState(false);
   const [creditHistoryModalOpen, setCreditHistoryModalOpen] = useState(false);
   const [statusDialogOpen, setStatusDialogOpen] = useState(false);
+  const [changePasswordModalOpen, setChangePasswordModalOpen] = useState(false);
 
   // Selected Member
   const [selectedMember, setSelectedMember] = useState(null);
@@ -73,6 +72,11 @@ const MemberManagement = () => {
     action: 'add',
   });
 
+  const [passwordFormData, setPasswordFormData] = useState({
+    newPassword: '',
+    confirmPassword: '',
+  });
+
   // Loading States
   const [submitLoading, setSubmitLoading] = useState(false);
 
@@ -84,10 +88,9 @@ const MemberManagement = () => {
     });
   }, [creditHistory, selectedDate]);
 
-  // Fetch members and lottery types on component mount
+  // Fetch members on component mount
   useEffect(() => {
     fetchMembers();
-    fetchLotteryTypes();
   }, []);
 
   // Fetch all members
@@ -100,16 +103,6 @@ const MemberManagement = () => {
       toast.error(parseErrorMessage(err));
     } finally {
       setLoading(false);
-    }
-  };
-
-  // Fetch all lottery types
-  const fetchLotteryTypes = async () => {
-    try {
-      const response = await lotteryTypeService.getAll();
-      setLotteryTypes(response.data.lotteryTypes || []);
-    } catch (err) {
-      toast.error(parseErrorMessage(err));
     }
   };
 
@@ -211,6 +204,16 @@ const MemberManagement = () => {
             <Percent size={16} />
             <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
               จัดการค่าคอม
+            </span>
+          </button>
+          <button
+            onClick={() => handleChangePasswordClick(row)}
+            className="p-2 bg-purple-600 hover:bg-purple-700 text-white rounded transition-colors group relative"
+            title="เปลี่ยนรหัสผ่าน"
+          >
+            <Key size={16} />
+            <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+              เปลี่ยนรหัสผ่าน
             </span>
           </button>
           <button
@@ -319,6 +322,49 @@ const MemberManagement = () => {
     }
   };
 
+  // Handle Change Password Click
+  const handleChangePasswordClick = (member) => {
+    setSelectedMember(member);
+    setPasswordFormData({
+      newPassword: '',
+      confirmPassword: '',
+    });
+    setChangePasswordModalOpen(true);
+  };
+
+  // Handle Change Password Submit
+  const handleChangePasswordSubmit = async (e) => {
+    e.preventDefault();
+
+    // Validation
+    if (!passwordFormData.newPassword) {
+      toast.error('กรุณากรอกรหัสผ่านใหม่');
+      return;
+    }
+
+    if (passwordFormData.newPassword.length < 6) {
+      toast.error('รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร');
+      return;
+    }
+
+    if (passwordFormData.newPassword !== passwordFormData.confirmPassword) {
+      toast.error('รหัสผ่านไม่ตรงกัน');
+      return;
+    }
+
+    try {
+      setSubmitLoading(true);
+      await memberService.changePassword(selectedMember._id, passwordFormData.newPassword);
+      toast.success('เปลี่ยนรหัสผ่านสำเร็จ');
+      setChangePasswordModalOpen(false);
+      setPasswordFormData({ newPassword: '', confirmPassword: '' });
+    } catch (err) {
+      toast.error(parseErrorMessage(err));
+    } finally {
+      setSubmitLoading(false);
+    }
+  };
+
   // Close all modals
   const closeAllModals = () => {
     setCreateModalOpen(false);
@@ -326,6 +372,7 @@ const MemberManagement = () => {
     setCreditModalOpen(false);
     setCreditHistoryModalOpen(false);
     setStatusDialogOpen(false);
+    setChangePasswordModalOpen(false);
     setSelectedMember(null);
   };
 
@@ -454,6 +501,74 @@ const MemberManagement = () => {
         fetchMembers={fetchMembers}
         agentCredit={user?.credit || 0}
       />
+
+      {/* Change Password Modal */}
+      <Modal
+        isOpen={changePasswordModalOpen}
+        onClose={() => setChangePasswordModalOpen(false)}
+        title={`เปลี่ยนรหัสผ่าน - ${selectedMember?.name}`}
+        size="md"
+      >
+        <form onSubmit={handleChangePasswordSubmit} className="space-y-6">
+          <div className="space-y-4">
+            {/* New Password */}
+            <div>
+              <label className="block text-sm font-medium text-text-secondary mb-2">
+                รหัสผ่านใหม่ <span className="text-accent-error">*</span>
+              </label>
+              <input
+                type="password"
+                value={passwordFormData.newPassword}
+                onChange={(e) =>
+                  setPasswordFormData({ ...passwordFormData, newPassword: e.target.value })
+                }
+                className="w-full px-4 py-3 bg-bg-light-cream text-text-primary border border-border-default rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-gold"
+                placeholder="กรอกรหัสผ่านใหม่ (อย่างน้อย 6 ตัวอักษร)"
+                autoComplete="off"
+                disabled={submitLoading}
+              />
+            </div>
+
+            {/* Confirm Password */}
+            <div>
+              <label className="block text-sm font-medium text-text-secondary mb-2">
+                ยืนยันรหัสผ่านใหม่ <span className="text-accent-error">*</span>
+              </label>
+              <input
+                type="password"
+                value={passwordFormData.confirmPassword}
+                onChange={(e) =>
+                  setPasswordFormData({ ...passwordFormData, confirmPassword: e.target.value })
+                }
+                className="w-full px-4 py-3 bg-bg-light-cream text-text-primary border border-border-default rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-gold"
+                placeholder="กรอกรหัสผ่านใหม่อีกครั้ง"
+                autoComplete="off"
+                disabled={submitLoading}
+              />
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div className="flex justify-end space-x-3 pt-4 border-t border-border-default">
+            <button
+              type="button"
+              onClick={() => setChangePasswordModalOpen(false)}
+              className="px-6 py-3 bg-bg-dark-gray hover:bg-bg-darker text-text-light rounded-lg transition-colors font-medium"
+              disabled={submitLoading}
+            >
+              ยกเลิก
+            </button>
+            <button
+              type="submit"
+              className="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+              disabled={submitLoading}
+            >
+              <Key size={18} />
+              <span>{submitLoading ? 'กำลังเปลี่ยนรหัสผ่าน...' : 'เปลี่ยนรหัสผ่าน'}</span>
+            </button>
+          </div>
+        </form>
+      </Modal>
 
       {/* Toggle Status Confirmation Dialog */}
       <ConfirmDialog

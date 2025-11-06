@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useAuthStore } from '../../../store/authStore';
 import agentService from '../agents/agentService';
 import lotteryTypeService from '../lottery-types/lotteryTypeService';
 import PageHeader from '../../../components/common/PageHeader';
@@ -15,7 +14,6 @@ import { ArrowLeft, Save } from 'lucide-react';
 const AgentCommissionPage = () => {
   const { agentId } = useParams();
   const navigate = useNavigate();
-  const { user } = useAuthStore();
 
   // State Management
   const [agent, setAgent] = useState(null);
@@ -28,6 +26,7 @@ const AgentCommissionPage = () => {
   // Fetch agent and lottery types on component mount
   useEffect(() => {
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [agentId]);
 
   // Fetch agent and lottery types

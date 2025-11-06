@@ -28,6 +28,7 @@ const MemberCommissionPage = () => {
   // Fetch member and lottery types on component mount
   useEffect(() => {
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [memberId]);
 
   // Fetch member and lottery types

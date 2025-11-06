@@ -7,7 +7,8 @@ import {
   updateMember,
   toggleMemberStatus,
   adjustMemberCredit,
-  getMemberCreditHistory
+  getMemberCreditHistory,
+  changeMemberPassword
 } from '../../controllers/agent/member.controller.agent.js';
 
 const router = express.Router();
@@ -64,5 +65,12 @@ router.get('/:id/credit-history', getMemberCreditHistory);
  * @access  Private (Agent only)
  */
 router.patch('/:id/credit', adjustMemberCredit);
+
+/**
+ * @route   PATCH /api/v1/agent/members/:id/change-password
+ * @desc    Change member password
+ * @access  Private (Agent only)
+ */
+router.patch('/:id/change-password', changeMemberPassword);
 
 export default router;

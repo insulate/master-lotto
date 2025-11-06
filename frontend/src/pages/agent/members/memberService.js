@@ -98,6 +98,20 @@ const memberService = {
     const response = await httpClient.get(`/agent/members/${id}/credit-history`);
     return response.data;
   },
+
+  /**
+   * เปลี่ยนรหัสผ่านสมาชิก
+   * PATCH /agent/members/:id/change-password
+   * @param {string} id - Member ID
+   * @param {string} newPassword - รหัสผ่านใหม่ (min 6 characters)
+   * @returns {Promise} - { member: {} }
+   */
+  changePassword: async (id, newPassword) => {
+    const response = await httpClient.patch(`/agent/members/${id}/change-password`, {
+      newPassword,
+    });
+    return response.data;
+  },
 };
 
 export default memberService;

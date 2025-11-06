@@ -361,3 +361,46 @@ export const adjustMemberCredit = async (req, res, next) => {
     next(error);
   }
 };
+
+// PATCH /api/v1/agent/members/:id/change-password
+// Change member password
+export const changeMemberPassword = async (req, res, next) => {
+  try {
+    const agentId = req.user.id;
+    const { id } = req.params;
+    const { newPassword } = req.body;
+
+    // Validate new password
+    if (!newPassword) {
+      throw new AppError('กรุณาระบุรหัสผ่านใหม่', 400);
+    }
+
+    if (newPassword.length < 6) {
+      throw new AppError('รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร', 400);
+    }
+
+    // Find member and verify it belongs to current agent
+    const member = await User.findOne({
+      _id: id,
+      role: 'member',
+      parent_id: agentId
+    });
+
+    if (!member) {
+      throw new AppError('ไม่พบผู้เล่นหรือไม่มีสิทธิ์เข้าถึง', 404);
+    }
+
+    // Hash new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // Update password
+    member.password = hashedPassword;
+    await member.save();
+
+    return successResponse(res, 'เปลี่ยนรหัสผ่านผู้เล่นสำเร็จ', {
+      member
+    }, 200);
+  } catch (error) {
+    next(error);
+  }
+};

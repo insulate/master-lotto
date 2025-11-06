@@ -2,7 +2,6 @@ import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../../store/authStore';
 import agentService from './agentService';
-import lotteryTypeService from '../lottery-types/lotteryTypeService';
 import DataTable from '../../../components/common/DataTable';
 import Modal from '../../../components/common/Modal';
 import ConfirmDialog from '../../../components/common/ConfirmDialog';
@@ -31,7 +30,6 @@ const AgentManagement = () => {
   // State Management
   const [agents, setAgents] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [lotteryTypes, setLotteryTypes] = useState([]);
 
   // Search & Filter
   const [searchTerm, setSearchTerm] = useState('');
@@ -89,10 +87,9 @@ const AgentManagement = () => {
     });
   }, [creditHistory, selectedDate]);
 
-  // Fetch agents and lottery types on component mount
+  // Fetch agents on component mount
   useEffect(() => {
     fetchAgents();
-    fetchLotteryTypes();
   }, []);
 
   // Fetch all agents
@@ -108,15 +105,6 @@ const AgentManagement = () => {
     }
   };
 
-  // Fetch all lottery types
-  const fetchLotteryTypes = async () => {
-    try {
-      const response = await lotteryTypeService.getAll();
-      setLotteryTypes(response.data.lotteryTypes || []);
-    } catch (err) {
-      toast.error(parseErrorMessage(err));
-    }
-  };
 
   // Filter and search agents
   const filteredAgents = agents.filter((agent) => {
