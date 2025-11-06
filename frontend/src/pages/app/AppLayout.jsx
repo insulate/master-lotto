@@ -33,8 +33,8 @@ const AppLayout = () => {
           {/* Logo/Brand */}
           <div className="flex items-center gap-2">
             <div className="text-2xl font-bold text-bg-dark">
-              LOTTO
-              <span className="text-bg-dark text-sm">MAX</span>
+              MASTER
+              <span className="text-bg-dark text-sm">LOTTO</span>
             </div>
           </div>
 
