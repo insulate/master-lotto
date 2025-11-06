@@ -248,23 +248,23 @@ const LotteryTypesOverview = () => {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+        <div className="bg-white border border-amber-200 rounded-lg p-4 shadow-sm">
           <div className="text-sm text-gray-600 mb-1">ประเภทหวยทั้งหมด</div>
           <div className="text-2xl font-bold text-amber-600">{lotteryTypes.length}</div>
         </div>
-        <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+        <div className="bg-white border border-emerald-200 rounded-lg p-4 shadow-sm">
           <div className="text-sm text-gray-600 mb-1">งวดที่เปิดรับแทง</div>
           <div className="text-2xl font-bold text-emerald-600">
             {lotteryStats.reduce((sum, stat) => sum + stat.open, 0)} งวด
           </div>
         </div>
-        <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+        <div className="bg-white border border-orange-200 rounded-lg p-4 shadow-sm">
           <div className="text-sm text-gray-600 mb-1">งวดที่ปิดรับแทง</div>
           <div className="text-2xl font-bold text-orange-600">
             {lotteryStats.reduce((sum, stat) => sum + stat.closed, 0)} งวด
           </div>
         </div>
-        <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+        <div className="bg-white border border-blue-200 rounded-lg p-4 shadow-sm">
           <div className="text-sm text-gray-600 mb-1">งวดทั้งหมด</div>
           <div className="text-2xl font-bold text-blue-600">
             {lotteryStats.reduce((sum, stat) => sum + stat.total, 0)} งวด

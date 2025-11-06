@@ -97,7 +97,7 @@ export default function Layout({ children }) {
   return (
     <div className="min-h-screen bg-bg-cream">
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 h-16 bg-primary-light-gold border-b border-primary-dark-gold shadow-md z-50">
+      <header className="fixed top-0 left-0 right-0 h-16 bg-primary-light-gold border-b-2 border-primary-dark-gold shadow-lg z-50">
         <div className="h-full px-4 flex items-center justify-between">
           {/* Left Side - Logo & Menu Toggle */}
           <div className="flex items-center gap-4">
@@ -117,7 +117,7 @@ export default function Layout({ children }) {
 
             {/* Logo */}
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-bg-dark rounded-lg flex items-center justify-center shadow-lg">
+              <div className="w-10 h-10 bg-gradient-to-br from-primary-gold to-primary-dark-gold rounded-lg flex items-center justify-center shadow-lg">
                 <span className="text-xl">🎰</span>
               </div>
               <h1 className="text-xl font-bold text-text-primary hidden md:block">
