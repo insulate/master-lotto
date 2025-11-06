@@ -77,7 +77,7 @@ function App() {
           },
         }}
       />
-      <Router>
+      <Router future={{ v7_relativeSplatPath: true, v7_startTransition: true }}>
         <Routes>
           {/* Login Route */}
           <Route path="/login" element={<Login />} />
