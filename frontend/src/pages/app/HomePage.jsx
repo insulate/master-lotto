@@ -25,27 +25,67 @@ const HomePage = () => {
     return countryMap[value] || 'th';
   };
 
-  // Fetch lottery types from API
+  // Fetch lottery types and open draws from API
   const fetchLotteryTypes = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await lotteryService.getLotteryTypes();
-      const types = response.data.lotteryTypes || [];
+
+      // Fetch open lottery draws (includes lottery types and their latest open draw)
+      const response = await lotteryService.getOpenLotteryDraws();
+      const results = response.data.results || [];
+
+      // Format data for display
+      const items = results.map(result => {
+        const type = result.lotteryType;
+        const draw = result.draw;
+        const hasOpenDraw = result.hasOpenDraw;
+
+        // Determine status and display info
+        let status = 'closed';
+        let subName = 'ปิดรับแทง';
+        let closingTime = '-';
+        let round = null;
+
+        if (hasOpenDraw && draw) {
+          status = draw.status; // 'open', 'closed', 'completed'
+
+          // Format draw date and closing time
+          const drawDate = new Date(draw.draw_date);
+          closingTime = drawDate.toLocaleTimeString('th-TH', {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+          });
+
+          if (draw.status === 'open') {
+            subName = null;
+            round = draw.round_number ? `รอบที่ ${draw.round_number}` : null;
+          } else if (draw.status === 'closed') {
+            subName = 'ปิดรับแทง';
+          } else if (draw.status === 'completed') {
+            subName = 'ประกาศผลแล้ว';
+          }
+        }
+
+        return {
+          id: type.value,
+          name: type.label,
+          subName,
+          round,
+          status,
+          closingTime,
+          country: getCountryCode(type.value),
+          vip: type.value === 'hanoi_vip',
+          icon: type.icon,
+          draw: draw // Keep full draw data for later use
+        };
+      });
 
       setLotteryTypes([
         {
           id: 1,
           name: 'หวยทั้งหมด',
-          items: types.map(type => ({
-            id: type.value,
-            name: type.label,
-            subName: 'ปิดรับแทง',
-            status: 'closed',
-            closingTime: '16:30',
-            country: getCountryCode(type.value),
-            vip: type.value === 'hanoi_vip',
-            icon: type.icon
-          }))
+          items
         }
       ]);
     } catch (err) {
