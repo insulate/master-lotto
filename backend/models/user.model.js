@@ -68,6 +68,12 @@ const userSchema = new mongoose.Schema(
       ],
       default: []
     },
+    contact: {
+      type: String,
+      default: '',
+      trim: true,
+      maxlength: [500, 'Contact must be 500 characters or less']
+    },
     status: {
       type: String,
       enum: {

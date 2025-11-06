@@ -63,6 +63,7 @@ const AgentManagement = () => {
     name: '',
     password: '',
     credit: 0,
+    contact: '',
   });
 
   const [creditFormData, setCreditFormData] = useState({
@@ -227,6 +228,7 @@ const AgentManagement = () => {
       name: '',
       password: '',
       credit: 0,
+      contact: '',
     });
     setCreateModalOpen(true);
   };
@@ -239,6 +241,7 @@ const AgentManagement = () => {
       name: agent.name,
       password: '',
       credit: agent.credit,
+      contact: agent.contact || '',
     });
     setEditModalOpen(true);
   };
@@ -714,6 +717,21 @@ const CreateAgentModal = ({
             />
             {errors.credit && <p className="text-accent-error text-sm mt-1">{errors.credit}</p>}
           </div>
+
+          {/* Contact */}
+          <div>
+            <label className="block text-sm font-medium text-text-secondary mb-2">
+              ข้อมูลติดต่อ/หมายเหตุ
+            </label>
+            <textarea
+              value={formData.contact}
+              onChange={(e) => setFormData({ ...formData, contact: e.target.value })}
+              className="w-full px-4 py-2 bg-bg-light-cream text-text-primary border border-border-default rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-gold focus:border-transparent"
+              placeholder="เบอร์โทร, Line ID, หมายเหตุ ฯลฯ"
+              rows="3"
+              maxLength="500"
+            />
+          </div>
         </div>
 
         {/* Footer Buttons */}
@@ -798,6 +816,7 @@ const EditAgentModal = ({
       setSubmitLoading(true);
       const updateData = {
         name: formData.name,
+        contact: formData.contact,
       };
       await agentService.update(selectedAgent._id, updateData);
       toast.success(`แก้ไขข้อมูลเอเย่นต์ ${selectedAgent.username} สำเร็จ`);
@@ -843,6 +862,21 @@ const EditAgentModal = ({
               placeholder="ชื่อและนามสกุล"
             />
             {errors.name && <p className="text-accent-error text-sm mt-1">{errors.name}</p>}
+          </div>
+
+          {/* Contact */}
+          <div>
+            <label className="block text-sm font-medium text-text-secondary mb-2">
+              ข้อมูลติดต่อ/หมายเหตุ
+            </label>
+            <textarea
+              value={formData.contact}
+              onChange={(e) => setFormData({ ...formData, contact: e.target.value })}
+              className="w-full px-4 py-2 bg-bg-light-cream text-text-primary border border-border-default rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-gold focus:border-transparent"
+              placeholder="เบอร์โทร, Line ID, หมายเหตุ ฯลฯ"
+              rows="3"
+              maxLength="500"
+            />
           </div>
         </div>
 

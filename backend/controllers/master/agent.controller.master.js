@@ -56,7 +56,7 @@ export const getAgentById = async (req, res, next) => {
 export const createAgent = async (req, res, next) => {
   try {
     const masterId = req.user.id;
-    const { username, name, password, credit, commission_rates } = req.body;
+    const { username, name, password, credit, commission_rates, contact } = req.body;
 
     // Validate required fields
     if (!username || !name || !password) {
@@ -101,6 +101,7 @@ export const createAgent = async (req, res, next) => {
       credit: agentCredit,
       balance: 0,
       commission_rates: commission_rates || [],
+      contact: contact || '',
       status: 'active'
     });
 
@@ -120,7 +121,7 @@ export const updateAgent = async (req, res, next) => {
   try {
     const masterId = req.user.id;
     const { id } = req.params;
-    const { name, commission_rates } = req.body;
+    const { name, commission_rates, contact } = req.body;
 
     // Find agent and verify it belongs to current master
     const agent = await User.findOne({
@@ -136,6 +137,7 @@ export const updateAgent = async (req, res, next) => {
     // Update fields if provided
     if (name) agent.name = name;
     if (commission_rates !== undefined) agent.commission_rates = commission_rates;
+    if (contact !== undefined) agent.contact = contact;
 
     await agent.save();
 
