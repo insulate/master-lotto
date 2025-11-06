@@ -210,27 +210,24 @@ const HomePage = () => {
                       : 'bg-gray-100 border-2 border-gray-300 opacity-60 cursor-not-allowed'
                   }`}
                 >
-                  {/* VIP Badge */}
-                  {lottery.vip && (
-                    <div className="absolute top-3 right-3">
+                  {/* Badges Container */}
+                  <div className="absolute top-3 right-3 flex flex-col gap-2 items-end">
+                    {/* VIP Badge */}
+                    {lottery.vip && (
                       <span className="bg-primary-dark-gold text-white text-xs font-bold px-2 py-1 rounded border border-primary-dark-gold">
                         VIP
                       </span>
-                    </div>
-                  )}
+                    )}
 
-                  {/* Status Badge */}
-                  {!lottery.vip && (
-                    <div className="absolute top-3 right-3">
-                      <span className={`text-xs font-bold px-2 py-1 rounded ${
-                        lottery.status === 'open'
-                          ? 'bg-primary-dark-gold/80 text-white border border-primary-dark-gold'
-                          : 'bg-gray-200 text-gray-500 border border-gray-300'
-                      }`}>
-                        {lottery.status === 'open' ? 'เปิดรับ' : 'ปิดรับ'}
-                      </span>
-                    </div>
-                  )}
+                    {/* Status Badge */}
+                    <span className={`text-xs font-bold px-2 py-1 rounded ${
+                      lottery.status === 'open'
+                        ? 'bg-primary-dark-gold/80 text-white border border-primary-dark-gold'
+                        : 'bg-gray-200 text-gray-500 border border-gray-300'
+                    }`}>
+                      {lottery.status === 'open' ? 'เปิดรับ' : 'ปิดรับ'}
+                    </span>
+                  </div>
 
                   {/* Country Flag */}
                   {lottery.country && (
