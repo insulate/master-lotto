@@ -8,6 +8,9 @@ import { connectDB, testConnection } from './config/database.js';
 // Load environment variables
 dotenv.config();
 
+// Set default timezone to Asia/Bangkok
+process.env.TZ = 'Asia/Bangkok';
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 

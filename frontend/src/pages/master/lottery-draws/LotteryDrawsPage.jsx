@@ -137,14 +137,40 @@ const LotteryDrawManagement = () => {
     setCurrentPage(1);
   }, [lotteryTypeFilter, statusFilter]);
 
+  // Helper function to format date for datetime-local input (Bangkok timezone)
+  const formatDateTimeLocal = (dateString) => {
+    const date = new Date(dateString);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+  };
+
   // Helper: Get lottery type label
   const getLotteryTypeLabel = (type) => {
     const found = lotteryTypes.find((t) => t.value === type);
     return found ? found.label : type;
   };
 
-  // Helper: Get status badge
-  const getStatusBadge = (status) => {
+  // Helper: Get status badge with pending check
+  const getStatusBadge = (status, openTime) => {
+    // Check if status is 'open' but not yet reached open_time
+    if (status === 'open' && openTime) {
+      const now = new Date();
+      const open = new Date(openTime);
+
+      if (now < open) {
+        // Show "รอเปิด" status for draws that haven't started yet
+        return (
+          <span className="px-3 py-1 rounded-full text-xs font-medium border text-accent-warning border-accent-warning bg-accent-warning/10">
+            รอเปิด
+          </span>
+        );
+      }
+    }
+
     const found = statusOptions.find((s) => s.value === status);
     if (!found) return null;
 
@@ -153,6 +179,25 @@ const LotteryDrawManagement = () => {
         {found.label}
       </span>
     );
+  };
+
+  // Helper: Format draw date in Thai format with time (Bangkok timezone)
+  const formatDrawDate = (dateString) => {
+    const date = new Date(dateString);
+
+    const thaiMonths = [
+      'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
+      'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'
+    ];
+
+    // Use local time methods (Bangkok timezone)
+    const day = date.getDate();
+    const month = thaiMonths[date.getMonth()];
+    const year = date.getFullYear() + 543; // Convert to Buddhist year
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+
+    return `${day} ${month} ${year} เวลา ${hours}:${minutes}`;
   };
 
   // Table Columns Configuration
@@ -170,7 +215,7 @@ const LotteryDrawManagement = () => {
       label: 'วันออกผล',
       sortable: true,
       render: (value) => (
-        <span className="text-sm">{new Date(value).toLocaleDateString('th-TH')}</span>
+        <span className="text-sm">{formatDrawDate(value)}</span>
       ),
     },
     {
@@ -191,7 +236,7 @@ const LotteryDrawManagement = () => {
       key: 'status',
       label: 'สถานะ',
       sortable: true,
-      render: (value) => getStatusBadge(value),
+      render: (value, row) => getStatusBadge(value, row.open_time),
     },
     {
       key: 'actions',
@@ -253,16 +298,16 @@ const LotteryDrawManagement = () => {
 
   // Handle Create Click
   const handleCreateClick = () => {
-    // Set default dates
+    // Set default dates (Bangkok timezone)
     const now = new Date();
     const tomorrow = new Date(now);
     tomorrow.setDate(tomorrow.getDate() + 1);
 
     setFormData({
       lottery_type: 'government',
-      draw_date: tomorrow.toISOString().slice(0, 16),
-      open_time: now.toISOString().slice(0, 16),
-      close_time: tomorrow.toISOString().slice(0, 16),
+      draw_date: formatDateTimeLocal(tomorrow),
+      open_time: formatDateTimeLocal(now),
+      close_time: formatDateTimeLocal(tomorrow),
       bet_settings: {
         three_top: { payout_rate: 900, min_bet: 1, max_bet: 10000, enabled: true },
         three_tod: { payout_rate: 150, min_bet: 1, max_bet: 10000, enabled: true },
@@ -280,9 +325,9 @@ const LotteryDrawManagement = () => {
     setSelectedDraw(draw);
     setFormData({
       lottery_type: draw.lottery_type,
-      draw_date: new Date(draw.draw_date).toISOString().slice(0, 16),
-      open_time: new Date(draw.open_time).toISOString().slice(0, 16),
-      close_time: new Date(draw.close_time).toISOString().slice(0, 16),
+      draw_date: formatDateTimeLocal(draw.draw_date),
+      open_time: formatDateTimeLocal(draw.open_time),
+      close_time: formatDateTimeLocal(draw.close_time),
       bet_settings: draw.bet_settings,
     });
     setEditModalOpen(true);
@@ -335,6 +380,7 @@ const LotteryDrawManagement = () => {
     try {
       setSubmitLoading(true);
 
+      // Send datetime-local values directly (will be interpreted as Bangkok timezone by backend)
       await lotteryDrawService.create(formData);
 
       toast.success('สร้างงวดหวยสำเร็จ');
@@ -354,6 +400,7 @@ const LotteryDrawManagement = () => {
     try {
       setSubmitLoading(true);
 
+      // Send datetime-local values directly (will be interpreted as Bangkok timezone by backend)
       const updateData = {
         draw_date: formData.draw_date,
         open_time: formData.open_time,

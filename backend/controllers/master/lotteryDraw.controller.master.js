@@ -34,9 +34,9 @@ export const getLotteryDraws = async (req, res, next) => {
     const skip = (parseInt(page) - 1) * parseInt(limit);
     const total = await LotteryDraw.countDocuments(query);
 
-    // Execute query
+    // Execute query - Sort by draw_date ascending (nearest date first)
     const lotteryDraws = await LotteryDraw.find(query)
-      .sort({ draw_date: -1, createdAt: -1 })
+      .sort({ draw_date: 1, createdAt: 1 })
       .skip(skip)
       .limit(parseInt(limit))
       .populate('created_by', 'name username');
@@ -423,7 +423,7 @@ export const bulkCreateLotteryDraws = async (req, res, next) => {
     for (const lottery_type of lottery_types) {
       for (const date of dates) {
         try {
-          // Set draw date with specified time
+          // Set draw date with specified time (using local Bangkok timezone)
           const draw_date = new Date(date);
           draw_date.setHours(drawHours, drawMinutes, 0, 0);
 
