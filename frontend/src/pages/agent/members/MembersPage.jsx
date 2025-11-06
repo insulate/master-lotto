@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../../store/authStore';
 import memberService from './memberService';
 import lotteryTypeService from '../lottery-types/lotteryTypeService';
@@ -25,6 +26,7 @@ import { Edit, Percent, Wallet, History, Ban, CheckCircle } from 'lucide-react';
 const MemberManagement = () => {
   // Authentication
   const { user } = useAuthStore();
+  const navigate = useNavigate();
 
   // State Management
   const [members, setMembers] = useState([]);
@@ -45,7 +47,6 @@ const MemberManagement = () => {
   const [creditModalOpen, setCreditModalOpen] = useState(false);
   const [creditHistoryModalOpen, setCreditHistoryModalOpen] = useState(false);
   const [statusDialogOpen, setStatusDialogOpen] = useState(false);
-  const [commissionModalOpen, setCommissionModalOpen] = useState(false);
 
   // Selected Member
   const [selectedMember, setSelectedMember] = useState(null);
@@ -276,10 +277,9 @@ const MemberManagement = () => {
     setEditModalOpen(true);
   };
 
-  // Handle Commission Click
+  // Handle Commission Click - Navigate to commission page
   const handleCommissionClick = (member) => {
-    setSelectedMember(member);
-    setCommissionModalOpen(true);
+    navigate(`/agent/members/${member._id}/commission`);
   };
 
   // Handle Credit Click
@@ -326,7 +326,6 @@ const MemberManagement = () => {
     setCreditModalOpen(false);
     setCreditHistoryModalOpen(false);
     setStatusDialogOpen(false);
-    setCommissionModalOpen(false);
     setSelectedMember(null);
   };
 
@@ -438,17 +437,6 @@ const MemberManagement = () => {
         selectedMember={selectedMember}
         formData={formData}
         setFormData={setFormData}
-        submitLoading={submitLoading}
-        setSubmitLoading={setSubmitLoading}
-        fetchMembers={fetchMembers}
-      />
-
-      {/* Commission Management Modal */}
-      <ManageCommissionModal
-        isOpen={commissionModalOpen}
-        onClose={closeAllModals}
-        selectedMember={selectedMember}
-        lotteryTypes={lotteryTypes}
         submitLoading={submitLoading}
         setSubmitLoading={setSubmitLoading}
         fetchMembers={fetchMembers}
@@ -1161,300 +1149,6 @@ const AdjustCreditModal = ({
                 ? 'เพิ่มเครดิต'
                 : 'ลดเครดิต'}
             </span>
-          </button>
-        </div>
-      </form>
-    </Modal>
-  );
-};
-
-// Manage Commission Modal Component
-const ManageCommissionModal = ({
-  isOpen,
-  onClose,
-  selectedMember,
-  lotteryTypes,
-  submitLoading,
-  setSubmitLoading,
-  fetchMembers,
-}) => {
-  const [commissionRates, setCommissionRates] = useState([]);
-  const [expandedTypes, setExpandedTypes] = useState({});
-
-  // Initialize commission rates when member changes
-  useEffect(() => {
-    if (selectedMember && lotteryTypes.length > 0) {
-      const rates = lotteryTypes.map((type) => {
-        const existingRate = selectedMember.commission_rates?.find(
-          (rate) => rate.lottery_type_id === type._id
-        );
-
-        return {
-          lottery_type_id: type._id,
-          rates: existingRate?.rates || {
-            three_top: 0,
-            three_tod: 0,
-            two_top: 0,
-            two_bottom: 0,
-            run_top: 0,
-            run_bottom: 0,
-          },
-        };
-      });
-      setCommissionRates(rates);
-    }
-  }, [selectedMember, lotteryTypes]);
-
-  // Handle submit
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    try {
-      setSubmitLoading(true);
-      const updateData = {
-        commission_rates: commissionRates.map((rate) => ({
-          lottery_type_id: rate.lottery_type_id,
-          rates: {
-            three_top: rate.rates.three_top || 0,
-            three_tod: rate.rates.three_tod || 0,
-            two_top: rate.rates.two_top || 0,
-            two_bottom: rate.rates.two_bottom || 0,
-            run_top: rate.rates.run_top || 0,
-            run_bottom: rate.rates.run_bottom || 0,
-          },
-        })),
-      };
-      await memberService.update(selectedMember._id, updateData);
-      toast.success(`อัพเดทค่าคอมมิชชันผู้เล่น ${selectedMember.username} สำเร็จ`);
-      fetchMembers();
-      onClose();
-    } catch (err) {
-      toast.error(parseErrorMessage(err));
-    } finally {
-      setSubmitLoading(false);
-    }
-  };
-
-  if (!selectedMember) return null;
-
-  return (
-    <Modal
-      isOpen={isOpen}
-      onClose={onClose}
-      title={`จัดการค่าคอมมิชชัน - ${selectedMember.name}`}
-      size="lg"
-    >
-      <form onSubmit={handleSubmit}>
-        <div className="space-y-4">
-          {/* Member Info */}
-          <div className="bg-bg-light-cream p-4 rounded-lg border border-border-default">
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-text-secondary">ผู้เล่น:</span>
-              <span className="font-semibold text-text-primary">{selectedMember.username}</span>
-            </div>
-          </div>
-
-          {/* Commission Rates */}
-          <div>
-            <label className="block text-sm font-medium text-text-secondary mb-3">
-              อัตราค่าคอมมิชชัน (%)
-            </label>
-
-            <div className="space-y-3">
-              {lotteryTypes.map((lotteryType) => {
-                const rateIndex = commissionRates.findIndex(
-                  (r) => r.lottery_type_id === lotteryType._id
-                );
-                const isExpanded = expandedTypes[lotteryType._id];
-
-                return (
-                  <div key={lotteryType._id} className="border border-border-default rounded-lg overflow-hidden">
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setExpandedTypes({
-                          ...expandedTypes,
-                          [lotteryType._id]: !isExpanded,
-                        })
-                      }
-                      className="w-full px-4 py-3 bg-bg-light-cream hover:bg-bg-cream flex items-center justify-between transition-colors"
-                    >
-                      <span className="font-medium text-text-primary">{lotteryType.label}</span>
-                      <svg
-                        className={`w-5 h-5 text-text-secondary transition-transform ${
-                          isExpanded ? 'rotate-180' : ''
-                        }`}
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M19 9l-7 7-7-7"
-                        />
-                      </svg>
-                    </button>
-
-                    {isExpanded && rateIndex >= 0 && (
-                      <div className="p-4 bg-bg-card border-t border-border-default">
-                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                          <div>
-                            <label className="block text-xs text-text-muted mb-1">3 ตัวบน</label>
-                            <input
-                              type="number"
-                              value={commissionRates[rateIndex].rates.three_top}
-                              onChange={(e) => {
-                                const newRates = [...commissionRates];
-                                newRates[rateIndex].rates.three_top = parseFloat(e.target.value) || 0;
-                                setCommissionRates(newRates);
-                              }}
-                              className="w-full px-3 py-2 bg-bg-light-cream text-text-primary border border-border-default rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-gold"
-                              placeholder="0"
-                              min="0"
-                              max="100"
-                              step="0.01"
-                            />
-                          </div>
-
-                          <div>
-                            <label className="block text-xs text-text-muted mb-1">3 ตัวโต๊ด</label>
-                            <input
-                              type="number"
-                              value={commissionRates[rateIndex].rates.three_tod}
-                              onChange={(e) => {
-                                const newRates = [...commissionRates];
-                                newRates[rateIndex].rates.three_tod = parseFloat(e.target.value) || 0;
-                                setCommissionRates(newRates);
-                              }}
-                              className="w-full px-3 py-2 bg-bg-light-cream text-text-primary border border-border-default rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-gold"
-                              placeholder="0"
-                              min="0"
-                              max="100"
-                              step="0.01"
-                            />
-                          </div>
-
-                          <div>
-                            <label className="block text-xs text-text-muted mb-1">2 ตัวบน</label>
-                            <input
-                              type="number"
-                              value={commissionRates[rateIndex].rates.two_top}
-                              onChange={(e) => {
-                                const newRates = [...commissionRates];
-                                newRates[rateIndex].rates.two_top = parseFloat(e.target.value) || 0;
-                                setCommissionRates(newRates);
-                              }}
-                              className="w-full px-3 py-2 bg-bg-light-cream text-text-primary border border-border-default rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-gold"
-                              placeholder="0"
-                              min="0"
-                              max="100"
-                              step="0.01"
-                            />
-                          </div>
-
-                          <div>
-                            <label className="block text-xs text-text-muted mb-1">2 ตัวล่าง</label>
-                            <input
-                              type="number"
-                              value={commissionRates[rateIndex].rates.two_bottom}
-                              onChange={(e) => {
-                                const newRates = [...commissionRates];
-                                newRates[rateIndex].rates.two_bottom = parseFloat(e.target.value) || 0;
-                                setCommissionRates(newRates);
-                              }}
-                              className="w-full px-3 py-2 bg-bg-light-cream text-text-primary border border-border-default rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-gold"
-                              placeholder="0"
-                              min="0"
-                              max="100"
-                              step="0.01"
-                            />
-                          </div>
-
-                          <div>
-                            <label className="block text-xs text-text-muted mb-1">วิ่งบน</label>
-                            <input
-                              type="number"
-                              value={commissionRates[rateIndex].rates.run_top}
-                              onChange={(e) => {
-                                const newRates = [...commissionRates];
-                                newRates[rateIndex].rates.run_top = parseFloat(e.target.value) || 0;
-                                setCommissionRates(newRates);
-                              }}
-                              className="w-full px-3 py-2 bg-bg-light-cream text-text-primary border border-border-default rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-gold"
-                              placeholder="0"
-                              min="0"
-                              max="100"
-                              step="0.01"
-                            />
-                          </div>
-
-                          <div>
-                            <label className="block text-xs text-text-muted mb-1">วิ่งล่าง</label>
-                            <input
-                              type="number"
-                              value={commissionRates[rateIndex].rates.run_bottom}
-                              onChange={(e) => {
-                                const newRates = [...commissionRates];
-                                newRates[rateIndex].rates.run_bottom = parseFloat(e.target.value) || 0;
-                                setCommissionRates(newRates);
-                              }}
-                              className="w-full px-3 py-2 bg-bg-light-cream text-text-primary border border-border-default rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-gold"
-                              placeholder="0"
-                              min="0"
-                              max="100"
-                              step="0.01"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-
-        {/* Footer Buttons */}
-        <div className="flex justify-end space-x-3 mt-6">
-          <button
-            type="button"
-            onClick={onClose}
-            disabled={submitLoading}
-            className="px-6 py-2 bg-[#6c757d] text-white rounded-lg hover:bg-[#5a6268] transition-colors disabled:opacity-50"
-          >
-            ยกเลิก
-          </button>
-          <button
-            type="submit"
-            disabled={submitLoading}
-            className="px-6 py-2 bg-accent-success hover:bg-accent-success/90 text-white rounded-lg transition-colors disabled:opacity-50 flex items-center space-x-2"
-          >
-            {submitLoading && (
-              <svg
-                className="animate-spin h-4 w-4 text-white"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <circle
-                  className="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                ></circle>
-                <path
-                  className="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                ></path>
-              </svg>
-            )}
-            <span>{submitLoading ? 'กำลังบันทึก...' : 'บันทึกค่าคอมมิชชัน'}</span>
           </button>
         </div>
       </form>

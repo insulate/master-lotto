@@ -7,10 +7,12 @@ import PrivateRoute from './components/auth/PrivateRoute';
 import Login from './pages/auth/Login';
 import MasterDashboard from './pages/master/MasterDashboard';
 import AgentManagement from './pages/master/agents/AgentsPage';
+import AgentCommissionPage from './pages/master/commission/AgentCommissionPage';
 import LotteryTypesOverview from './pages/master/lottery-types/LotteryTypesPage';
 import LotteryDrawManagement from './pages/master/lottery-draws/LotteryDrawsPage';
 import AgentDashboard from './pages/agent/AgentDashboard';
 import MemberManagement from './pages/agent/members/MembersPage';
+import MemberCommissionPage from './pages/agent/commission/MemberCommissionPage';
 import { useAuthStore } from './store/authStore';
 
 function App() {
@@ -99,6 +101,17 @@ function App() {
           />
 
           <Route
+            path="/master/agents/:agentId/commission"
+            element={
+              <PrivateRoute>
+                <Layout>
+                  <AgentCommissionPage />
+                </Layout>
+              </PrivateRoute>
+            }
+          />
+
+          <Route
             path="/master/lottery-types"
             element={
               <PrivateRoute>
@@ -138,6 +151,17 @@ function App() {
               <PrivateRoute>
                 <AgentLayout>
                   <MemberManagement />
+                </AgentLayout>
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/agent/members/:memberId/commission"
+            element={
+              <PrivateRoute>
+                <AgentLayout>
+                  <MemberCommissionPage />
                 </AgentLayout>
               </PrivateRoute>
             }
