@@ -242,7 +242,7 @@ const LotteryTypesOverview = () => {
     <div className="container mx-auto px-4 py-8">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-primary-light-gold mb-2">จัดการหวย</h1>
+        <h1 className="text-3xl font-bold text-primary mb-2">จัดการหวย</h1>
         <p className="text-text-muted">Master: {user?.name}</p>
       </div>
 

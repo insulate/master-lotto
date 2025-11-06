@@ -288,7 +288,7 @@ const AgentManagement = () => {
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-3xl font-bold text-primary-light-gold">จัดการเอเย่นต์</h1>
+          <h1 className="text-3xl font-bold text-primary">จัดการเอเย่นต์</h1>
           <p className="text-text-muted mt-1">
             ผู้ใช้: {user?.name}
           </p>

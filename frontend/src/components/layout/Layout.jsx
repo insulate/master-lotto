@@ -97,7 +97,7 @@ export default function Layout({ children }) {
   return (
     <div className="min-h-screen bg-bg-cream">
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 h-16 bg-primary-light-gold border-b-2 border-primary-dark-gold shadow-lg z-50">
+      <header className="fixed top-0 left-0 right-0 h-16 bg-gradient-to-t from-primary-light-gold via-primary-gold to-primary-mustard border-b-2 border-primary-dark-gold shadow-lg z-50">
         <div className="h-full px-4 flex items-center justify-between">
           {/* Left Side - Logo & Menu Toggle */}
           <div className="flex items-center gap-4">
