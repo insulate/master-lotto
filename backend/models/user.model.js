@@ -48,23 +48,25 @@ const userSchema = new mongoose.Schema(
       default: 0,
       min: [0, 'Balance cannot be negative']
     },
-    commission_rate: {
-      type: {
-        three_top: { type: Number, default: 0 },
-        three_tod: { type: Number, default: 0 },
-        two_top: { type: Number, default: 0 },
-        two_bottom: { type: Number, default: 0 },
-        run_top: { type: Number, default: 0 },
-        run_bottom: { type: Number, default: 0 }
-      },
-      default: {
-        three_top: 0,
-        three_tod: 0,
-        two_top: 0,
-        two_bottom: 0,
-        run_top: 0,
-        run_bottom: 0
-      }
+    commission_rates: {
+      type: [
+        {
+          lottery_type_id: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'LotteryType',
+            required: true
+          },
+          rates: {
+            three_top: { type: Number, default: 0, min: 0, max: 100 },
+            three_tod: { type: Number, default: 0, min: 0, max: 100 },
+            two_top: { type: Number, default: 0, min: 0, max: 100 },
+            two_bottom: { type: Number, default: 0, min: 0, max: 100 },
+            run_top: { type: Number, default: 0, min: 0, max: 100 },
+            run_bottom: { type: Number, default: 0, min: 0, max: 100 }
+          }
+        }
+      ],
+      default: []
     },
     status: {
       type: String,
