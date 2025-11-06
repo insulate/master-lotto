@@ -9,6 +9,23 @@ import { parseErrorMessage } from '../../lib/utils';
  * Home Page - หน้าแสดงรายการหวยทั้งหมด
  */
 const HomePage = () => {
+  // Add CSS animation styles for the badge
+  const pulseGlowStyles = `
+    @keyframes pulse-glow {
+      0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 0 8px rgba(184, 134, 11, 0.6), 0 0 12px rgba(218, 165, 32, 0.4);
+      }
+      50% {
+        transform: scale(1.05);
+        box-shadow: 0 0 12px rgba(184, 134, 11, 0.8), 0 0 20px rgba(218, 165, 32, 0.6);
+      }
+    }
+    .badge-pulse-glow {
+      animation: pulse-glow 2s ease-in-out infinite;
+    }
+  `;
+
   const navigate = useNavigate();
   const [currentTime, setCurrentTime] = useState(new Date());
   const [lotteryTypes, setLotteryTypes] = useState([]);
@@ -23,6 +40,29 @@ const HomePage = () => {
       'hanoi_vip': 'vn'
     };
     return countryMap[value] || 'th';
+  };
+
+  // Helper function to calculate time remaining until closing
+  const getTimeRemaining = (closeTime) => {
+    if (!closeTime) return null;
+
+    const now = new Date();
+    const close = new Date(closeTime);
+    const diff = close - now;
+
+    if (diff <= 0) return 'ปิดรับแล้ว';
+
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+
+    if (days > 0) {
+      return `เหลือ ${days} วัน ${hours} ชม.`;
+    } else if (hours > 0) {
+      return `เหลือ ${hours} ชม. ${minutes} นาที`;
+    } else {
+      return `เหลือ ${minutes} นาที`;
+    }
   };
 
   // Fetch lottery types and open draws from API
@@ -164,10 +204,14 @@ const HomePage = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center py-8">
-      <div className="w-[800px]">
-        {/* Main Card */}
-        <div className="bg-white border-2 border-primary-gold/30 rounded-xl shadow-2xl p-6">
+    <>
+      {/* Inject animation styles */}
+      <style>{pulseGlowStyles}</style>
+
+      <div className="min-h-screen flex items-center justify-center py-8">
+        <div className="w-[800px]">
+          {/* Main Card */}
+          <div className="bg-white border-2 border-primary-gold/30 rounded-xl shadow-2xl p-6">
           {/* Current Time Display */}
           <div className="flex items-center justify-center gap-3 mb-6 pb-4 border-b-2 border-primary-gold/20">
             <Clock className="w-6 h-6 text-primary-gold" />
@@ -213,7 +257,7 @@ const HomePage = () => {
                   {/* Status Badge */}
                   <span className={`absolute top-3 right-3 text-xs font-bold px-2 py-1 rounded ${
                     lottery.status === 'open'
-                      ? 'bg-primary-dark-gold/80 text-white border border-primary-dark-gold'
+                      ? 'bg-primary-dark-gold/80 text-white border border-primary-dark-gold badge-pulse-glow'
                       : 'bg-gray-200 text-gray-500 border border-gray-300'
                   }`}>
                     {lottery.status === 'open' ? 'เปิดรับ' : 'ปิดรับ'}
@@ -242,13 +286,16 @@ const HomePage = () => {
                     {lottery.round || lottery.subName}
                   </div>
 
-                  {/* Closing Time */}
+                  {/* Closing Time / Countdown */}
                   <div className={`text-sm ${
                     lottery.status === 'open'
                       ? 'text-bg-dark/70'
                       : 'text-gray-400'
                   }`}>
-                    ปิดรับ {lottery.closingTime}
+                    {lottery.status === 'open' && lottery.draw?.close_time
+                      ? getTimeRemaining(lottery.draw.close_time)
+                      : `ปิดรับ ${lottery.closingTime}`
+                    }
                   </div>
                 </button>
               ))}
@@ -259,6 +306,7 @@ const HomePage = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 
