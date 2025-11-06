@@ -1,8 +1,10 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../../store/authStore';
 import lotteryDrawService from '../lottery-draws/lotteryDrawService';
+import lotteryTypeService from './lotteryTypeService';
 import DataTable from '../../../components/common/DataTable';
+import ConfirmDialog from '../../../components/common/ConfirmDialog';
 import { parseErrorMessage } from '../../../lib/utils';
 import toast from 'react-hot-toast';
 
@@ -15,42 +17,33 @@ const LotteryTypesOverview = () => {
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(true);
+  const [submitLoading, setSubmitLoading] = useState(false);
   const [lotteryStats, setLotteryStats] = useState([]);
+  const [lotteryTypes, setLotteryTypes] = useState([]);
+  const [selectedType, setSelectedType] = useState(null);
+  const [statusDialogOpen, setStatusDialogOpen] = useState(false);
 
-  // Lottery type definitions (memoized to prevent re-render issues)
-  const lotteryTypes = useMemo(() => [
-    {
-      value: 'government',
-      label: 'หวยรัฐบาล',
-      description: 'หวยรัฐบาลไทย ออกวันที่ 1 และ 16 ของทุกเดือน',
-      icon: '🏛️'
-    },
-    {
-      value: 'lao_pattana',
-      label: 'หวยลาวพัฒนา',
-      description: 'หวยลาว ออกทุกวันจันทร์ และวันพฤหัสบดี',
-      icon: '🇱🇦'
-    },
-    {
-      value: 'hanoi_regular',
-      label: 'หวยฮานอยปกติ',
-      description: 'หวยฮานอย ออกทุกวัน เวลา 18:00 น.',
-      icon: '🇻🇳'
-    },
-    {
-      value: 'hanoi_vip',
-      label: 'หวยฮานอย VIP',
-      description: 'หวยฮานอย VIP ออกทุกวัน เวลา 21:00 น.',
-      icon: '⭐'
-    },
-  ], []);
+  const fetchLotteryTypes = useCallback(async () => {
+    try {
+      const response = await lotteryTypeService.getAll();
+      const types = response.data.lotteryTypes || [];
+      setLotteryTypes(types);
+      return types;
+    } catch (err) {
+      toast.error(parseErrorMessage(err));
+      return [];
+    }
+  }, []);
 
   const fetchLotteryStats = useCallback(async () => {
     try {
       setLoading(true);
 
+      // First, fetch lottery types from API
+      const types = await fetchLotteryTypes();
+
       // Fetch stats for each lottery type
-      const statsPromises = lotteryTypes.map(async (type) => {
+      const statsPromises = types.map(async (type) => {
         try {
           // Get all draws for this type
           const allResponse = await lotteryDrawService.getAll({
@@ -109,7 +102,7 @@ const LotteryTypesOverview = () => {
     } finally {
       setLoading(false);
     }
-  }, [lotteryTypes]);
+  }, [fetchLotteryTypes]);
 
   useEffect(() => {
     fetchLotteryStats();
@@ -117,6 +110,33 @@ const LotteryTypesOverview = () => {
 
   const handleManageClick = (lotteryType) => {
     navigate(`/master/lottery-draws?type=${lotteryType}`);
+  };
+
+  const handleToggleStatusClick = (type) => {
+    setSelectedType(type);
+    setStatusDialogOpen(true);
+  };
+
+  const closeAllModals = () => {
+    setStatusDialogOpen(false);
+    setSelectedType(null);
+  };
+
+  const handleToggleStatus = async () => {
+    try {
+      setSubmitLoading(true);
+      const newStatus = !selectedType.enabled;
+      await lotteryTypeService.toggleStatus(selectedType._id, newStatus);
+      toast.success(
+        `${newStatus ? 'เปิดใช้งาน' : 'ปิดใช้งาน'}${selectedType.label}สำเร็จ`
+      );
+      fetchLotteryStats();
+      closeAllModals();
+    } catch (err) {
+      toast.error(parseErrorMessage(err));
+    } finally {
+      setSubmitLoading(false);
+    }
   };
 
   const columns = [
@@ -177,15 +197,43 @@ const LotteryTypesOverview = () => {
       ),
     },
     {
+      key: 'enabled',
+      label: 'สถานะ',
+      sortable: true,
+      render: (value) => (
+        <span
+          className={`px-3 py-1 rounded-full text-xs font-medium ${
+            value
+              ? 'border border-emerald-300 text-emerald-700 bg-emerald-50'
+              : 'border border-gray-300 text-gray-700 bg-gray-50'
+          }`}
+        >
+          {value ? 'เปิดใช้งาน' : 'ปิดใช้งาน'}
+        </span>
+      ),
+    },
+    {
       key: 'actions',
       label: 'จัดการ',
       render: (_, row) => (
-        <button
-          onClick={() => handleManageClick(row.value)}
-          className="px-6 py-2 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white font-semibold rounded-lg transition-colors shadow-sm"
-        >
-          จัดการงวดหวย
-        </button>
+        <div className="flex space-x-2">
+          <button
+            onClick={() => handleManageClick(row.value)}
+            className="px-6 py-2 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white font-semibold rounded-lg transition-colors shadow-sm"
+          >
+            จัดการงวดหวย
+          </button>
+          <button
+            onClick={() => handleToggleStatusClick(row)}
+            className={`px-4 py-2 ${
+              row.enabled
+                ? 'bg-red-600 hover:bg-red-700'
+                : 'bg-emerald-500 hover:bg-emerald-600'
+            } text-white font-semibold rounded-lg transition-colors shadow-sm`}
+          >
+            {row.enabled ? 'ปิดใช้งาน' : 'เปิดใช้งาน'}
+          </button>
+        </div>
       ),
     },
   ];
@@ -230,6 +278,25 @@ const LotteryTypesOverview = () => {
         data={lotteryStats}
         loading={loading}
         emptyMessage="ไม่พบข้อมูลประเภทหวย"
+        rowClassName={(row) => (!row.enabled ? 'bg-red-50' : '')}
+        disableHover={true}
+      />
+
+      {/* Toggle Status Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={statusDialogOpen}
+        onClose={closeAllModals}
+        onConfirm={handleToggleStatus}
+        title={
+          selectedType?.enabled
+            ? 'ยืนยันการปิดใช้งาน'
+            : 'ยืนยันการเปิดใช้งาน'
+        }
+        message={`คุณต้องการ${
+          selectedType?.enabled ? 'ปิด' : 'เปิด'
+        }ใช้งาน ${selectedType?.label} หรือไม่?`}
+        type={selectedType?.enabled ? 'warning' : 'info'}
+        loading={submitLoading}
       />
     </div>
   );

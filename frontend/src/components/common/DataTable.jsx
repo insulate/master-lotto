@@ -11,6 +11,8 @@ const DataTable = ({
   onRowClick = null,
   emptyMessage = 'ไม่พบข้อมูล',
   className = '',
+  rowClassName = null,
+  disableHover = false,
 }) => {
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
 
@@ -78,21 +80,24 @@ const DataTable = ({
           </tr>
         </thead>
         <tbody className="bg-white divide-y divide-border-default">
-          {sortedData.map((row, rowIndex) => (
-            <tr
-              key={row._id || rowIndex}
-              className={`hover:bg-bg-cream transition-colors ${
-                onRowClick ? 'cursor-pointer' : ''
-              }`}
-              onClick={() => onRowClick && onRowClick(row)}
-            >
-              {columns.map((column) => (
-                <td key={column.key} className="px-6 py-4 whitespace-nowrap text-sm text-text-primary">
-                  {column.render ? column.render(row[column.key], row) : row[column.key]}
-                </td>
-              ))}
-            </tr>
-          ))}
+          {sortedData.map((row, rowIndex) => {
+            const customRowClass = rowClassName ? rowClassName(row) : '';
+            return (
+              <tr
+                key={row._id || rowIndex}
+                className={`${!disableHover ? 'hover:bg-bg-cream' : ''} transition-colors ${
+                  onRowClick ? 'cursor-pointer' : ''
+                } ${customRowClass}`}
+                onClick={() => onRowClick && onRowClick(row)}
+              >
+                {columns.map((column) => (
+                  <td key={column.key} className="px-6 py-4 whitespace-nowrap text-sm text-text-primary">
+                    {column.render ? column.render(row[column.key], row) : row[column.key]}
+                  </td>
+                ))}
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>

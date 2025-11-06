@@ -1,6 +1,7 @@
 import dotenv from 'dotenv';
 import { connectDB, disconnectDB } from '../config/database.js';
 import { seedUsers } from './seed-users.js';
+import { seedLotteryTypes } from './seed-lottery-types.js';
 
 // Load environment variables
 dotenv.config();
@@ -18,6 +19,9 @@ const runSeed = async () => {
     await connectDB();
 
     console.log('');
+
+    // Run lottery types seed
+    await seedLotteryTypes();
 
     // Run user seed
     await seedUsers();

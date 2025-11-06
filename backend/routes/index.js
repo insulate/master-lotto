@@ -2,6 +2,7 @@ import express from 'express';
 import authRoutes from './auth.routes.js';
 import agentRoutesMaster from './master/agent.routes.master.js';
 import lotteryDrawRoutesMaster from './master/lotteryDraw.routes.master.js';
+import lotteryTypeRoutesMaster from './master/lotteryType.routes.master.js';
 
 const router = express.Router();
 
@@ -9,5 +10,6 @@ const router = express.Router();
 router.use('/auth', authRoutes);
 router.use('/master/agents', agentRoutesMaster);
 router.use('/master/lottery-draws', lotteryDrawRoutesMaster);
+router.use('/master/lottery-types', lotteryTypeRoutesMaster);
 
 export default router;
