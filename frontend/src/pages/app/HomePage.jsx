@@ -333,9 +333,11 @@ const HomePage = () => {
                   <span className={`absolute top-3 right-3 text-xs font-bold px-2 py-1 rounded ${
                     lottery.status === 'open'
                       ? 'bg-primary-dark-gold/80 text-white border border-primary-dark-gold badge-pulse-glow'
+                      : lottery.subName === 'รอเปิด'
+                      ? 'bg-blue-500/80 text-white border border-blue-600'
                       : 'bg-gray-200 text-gray-500 border border-gray-300'
                   }`}>
-                    {lottery.status === 'open' ? 'เปิดรับ' : 'ปิดรับ'}
+                    {lottery.status === 'open' ? 'เปิดรับ' : lottery.subName === 'รอเปิด' ? 'รอเปิด' : 'ปิดรับ'}
                   </span>
 
                   {/* Country Flag */}
@@ -358,7 +360,7 @@ const HomePage = () => {
                       ? 'text-primary-dark-gold'
                       : 'text-gray-400'
                   }`}>
-                    {lottery.round || lottery.subName}
+                    {lottery.round || (lottery.subName !== 'รอเปิด' ? lottery.subName : '')}
                   </div>
 
                   {/* Closing Time / Countdown */}
