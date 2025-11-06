@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useAuthStore } from '../../../store/authStore';
 import agentService from './agentService';
+import lotteryTypeService from '../lottery-types/lotteryTypeService';
 import DataTable from '../../../components/common/DataTable';
 import Modal from '../../../components/common/Modal';
 import ConfirmDialog from '../../../components/common/ConfirmDialog';
@@ -27,6 +28,7 @@ const AgentManagement = () => {
   // State Management
   const [agents, setAgents] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [lotteryTypes, setLotteryTypes] = useState([]);
 
   // Search & Filter
   const [searchTerm, setSearchTerm] = useState('');
@@ -60,11 +62,7 @@ const AgentManagement = () => {
     name: '',
     password: '',
     credit: 0,
-    commission_rate: {
-      two_digit_top: 0,
-      three_digit_top: 0,
-      three_digit_tote: 0,
-    },
+    commission_rates: [],
   });
 
   const [creditFormData, setCreditFormData] = useState({
@@ -83,9 +81,10 @@ const AgentManagement = () => {
     });
   }, [creditHistory, selectedDate]);
 
-  // Fetch agents on component mount
+  // Fetch agents and lottery types on component mount
   useEffect(() => {
     fetchAgents();
+    fetchLotteryTypes();
   }, []);
 
   // Fetch all agents
@@ -98,6 +97,16 @@ const AgentManagement = () => {
       toast.error(parseErrorMessage(err));
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Fetch all lottery types
+  const fetchLotteryTypes = async () => {
+    try {
+      const response = await lotteryTypeService.getAll();
+      setLotteryTypes(response.data.lotteryTypes || []);
+    } catch (err) {
+      toast.error(parseErrorMessage(err));
     }
   };
 
@@ -211,11 +220,17 @@ const AgentManagement = () => {
       name: '',
       password: '',
       credit: 0,
-      commission_rate: {
-        two_digit_top: 0,
-        three_digit_top: 0,
-        three_digit_tote: 0,
-      },
+      commission_rates: lotteryTypes.map((type) => ({
+        lottery_type_id: type._id,
+        rates: {
+          three_top: 0,
+          three_tod: 0,
+          two_top: 0,
+          two_bottom: 0,
+          run_top: 0,
+          run_bottom: 0,
+        },
+      })),
     });
     setCreateModalOpen(true);
   };
@@ -223,16 +238,32 @@ const AgentManagement = () => {
   // Handle Edit Click
   const handleEditClick = (agent) => {
     setSelectedAgent(agent);
+
+    // Initialize commission_rates with existing data or default values
+    const commission_rates = lotteryTypes.map((type) => {
+      const existingRate = agent.commission_rates?.find(
+        (rate) => rate.lottery_type_id === type._id
+      );
+
+      return {
+        lottery_type_id: type._id,
+        rates: existingRate?.rates || {
+          three_top: 0,
+          three_tod: 0,
+          two_top: 0,
+          two_bottom: 0,
+          run_top: 0,
+          run_bottom: 0,
+        },
+      };
+    });
+
     setFormData({
       username: agent.username,
       name: agent.name,
       password: '',
       credit: agent.credit,
-      commission_rate: agent.commission_rate || {
-        two_digit_top: 0,
-        three_digit_top: 0,
-        three_digit_tote: 0,
-      },
+      commission_rates,
     });
     setEditModalOpen(true);
   };
@@ -383,6 +414,7 @@ const AgentManagement = () => {
         setSubmitLoading={setSubmitLoading}
         fetchAgents={fetchAgents}
         masterCredit={user?.credit || 0}
+        lotteryTypes={lotteryTypes}
       />
 
       {/* Edit Agent Modal */}
@@ -395,6 +427,7 @@ const AgentManagement = () => {
         submitLoading={submitLoading}
         setSubmitLoading={setSubmitLoading}
         fetchAgents={fetchAgents}
+        lotteryTypes={lotteryTypes}
       />
 
       {/* Adjust Credit Modal */}
@@ -563,8 +596,10 @@ const CreateAgentModal = ({
   submitLoading,
   setSubmitLoading,
   fetchAgents,
+  lotteryTypes,
 }) => {
   const [errors, setErrors] = useState({});
+  const [expandedTypes, setExpandedTypes] = useState({});
 
   // Validate form
   const validateForm = () => {
@@ -604,7 +639,21 @@ const CreateAgentModal = ({
 
     try {
       setSubmitLoading(true);
-      await agentService.create(formData);
+      const submitData = {
+        ...formData,
+        commission_rates: formData.commission_rates.map((rate) => ({
+          lottery_type_id: rate.lottery_type_id,
+          rates: {
+            three_top: rate.rates.three_top || 0,
+            three_tod: rate.rates.three_tod || 0,
+            two_top: rate.rates.two_top || 0,
+            two_bottom: rate.rates.two_bottom || 0,
+            run_top: rate.rates.run_top || 0,
+            run_bottom: rate.rates.run_bottom || 0,
+          },
+        })),
+      };
+      await agentService.create(submitData);
       toast.success(`สร้างเอเย่นต์ ${formData.username} สำเร็จ`);
       fetchAgents();
       onClose();
@@ -691,78 +740,165 @@ const CreateAgentModal = ({
             {errors.credit && <p className="text-accent-error text-sm mt-1">{errors.credit}</p>}
           </div>
 
-          {/* Commission Rate */}
+          {/* Commission Rates */}
           <div className="border-t border-border-default pt-4">
             <label className="block text-sm font-medium text-text-secondary mb-3">
               อัตราค่าคอมมิชชัน (%)
             </label>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <label className="block text-xs text-text-muted mb-1">2 ตัวบน</label>
-                <input
-                  type="number"
-                  value={formData.commission_rate.two_digit_top}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      commission_rate: {
-                        ...formData.commission_rate,
-                        two_digit_top: parseFloat(e.target.value) || 0,
-                      },
-                    })
-                  }
-                  className="w-full px-3 py-2 bg-bg-light-cream text-text-primary border border-border-default rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-gold"
-                  placeholder="0"
-                  min="0"
-                  max="100"
-                  step="0.01"
-                />
-              </div>
+            <div className="space-y-3">
+              {lotteryTypes.map((lotteryType, index) => {
+                const rateIndex = formData.commission_rates.findIndex(
+                  (r) => r.lottery_type_id === lotteryType._id
+                );
+                const isExpanded = expandedTypes[lotteryType._id];
 
-              <div>
-                <label className="block text-xs text-text-muted mb-1">3 ตัวบน</label>
-                <input
-                  type="number"
-                  value={formData.commission_rate.three_digit_top}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      commission_rate: {
-                        ...formData.commission_rate,
-                        three_digit_top: parseFloat(e.target.value) || 0,
-                      },
-                    })
-                  }
-                  className="w-full px-3 py-2 bg-bg-light-cream text-text-primary border border-border-default rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-gold"
-                  placeholder="0"
-                  min="0"
-                  max="100"
-                  step="0.01"
-                />
-              </div>
+                return (
+                  <div key={lotteryType._id} className="border border-border-default rounded-lg overflow-hidden">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setExpandedTypes({
+                          ...expandedTypes,
+                          [lotteryType._id]: !isExpanded,
+                        })
+                      }
+                      className="w-full px-4 py-3 bg-bg-light-cream hover:bg-bg-cream flex items-center justify-between transition-colors"
+                    >
+                      <span className="font-medium text-text-primary">{lotteryType.label}</span>
+                      <svg
+                        className={`w-5 h-5 text-text-secondary transition-transform ${
+                          isExpanded ? 'rotate-180' : ''
+                        }`}
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M19 9l-7 7-7-7"
+                        />
+                      </svg>
+                    </button>
 
-              <div>
-                <label className="block text-xs text-text-muted mb-1">3 ตัวโต๊ด</label>
-                <input
-                  type="number"
-                  value={formData.commission_rate.three_digit_tote}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      commission_rate: {
-                        ...formData.commission_rate,
-                        three_digit_tote: parseFloat(e.target.value) || 0,
-                      },
-                    })
-                  }
-                  className="w-full px-3 py-2 bg-bg-light-cream text-text-primary border border-border-default rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-gold"
-                  placeholder="0"
-                  min="0"
-                  max="100"
-                  step="0.01"
-                />
-              </div>
+                    {isExpanded && rateIndex >= 0 && (
+                      <div className="p-4 bg-bg-card border-t border-border-default">
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                          <div>
+                            <label className="block text-xs text-text-muted mb-1">3 ตัวบน</label>
+                            <input
+                              type="number"
+                              value={formData.commission_rates[rateIndex].rates.three_top}
+                              onChange={(e) => {
+                                const newRates = [...formData.commission_rates];
+                                newRates[rateIndex].rates.three_top = parseFloat(e.target.value) || 0;
+                                setFormData({ ...formData, commission_rates: newRates });
+                              }}
+                              className="w-full px-3 py-2 bg-bg-light-cream text-text-primary border border-border-default rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-gold"
+                              placeholder="0"
+                              min="0"
+                              max="100"
+                              step="0.01"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-xs text-text-muted mb-1">3 ตัวโต๊ด</label>
+                            <input
+                              type="number"
+                              value={formData.commission_rates[rateIndex].rates.three_tod}
+                              onChange={(e) => {
+                                const newRates = [...formData.commission_rates];
+                                newRates[rateIndex].rates.three_tod = parseFloat(e.target.value) || 0;
+                                setFormData({ ...formData, commission_rates: newRates });
+                              }}
+                              className="w-full px-3 py-2 bg-bg-light-cream text-text-primary border border-border-default rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-gold"
+                              placeholder="0"
+                              min="0"
+                              max="100"
+                              step="0.01"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-xs text-text-muted mb-1">2 ตัวบน</label>
+                            <input
+                              type="number"
+                              value={formData.commission_rates[rateIndex].rates.two_top}
+                              onChange={(e) => {
+                                const newRates = [...formData.commission_rates];
+                                newRates[rateIndex].rates.two_top = parseFloat(e.target.value) || 0;
+                                setFormData({ ...formData, commission_rates: newRates });
+                              }}
+                              className="w-full px-3 py-2 bg-bg-light-cream text-text-primary border border-border-default rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-gold"
+                              placeholder="0"
+                              min="0"
+                              max="100"
+                              step="0.01"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-xs text-text-muted mb-1">2 ตัวล่าง</label>
+                            <input
+                              type="number"
+                              value={formData.commission_rates[rateIndex].rates.two_bottom}
+                              onChange={(e) => {
+                                const newRates = [...formData.commission_rates];
+                                newRates[rateIndex].rates.two_bottom = parseFloat(e.target.value) || 0;
+                                setFormData({ ...formData, commission_rates: newRates });
+                              }}
+                              className="w-full px-3 py-2 bg-bg-light-cream text-text-primary border border-border-default rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-gold"
+                              placeholder="0"
+                              min="0"
+                              max="100"
+                              step="0.01"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-xs text-text-muted mb-1">วิ่งบน</label>
+                            <input
+                              type="number"
+                              value={formData.commission_rates[rateIndex].rates.run_top}
+                              onChange={(e) => {
+                                const newRates = [...formData.commission_rates];
+                                newRates[rateIndex].rates.run_top = parseFloat(e.target.value) || 0;
+                                setFormData({ ...formData, commission_rates: newRates });
+                              }}
+                              className="w-full px-3 py-2 bg-bg-light-cream text-text-primary border border-border-default rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-gold"
+                              placeholder="0"
+                              min="0"
+                              max="100"
+                              step="0.01"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-xs text-text-muted mb-1">วิ่งล่าง</label>
+                            <input
+                              type="number"
+                              value={formData.commission_rates[rateIndex].rates.run_bottom}
+                              onChange={(e) => {
+                                const newRates = [...formData.commission_rates];
+                                newRates[rateIndex].rates.run_bottom = parseFloat(e.target.value) || 0;
+                                setFormData({ ...formData, commission_rates: newRates });
+                              }}
+                              className="w-full px-3 py-2 bg-bg-light-cream text-text-primary border border-border-default rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-gold"
+                              placeholder="0"
+                              min="0"
+                              max="100"
+                              step="0.01"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>
@@ -822,8 +958,10 @@ const EditAgentModal = ({
   submitLoading,
   setSubmitLoading,
   fetchAgents,
+  lotteryTypes,
 }) => {
   const [errors, setErrors] = useState({});
+  const [expandedTypes, setExpandedTypes] = useState({});
 
   // Validate form
   const validateForm = () => {
@@ -849,7 +987,17 @@ const EditAgentModal = ({
       setSubmitLoading(true);
       const updateData = {
         name: formData.name,
-        commission_rate: formData.commission_rate,
+        commission_rates: formData.commission_rates.map((rate) => ({
+          lottery_type_id: rate.lottery_type_id,
+          rates: {
+            three_top: rate.rates.three_top || 0,
+            three_tod: rate.rates.three_tod || 0,
+            two_top: rate.rates.two_top || 0,
+            two_bottom: rate.rates.two_bottom || 0,
+            run_top: rate.rates.run_top || 0,
+            run_bottom: rate.rates.run_bottom || 0,
+          },
+        })),
       };
       await agentService.update(selectedAgent._id, updateData);
       toast.success(`แก้ไขข้อมูลเอเย่นต์ ${selectedAgent.username} สำเร็จ`);
@@ -897,78 +1045,165 @@ const EditAgentModal = ({
             {errors.name && <p className="text-accent-error text-sm mt-1">{errors.name}</p>}
           </div>
 
-          {/* Commission Rate */}
+          {/* Commission Rates */}
           <div className="border-t border-border-default pt-4">
             <label className="block text-sm font-medium text-text-secondary mb-3">
               อัตราค่าคอมมิชชัน (%)
             </label>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <label className="block text-xs text-text-muted mb-1">2 ตัวบน</label>
-                <input
-                  type="number"
-                  value={formData.commission_rate.two_digit_top}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      commission_rate: {
-                        ...formData.commission_rate,
-                        two_digit_top: parseFloat(e.target.value) || 0,
-                      },
-                    })
-                  }
-                  className="w-full px-3 py-2 bg-bg-light-cream text-text-primary border border-border-default rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-gold"
-                  placeholder="0"
-                  min="0"
-                  max="100"
-                  step="0.01"
-                />
-              </div>
+            <div className="space-y-3">
+              {lotteryTypes.map((lotteryType, index) => {
+                const rateIndex = formData.commission_rates.findIndex(
+                  (r) => r.lottery_type_id === lotteryType._id
+                );
+                const isExpanded = expandedTypes[lotteryType._id];
 
-              <div>
-                <label className="block text-xs text-text-muted mb-1">3 ตัวบน</label>
-                <input
-                  type="number"
-                  value={formData.commission_rate.three_digit_top}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      commission_rate: {
-                        ...formData.commission_rate,
-                        three_digit_top: parseFloat(e.target.value) || 0,
-                      },
-                    })
-                  }
-                  className="w-full px-3 py-2 bg-bg-light-cream text-text-primary border border-border-default rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-gold"
-                  placeholder="0"
-                  min="0"
-                  max="100"
-                  step="0.01"
-                />
-              </div>
+                return (
+                  <div key={lotteryType._id} className="border border-border-default rounded-lg overflow-hidden">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setExpandedTypes({
+                          ...expandedTypes,
+                          [lotteryType._id]: !isExpanded,
+                        })
+                      }
+                      className="w-full px-4 py-3 bg-bg-light-cream hover:bg-bg-cream flex items-center justify-between transition-colors"
+                    >
+                      <span className="font-medium text-text-primary">{lotteryType.label}</span>
+                      <svg
+                        className={`w-5 h-5 text-text-secondary transition-transform ${
+                          isExpanded ? 'rotate-180' : ''
+                        }`}
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M19 9l-7 7-7-7"
+                        />
+                      </svg>
+                    </button>
 
-              <div>
-                <label className="block text-xs text-text-muted mb-1">3 ตัวโต๊ด</label>
-                <input
-                  type="number"
-                  value={formData.commission_rate.three_digit_tote}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      commission_rate: {
-                        ...formData.commission_rate,
-                        three_digit_tote: parseFloat(e.target.value) || 0,
-                      },
-                    })
-                  }
-                  className="w-full px-3 py-2 bg-bg-light-cream text-text-primary border border-border-default rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-gold"
-                  placeholder="0"
-                  min="0"
-                  max="100"
-                  step="0.01"
-                />
-              </div>
+                    {isExpanded && rateIndex >= 0 && (
+                      <div className="p-4 bg-bg-card border-t border-border-default">
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                          <div>
+                            <label className="block text-xs text-text-muted mb-1">3 ตัวบน</label>
+                            <input
+                              type="number"
+                              value={formData.commission_rates[rateIndex].rates.three_top}
+                              onChange={(e) => {
+                                const newRates = [...formData.commission_rates];
+                                newRates[rateIndex].rates.three_top = parseFloat(e.target.value) || 0;
+                                setFormData({ ...formData, commission_rates: newRates });
+                              }}
+                              className="w-full px-3 py-2 bg-bg-light-cream text-text-primary border border-border-default rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-gold"
+                              placeholder="0"
+                              min="0"
+                              max="100"
+                              step="0.01"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-xs text-text-muted mb-1">3 ตัวโต๊ด</label>
+                            <input
+                              type="number"
+                              value={formData.commission_rates[rateIndex].rates.three_tod}
+                              onChange={(e) => {
+                                const newRates = [...formData.commission_rates];
+                                newRates[rateIndex].rates.three_tod = parseFloat(e.target.value) || 0;
+                                setFormData({ ...formData, commission_rates: newRates });
+                              }}
+                              className="w-full px-3 py-2 bg-bg-light-cream text-text-primary border border-border-default rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-gold"
+                              placeholder="0"
+                              min="0"
+                              max="100"
+                              step="0.01"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-xs text-text-muted mb-1">2 ตัวบน</label>
+                            <input
+                              type="number"
+                              value={formData.commission_rates[rateIndex].rates.two_top}
+                              onChange={(e) => {
+                                const newRates = [...formData.commission_rates];
+                                newRates[rateIndex].rates.two_top = parseFloat(e.target.value) || 0;
+                                setFormData({ ...formData, commission_rates: newRates });
+                              }}
+                              className="w-full px-3 py-2 bg-bg-light-cream text-text-primary border border-border-default rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-gold"
+                              placeholder="0"
+                              min="0"
+                              max="100"
+                              step="0.01"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-xs text-text-muted mb-1">2 ตัวล่าง</label>
+                            <input
+                              type="number"
+                              value={formData.commission_rates[rateIndex].rates.two_bottom}
+                              onChange={(e) => {
+                                const newRates = [...formData.commission_rates];
+                                newRates[rateIndex].rates.two_bottom = parseFloat(e.target.value) || 0;
+                                setFormData({ ...formData, commission_rates: newRates });
+                              }}
+                              className="w-full px-3 py-2 bg-bg-light-cream text-text-primary border border-border-default rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-gold"
+                              placeholder="0"
+                              min="0"
+                              max="100"
+                              step="0.01"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-xs text-text-muted mb-1">วิ่งบน</label>
+                            <input
+                              type="number"
+                              value={formData.commission_rates[rateIndex].rates.run_top}
+                              onChange={(e) => {
+                                const newRates = [...formData.commission_rates];
+                                newRates[rateIndex].rates.run_top = parseFloat(e.target.value) || 0;
+                                setFormData({ ...formData, commission_rates: newRates });
+                              }}
+                              className="w-full px-3 py-2 bg-bg-light-cream text-text-primary border border-border-default rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-gold"
+                              placeholder="0"
+                              min="0"
+                              max="100"
+                              step="0.01"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-xs text-text-muted mb-1">วิ่งล่าง</label>
+                            <input
+                              type="number"
+                              value={formData.commission_rates[rateIndex].rates.run_bottom}
+                              onChange={(e) => {
+                                const newRates = [...formData.commission_rates];
+                                newRates[rateIndex].rates.run_bottom = parseFloat(e.target.value) || 0;
+                                setFormData({ ...formData, commission_rates: newRates });
+                              }}
+                              className="w-full px-3 py-2 bg-bg-light-cream text-text-primary border border-border-default rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-gold"
+                              placeholder="0"
+                              min="0"
+                              max="100"
+                              step="0.01"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>
