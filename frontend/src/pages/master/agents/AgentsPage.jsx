@@ -162,7 +162,7 @@ const AgentManagement = () => {
       label: 'เครดิต',
       sortable: true,
       render: (value) => (
-        <span className="font-semibold text-primary-light-gold">{formatCurrency(value)}</span>
+        <span className="font-semibold text-primary-dark-gold">{formatCurrency(value)}</span>
       ),
     },
     {
