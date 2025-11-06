@@ -103,7 +103,7 @@ export default function AgentLayout({ children }) {
                 <span className="text-xl">🎰</span>
               </div>
               <h1 className="text-xl font-bold text-text-primary hidden md:block">
-                ระบบหวยออนไลน์ - เอเย่นต์
+                ระบบหวยออนไลน์ - Agent
               </h1>
             </div>
           </div>
@@ -131,7 +131,7 @@ export default function AgentLayout({ children }) {
               </div>
               <div className="hidden md:block text-left">
                 <p className="text-sm font-medium text-text-primary">{user?.name}</p>
-                <p className="text-xs text-text-secondary">เอเย่นต์</p>
+                <p className="text-xs text-text-secondary">Agent</p>
               </div>
             </div>
           </div>

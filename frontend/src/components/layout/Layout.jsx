@@ -135,7 +135,7 @@ export default function Layout({ children }) {
                 <span className="text-xl">🎰</span>
               </div>
               <h1 className="text-xl font-bold text-text-primary hidden md:block">
-                ระบบหวยออนไลน์
+                ระบบหวยออนไลน์{user?.role === 'master' ? ' - Master' : user?.role === 'member' ? ' - Member' : ''}
               </h1>
             </div>
           </div>

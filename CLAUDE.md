@@ -156,7 +156,7 @@ Do NOT include "🤖 Generated with [Claude Code]" or "Co-Authored-By: Claude" u
 - ⚙️ **ห้าม Claude Code ทำการรัน server, build, start หรือ execute คำสั่งที่เกี่ยวข้องกับระบบ production / development โดยอัตโนมัติ**  
   - รวมถึงคำสั่ง เช่น `npm run dev`, `npm start`, `docker compose up`, `node server.js`  
   - Claude สามารถอธิบายวิธีรันหรือเขียนสคริปต์ให้ได้ แต่ไม่อนุญาตให้รันเอง  
-- ✅ **ยกเว้นเฉพาะกรณีที่ผู้ใช้ระบุชัดเจนว่า “commit ได้” หรือ “รันได้” เท่านั้น**  
+- ✅ **ยกเว้นเฉพาะกรณีที่ผู้ใช้ระบุชัดเจนว่า “commit” หรือ “รันได้” เท่านั้น**  
   - ในกรณีนั้น Claude Code สามารถทำได้เพียงครั้งเดียวตามคำสั่งนั้น  
   - หลังจากเสร็จสิ้นต้องกลับไปอยู่ในสถานะห้าม commit หรือรัน server ตามปกติ
 
