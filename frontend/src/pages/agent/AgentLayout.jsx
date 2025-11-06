@@ -27,16 +27,6 @@ const agentMenuItems = [
     ),
     href: '/agent/members',
   },
-  {
-    id: 'change-password',
-    label: 'เปลี่ยนรหัสผ่าน',
-    icon: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
-      </svg>
-    ),
-    href: '/profile/change-password',
-  },
 ];
 
 export default function AgentLayout({ children }) {
@@ -185,8 +175,21 @@ export default function AgentLayout({ children }) {
           </ul>
         </nav>
 
-        {/* Bottom Section - Logout */}
+        {/* Bottom Section - Change Password & Logout */}
         <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-primary-dark-gold/30 bg-bg-dark-gray space-y-2">
+          {/* Change Password Button */}
+          <Link
+            to="/profile/change-password"
+            onClick={handleMenuClick}
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-text-light hover:bg-primary-gold/20 hover:text-primary-light-gold transition-all duration-200"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+            </svg>
+            <span className="font-medium">เปลี่ยนรหัสผ่าน</span>
+          </Link>
+
+          {/* Logout Button */}
           <button
             onClick={handleLogout}
             className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-text-light hover:bg-accent-error/20 hover:text-accent-error transition-all duration-200"
