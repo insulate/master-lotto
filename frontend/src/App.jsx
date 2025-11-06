@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { Toaster } from 'react-hot-toast';
 import Layout from './components/layout/Layout';
 import AgentLayout from './pages/agent/AgentLayout';
+import AppLayout from './pages/app/AppLayout';
 import PrivateRoute from './components/auth/PrivateRoute';
 import Login from './pages/auth/Login';
 import MasterDashboard from './pages/master/MasterDashboard';
@@ -14,6 +15,10 @@ import AgentDashboard from './pages/agent/AgentDashboard';
 import MemberManagement from './pages/agent/members/MembersPage';
 import MemberCommissionPage from './pages/agent/commission/MemberCommissionPage';
 import ChangePasswordPage from './pages/profile/ChangePasswordPage';
+import HomePage from './pages/app/HomePage';
+import BettingPage from './pages/app/BettingPage';
+import HistoryPage from './pages/app/HistoryPage';
+import ProfilePage from './pages/app/ProfilePage';
 import { useAuthStore } from './store/authStore';
 
 function App() {
@@ -167,6 +172,23 @@ function App() {
               </PrivateRoute>
             }
           />
+
+          {/* App Routes - Member UI */}
+          <Route
+            path="/app"
+            element={
+              <PrivateRoute>
+                <AppLayout />
+              </PrivateRoute>
+            }
+          >
+            <Route path="home" element={<HomePage />} />
+            <Route path="betting" element={<BettingPage />} />
+            <Route path="betting/:lotteryId" element={<BettingPage />} />
+            <Route path="history" element={<HistoryPage />} />
+            <Route path="profile" element={<ProfilePage />} />
+            <Route index element={<Navigate to="home" replace />} />
+          </Route>
 
           {/* Profile Routes - Available for all roles */}
           <Route

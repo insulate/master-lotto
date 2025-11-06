@@ -34,7 +34,7 @@ function Login() {
           navigate('/agent/dashboard');
           break;
         case 'member':
-          navigate('/member/dashboard');
+          navigate('/app/home');
           break;
         default:
           navigate('/dashboard');
