@@ -1,52 +1,53 @@
-import { ChevronLeft, Crown, Star } from 'lucide-react';
+import { ChevronLeft, Crown, Star, Clock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 
 /**
  * Home Page - หน้าแสดงรายการหวยทั้งหมด
  */
 const HomePage = () => {
   const navigate = useNavigate();
+  const [currentTime, setCurrentTime] = useState(new Date());
 
   // Mock lottery data - จะต้องเชื่อมต่อกับ API จริงในภายหลัง
   const lotteryTypes = [
     {
       id: 1,
-      name: 'หวยรัฐบาล & ยี่กี VIP',
+      name: 'หวยทั้งหมด',
       items: [
-        { id: 'gov-24', name: 'ยี่กี VIP 24 ชั่วโมง', round: '88 รอบ', vip: true, status: 'open', closingTime: '09:00' },
-        { id: 'gov-pat', name: 'หวยรัฐบาล', subName: 'ปิดรับแทง', status: 'closed', closingTime: '16:30' },
-        { id: 'gov-set', name: 'หวยเศรษฐี', subName: 'ปิดรับแทง', status: 'closed', closingTime: '09:00' },
-      ]
-    },
-    {
-      id: 2,
-      name: 'หวยหุ้นไทย',
-      items: [
-        { id: 'stock-th', name: 'หุ้นไทยเย็น', subName: 'ปิดรับแทง', status: 'closed', closingTime: '16:20' },
-      ]
-    },
-    {
-      id: 3,
-      name: 'หวยหุ้นต่างประเทศ',
-      items: [
-        { id: 'stock-cn', name: 'เยอรมัน', round: '4:23:46', status: 'open', closingTime: '22:00', country: 'de' },
-        { id: 'stock-uk', name: 'อังกฤษ', round: '4:23:46', status: 'open', closingTime: '22:00', country: 'gb' },
-        { id: 'stock-ru', name: 'รัสเซีย', round: '4:23:46', status: 'open', closingTime: '23:00', country: 'ru' },
-        { id: 'stock-jp', name: 'ดาว VIP', round: '3:38:46', status: 'open', closingTime: '20:35', country: 'jp' },
-        { id: 'stock-in', name: 'ฮั่งเส็ง', round: '0:23:46', status: 'open', closingTime: '18:00', country: 'in' },
-        { id: 'stock-th2', name: 'ดาวโจนส์', round: '0:23:46', status: 'open', closingTime: '18:00', country: 'th' },
-        { id: 'stock-pk', name: 'อินเดีย', subName: 'ปิดรับแทง', status: 'closed', closingTime: '16:20', country: 'pk' },
-        { id: 'stock-my', name: 'ฮานอยพิเศษ', subName: 'ปิดรับแทง', status: 'closed', closingTime: '18:30', country: 'my' },
-        { id: 'stock-sg', name: 'หุ้นกัมพูด', subName: 'ปิดรับแทง', status: 'closed', closingTime: '18:30', country: 'sg' },
-        { id: 'stock-vn', name: 'ฮานอยปกติ', subName: 'ปิดรับแทง', status: 'closed', closingTime: '18:30', country: 'vn' },
-        { id: 'stock-id', name: 'สิงคโปร์', subName: 'ปิดรับแทง', status: 'closed', closingTime: '16:00', country: 'id' },
-        { id: 'stock-mm', name: 'ไต้หวัน', subName: 'ปิดรับแทง', status: 'closed', closingTime: '14:50', country: 'mm' },
-        { id: 'stock-la', name: 'ลาวพัฒนา', subName: 'ปิดรับแทง', status: 'closed', closingTime: '13:30', country: 'la' },
-        { id: 'stock-kh', name: 'เกาหลี', subName: 'ปิดรับแทง', status: 'closed', closingTime: '13:30', country: 'kh' },
-        { id: 'stock-cn2', name: 'จีน', subName: 'ปิดรับแทง', status: 'closed', closingTime: '13:30', country: 'cn' },
+        { id: 'gov-pat', name: 'หวยรัฐบาล', subName: 'ปิดรับแทง', status: 'closed', closingTime: '16:30', country: 'th' },
+        { id: 'lao', name: 'ลาวพัฒนา', subName: 'ปิดรับแทง', status: 'closed', closingTime: '13:30', country: 'la' },
+        { id: 'hanoi', name: 'ฮานอยปกติ', subName: 'ปิดรับแทง', status: 'closed', closingTime: '18:30', country: 'vn' },
+        { id: 'hanoi-vip', name: 'ฮานอย VIP', round: '88 รอบ', vip: true, status: 'open', closingTime: '09:00', country: 'vn' },
       ]
     },
   ];
+
+  // Update time every second
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
+
+  const formatTime = (date) => {
+    return date.toLocaleTimeString('th-TH', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false
+    });
+  };
+
+  const formatDate = (date) => {
+    return date.toLocaleDateString('th-TH', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+  };
 
   const getCountryFlag = (country) => {
     const flags = {
@@ -74,6 +75,19 @@ const HomePage = () => {
       <div className="w-[800px]">
         {/* Main Card */}
         <div className="bg-white border-2 border-primary-gold/30 rounded-xl shadow-2xl p-6">
+          {/* Current Time Display */}
+          <div className="flex items-center justify-center gap-3 mb-6 pb-4 border-b-2 border-primary-gold/20">
+            <Clock className="w-6 h-6 text-primary-gold" />
+            <div className="text-center">
+              <div className="text-3xl font-bold text-primary-dark-gold">
+                {formatTime(currentTime)}
+              </div>
+              <div className="text-sm text-bg-dark/70 mt-1">
+                {formatDate(currentTime)}
+              </div>
+            </div>
+          </div>
+
           {/* Lottery Sections */}
           <div className="space-y-8">
         {lotteryTypes.map((section) => (
@@ -91,7 +105,7 @@ const HomePage = () => {
             </div>
 
             {/* Lottery Cards Grid */}
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 gap-4">
               {section.items.map((lottery) => (
                 <button
                   key={lottery.id}
