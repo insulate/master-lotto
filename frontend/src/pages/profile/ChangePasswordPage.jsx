@@ -153,6 +153,7 @@ const ChangePasswordPage = () => {
                   name="currentPassword"
                   value={formData.currentPassword}
                   onChange={handleChange}
+                  autoComplete="off"
                   className={`w-full px-4 py-3 pr-12 bg-bg-light-cream text-text-primary border rounded-lg focus:outline-none focus:ring-2 ${
                     errors.currentPassword
                       ? 'border-accent-error ring-2 ring-accent-error'
@@ -184,6 +185,7 @@ const ChangePasswordPage = () => {
                   name="newPassword"
                   value={formData.newPassword}
                   onChange={handleChange}
+                  autoComplete="off"
                   className={`w-full px-4 py-3 pr-12 bg-bg-light-cream text-text-primary border rounded-lg focus:outline-none focus:ring-2 ${
                     errors.newPassword
                       ? 'border-accent-error ring-2 ring-accent-error'
@@ -215,6 +217,7 @@ const ChangePasswordPage = () => {
                   name="confirmPassword"
                   value={formData.confirmPassword}
                   onChange={handleChange}
+                  autoComplete="off"
                   className={`w-full px-4 py-3 pr-12 bg-bg-light-cream text-text-primary border rounded-lg focus:outline-none focus:ring-2 ${
                     errors.confirmPassword
                       ? 'border-accent-error ring-2 ring-accent-error'
