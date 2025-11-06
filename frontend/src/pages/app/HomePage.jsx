@@ -56,13 +56,14 @@ const HomePage = () => {
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
     const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
     const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
 
     if (days > 0) {
       return `เหลือ ${days} วัน ${hours} ชม.`;
     } else if (hours > 0) {
-      return `เหลือ ${hours} ชม. ${minutes} นาที`;
+      return `เหลือ ${hours} ชม. ${minutes} นาที ${seconds} วินาที`;
     } else {
-      return `เหลือ ${minutes} นาที`;
+      return `เหลือ ${minutes} นาที ${seconds} วินาที`;
     }
   };
 
@@ -94,6 +95,7 @@ const HomePage = () => {
           closingTime = drawDate.toLocaleTimeString('th-TH', {
             hour: '2-digit',
             minute: '2-digit',
+            second: '2-digit',
             hour12: false
           });
 
