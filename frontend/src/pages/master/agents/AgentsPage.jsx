@@ -147,6 +147,16 @@ const AgentManagement = () => {
       sortable: true,
     },
     {
+      key: 'contact',
+      label: 'ข้อมูลติดต่อ',
+      sortable: false,
+      render: (value) => (
+        <span className="text-text-muted text-xs max-w-[200px] truncate block" title={value}>
+          {value || '-'}
+        </span>
+      ),
+    },
+    {
       key: 'credit',
       label: 'เครดิต',
       sortable: true,
