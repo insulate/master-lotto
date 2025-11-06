@@ -99,16 +99,14 @@ const HomePage = () => {
                   disabled={lottery.status === 'closed'}
                   className={`relative p-4 rounded-xl text-left transition-all ${
                     lottery.status === 'open'
-                      ? lottery.vip
-                        ? 'bg-gradient-to-br from-primary-gold to-primary-dark-gold hover:from-primary-dark-gold hover:to-primary-gold border-2 border-primary-gold shadow-gold-lg hover:shadow-gold-xl transform hover:scale-105'
-                        : 'bg-white border-2 border-primary-gold/50 hover:border-primary-gold shadow-lg hover:shadow-xl transform hover:scale-105'
+                      ? 'bg-gradient-to-br from-primary-light-gold/30 to-primary-gold/40 hover:from-primary-gold/40 hover:to-primary-dark-gold/50 border-2 border-primary-gold/60 shadow-lg hover:shadow-xl transform hover:scale-105'
                       : 'bg-gray-100 border-2 border-gray-300 opacity-60 cursor-not-allowed'
                   }`}
                 >
                   {/* VIP Badge */}
                   {lottery.vip && (
                     <div className="absolute top-3 right-3">
-                      <span className="bg-bg-dark text-primary-gold text-xs font-bold px-2 py-1 rounded border border-bg-dark">
+                      <span className="bg-primary-dark-gold text-white text-xs font-bold px-2 py-1 rounded border border-primary-dark-gold">
                         VIP
                       </span>
                     </div>
@@ -119,7 +117,7 @@ const HomePage = () => {
                     <div className="absolute top-3 right-3">
                       <span className={`text-xs font-bold px-2 py-1 rounded ${
                         lottery.status === 'open'
-                          ? 'bg-primary-gold/20 text-primary-gold border border-primary-gold/30'
+                          ? 'bg-primary-dark-gold/80 text-white border border-primary-dark-gold'
                           : 'bg-gray-200 text-gray-500 border border-gray-300'
                       }`}>
                         {lottery.status === 'open' ? 'เปิดรับ' : 'ปิดรับ'}
@@ -135,7 +133,7 @@ const HomePage = () => {
                   {/* Lottery Name */}
                   <h3 className={`text-lg font-bold mb-1 pr-16 ${
                     lottery.status === 'open'
-                      ? lottery.vip ? 'text-bg-dark' : 'text-gray-800'
+                      ? 'text-bg-dark'
                       : 'text-gray-400'
                   }`}>
                     {lottery.name}
@@ -144,7 +142,7 @@ const HomePage = () => {
                   {/* Round/Subtitle */}
                   <div className={`text-2xl font-bold mb-1 ${
                     lottery.status === 'open'
-                      ? lottery.vip ? 'text-bg-dark' : 'text-primary-gold'
+                      ? 'text-primary-dark-gold'
                       : 'text-gray-400'
                   }`}>
                     {lottery.round || lottery.subName}
@@ -153,7 +151,7 @@ const HomePage = () => {
                   {/* Closing Time */}
                   <div className={`text-sm ${
                     lottery.status === 'open'
-                      ? lottery.vip ? 'text-bg-dark/80' : 'text-gray-600'
+                      ? 'text-bg-dark/70'
                       : 'text-gray-400'
                   }`}>
                     ปิดรับ {lottery.closingTime}
