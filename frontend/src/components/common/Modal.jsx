@@ -41,6 +41,7 @@ const Modal = ({
   const sizeClasses = {
     sm: 'max-w-md',
     md: 'max-w-lg',
+    medium: 'max-w-[850px]', // 850px for auto-create modal
     lg: 'max-w-2xl',
     xl: 'max-w-4xl',
   };

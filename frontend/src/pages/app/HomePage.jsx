@@ -42,13 +42,13 @@ const HomePage = () => {
     return countryMap[value] || 'th';
   };
 
-  // Helper function to calculate time remaining until closing
-  const getTimeRemaining = (closeTime) => {
-    if (!closeTime) return null;
+  // Helper function to calculate time remaining until a specific time
+  const getTimeRemaining = (targetTime) => {
+    if (!targetTime) return null;
 
     const now = new Date();
-    const close = new Date(closeTime);
-    const diff = close - now;
+    const target = new Date(targetTime);
+    const diff = target - now;
 
     if (diff <= 0) return 'ปิดรับแล้ว';
 
@@ -85,10 +85,9 @@ const HomePage = () => {
         let subName = 'ปิดรับแทง';
         let closingTime = '-';
         let round = null;
+        let countdownTime = null; // Time to countdown to (open_time or close_time)
 
         if (hasOpenDraw && draw) {
-          status = draw.status; // 'open', 'closed', 'completed'
-
           // Format draw date and closing time
           const drawDate = new Date(draw.draw_date);
           closingTime = drawDate.toLocaleTimeString('th-TH', {
@@ -97,12 +96,34 @@ const HomePage = () => {
             hour12: false
           });
 
+          // Check if draw is open AND has reached open_time
+          const now = new Date();
+          const openTime = new Date(draw.open_time);
+          const closeTime = new Date(draw.close_time);
+
           if (draw.status === 'open') {
-            subName = null;
-            round = draw.round_number ? `รอบที่ ${draw.round_number}` : null;
+            // Check if current time is before open_time
+            if (now < openTime) {
+              // Not yet open for betting - show countdown to open_time
+              status = 'closed';
+              subName = 'รอเปิด';
+              countdownTime = draw.open_time;
+            } else if (now >= closeTime) {
+              // Past closing time but not yet marked as closed
+              status = 'closed';
+              subName = 'ปิดรับแทง';
+            } else {
+              // Open and accepting bets - show countdown to close_time
+              status = 'open';
+              subName = null;
+              round = draw.round_number ? `รอบที่ ${draw.round_number}` : null;
+              countdownTime = draw.close_time;
+            }
           } else if (draw.status === 'closed') {
+            status = 'closed';
             subName = 'ปิดรับแทง';
           } else if (draw.status === 'completed') {
+            status = 'completed';
             subName = 'ประกาศผลแล้ว';
           }
         }
@@ -114,6 +135,7 @@ const HomePage = () => {
           round,
           status,
           closingTime,
+          countdownTime, // Add countdown time
           country: getCountryCode(type.value),
           vip: type.value === 'hanoi_vip',
           icon: type.icon,
@@ -141,14 +163,22 @@ const HomePage = () => {
     fetchLotteryTypes();
   }, [fetchLotteryTypes]);
 
-  // Update time every second
+  // Update time every second and refetch lottery types every minute
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(new Date());
     }, 1000);
 
-    return () => clearInterval(timer);
-  }, []);
+    // Refetch lottery types every minute to update status
+    const refetchTimer = setInterval(() => {
+      fetchLotteryTypes();
+    }, 60000); // 60 seconds
+
+    return () => {
+      clearInterval(timer);
+      clearInterval(refetchTimer);
+    };
+  }, [fetchLotteryTypes]);
 
   const formatTime = (date) => {
     return date.toLocaleTimeString('th-TH', {
@@ -292,8 +322,8 @@ const HomePage = () => {
                       ? 'text-bg-dark/70'
                       : 'text-gray-400'
                   }`}>
-                    {lottery.status === 'open' && lottery.draw?.close_time
-                      ? getTimeRemaining(lottery.draw.close_time)
+                    {lottery.countdownTime
+                      ? getTimeRemaining(lottery.countdownTime)
                       : `ปิดรับ ${lottery.closingTime}`
                     }
                   </div>
