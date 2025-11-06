@@ -21,9 +21,24 @@ function Login() {
     setIsLoading(true);
 
     try {
-      await login(data.username, data.password);
+      const result = await login(data.username, data.password);
       toast.success('เข้าสู่ระบบสำเร็จ');
-      navigate('/dashboard');
+
+      // Redirect based on user role
+      const role = result.user.role;
+      switch (role) {
+        case 'master':
+          navigate('/dashboard');
+          break;
+        case 'agent':
+          navigate('/agent/dashboard');
+          break;
+        case 'member':
+          navigate('/member/dashboard');
+          break;
+        default:
+          navigate('/dashboard');
+      }
     } catch (error) {
       const message = error.response?.data?.message || 'เกิดข้อผิดพลาดในการเข้าสู่ระบบ';
       toast.error(message);
