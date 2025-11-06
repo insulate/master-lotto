@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../../store/authStore';
 import lotteryDrawService from './lotteryDrawService';
 import DataTable from '../../../components/common/DataTable';
@@ -20,6 +20,7 @@ import toast from 'react-hot-toast';
 const LotteryDrawManagement = () => {
   // Authentication
   const { user } = useAuthStore();
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
   // Get lottery type from URL
@@ -136,6 +137,17 @@ const LotteryDrawManagement = () => {
   useEffect(() => {
     setCurrentPage(1);
   }, [lotteryTypeFilter, statusFilter]);
+
+  // Update URL when lottery type filter changes
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (lotteryTypeFilter !== 'all') {
+      params.set('type', lotteryTypeFilter);
+    }
+    const newSearch = params.toString();
+    const newPath = newSearch ? `?${newSearch}` : window.location.pathname;
+    navigate(newPath, { replace: true });
+  }, [lotteryTypeFilter, navigate]);
 
   // Helper function to format date for datetime-local input (Bangkok timezone)
   const formatDateTimeLocal = (dateString) => {
