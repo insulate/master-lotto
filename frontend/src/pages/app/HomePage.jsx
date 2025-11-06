@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import lotteryService from './lotteryService';
 import toast from 'react-hot-toast';
 import { parseErrorMessage } from '../../lib/utils';
+import { initSocket, onLotteryUpdate, offLotteryUpdate } from '../../lib/socket';
 
 /**
  * Home Page - หน้าแสดงรายการหวยทั้งหมด
@@ -161,6 +162,27 @@ const HomePage = () => {
   // Fetch lottery types on mount
   useEffect(() => {
     fetchLotteryTypes();
+  }, [fetchLotteryTypes]);
+
+  // Initialize WebSocket connection and listen for updates
+  useEffect(() => {
+    // Initialize socket
+    const socket = initSocket();
+
+    // Handle lottery updates
+    const handleLotteryUpdate = (data) => {
+      console.log('📡 Received lottery update:', data);
+      // Refetch lottery types when update received
+      fetchLotteryTypes();
+    };
+
+    // Listen for lottery updates
+    onLotteryUpdate(handleLotteryUpdate);
+
+    // Cleanup
+    return () => {
+      offLotteryUpdate(handleLotteryUpdate);
+    };
   }, [fetchLotteryTypes]);
 
   // Update time every second and refetch lottery types every minute

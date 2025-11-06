@@ -124,6 +124,16 @@ export const createLotteryDraw = async (req, res, next) => {
       status: 'open',
     });
 
+    // Emit WebSocket event for real-time update
+    const io = req.app.get('io');
+    if (io) {
+      io.emit('lottery:update', {
+        action: 'created',
+        lottery_type,
+        draw: lotteryDraw
+      });
+    }
+
     return successResponse(res, 'สร้างงวดหวยสำเร็จ', { lotteryDraw }, 201);
   } catch (error) {
     next(error);
@@ -184,6 +194,16 @@ export const updateLotteryDraw = async (req, res, next) => {
 
     await lotteryDraw.save();
 
+    // Emit WebSocket event for real-time update
+    const io = req.app.get('io');
+    if (io) {
+      io.emit('lottery:update', {
+        action: 'updated',
+        lottery_type: lotteryDraw.lottery_type,
+        draw: lotteryDraw
+      });
+    }
+
     return successResponse(res, 'อัพเดทงวดหวยสำเร็จ', { lotteryDraw }, 200);
   } catch (error) {
     next(error);
@@ -231,6 +251,17 @@ export const updateDrawStatus = async (req, res, next) => {
     }
 
     await lotteryDraw.save();
+
+    // Emit WebSocket event for real-time update
+    const io = req.app.get('io');
+    if (io) {
+      io.emit('lottery:update', {
+        action: 'status_changed',
+        lottery_type: lotteryDraw.lottery_type,
+        status: status,
+        draw: lotteryDraw
+      });
+    }
 
     const statusText = {
       open: 'เปิดรับแทง',
@@ -288,6 +319,16 @@ export const updateDrawResult = async (req, res, next) => {
 
     await lotteryDraw.save();
 
+    // Emit WebSocket event for real-time update
+    const io = req.app.get('io');
+    if (io) {
+      io.emit('lottery:update', {
+        action: 'result_announced',
+        lottery_type: lotteryDraw.lottery_type,
+        draw: lotteryDraw
+      });
+    }
+
     return successResponse(res, 'ประกาศผลรางวัลสำเร็จ', { lotteryDraw }, 200);
   } catch (error) {
     next(error);
@@ -319,7 +360,20 @@ export const deleteLotteryDraw = async (req, res, next) => {
     // TODO: Check if there are any bets placed (will implement in future)
     // For now, allow deletion
 
+    // Store lottery_type before deletion
+    const lottery_type = lotteryDraw.lottery_type;
+
     await LotteryDraw.deleteOne({ _id: id });
+
+    // Emit WebSocket event for real-time update
+    const io = req.app.get('io');
+    if (io) {
+      io.emit('lottery:update', {
+        action: 'deleted',
+        lottery_type,
+        draw_id: id
+      });
+    }
 
     return successResponse(res, 'ลบงวดหวยสำเร็จ', null, 200);
   } catch (error) {
@@ -491,6 +545,19 @@ export const bulkCreateLotteryDraws = async (req, res, next) => {
             error: error.message
           });
         }
+      }
+    }
+
+    // Emit WebSocket event for real-time update (bulk create)
+    if (createdDraws.length > 0) {
+      const io = req.app.get('io');
+      if (io) {
+        io.emit('lottery:update', {
+          action: 'bulk_created',
+          count: createdDraws.length,
+          lottery_types,
+          draws: createdDraws
+        });
       }
     }
 
