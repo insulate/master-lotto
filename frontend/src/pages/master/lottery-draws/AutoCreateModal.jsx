@@ -7,7 +7,7 @@ import Modal from '../../../components/common/Modal';
  */
 const AutoCreateModal = ({ isOpen, onClose, onSubmit, loading }) => {
   const [formData, setFormData] = useState({
-    lottery_types: [],
+    lottery_types: ['government'], // Changed to single selection with default
     days_ahead: 30,
     frequency: 'daily',
     custom_days: [],
@@ -33,15 +33,6 @@ const AutoCreateModal = ({ isOpen, onClose, onSubmit, loading }) => {
     { value: 6, label: 'เสาร์' },
   ];
 
-  const handleLotteryTypeToggle = (value) => {
-    setFormData(prev => ({
-      ...prev,
-      lottery_types: prev.lottery_types.includes(value)
-        ? prev.lottery_types.filter(t => t !== value)
-        : [...prev.lottery_types, value]
-    }));
-  };
-
   const handleCustomDayToggle = (day) => {
     setFormData(prev => ({
       ...prev,
@@ -59,7 +50,7 @@ const AutoCreateModal = ({ isOpen, onClose, onSubmit, loading }) => {
   const handleClose = () => {
     // Reset form
     setFormData({
-      lottery_types: [],
+      lottery_types: ['government'],
       days_ahead: 30,
       frequency: 'daily',
       custom_days: [],
@@ -78,31 +69,23 @@ const AutoCreateModal = ({ isOpen, onClose, onSubmit, loading }) => {
       size="large"
     >
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Lottery Types Selection */}
+        {/* Lottery Type Selection (Single) */}
         <div>
-          <label className="block text-sm font-medium mb-3">
-            เลือกประเภทหวย <span className="text-accent-error">*</span>
+          <label className="block text-sm font-medium mb-2">
+            ประเภทหวย <span className="text-accent-error">*</span>
           </label>
-          <div className="grid grid-cols-2 gap-3">
+          <select
+            value={formData.lottery_types[0]}
+            onChange={(e) => setFormData({ ...formData, lottery_types: [e.target.value] })}
+            className="w-full px-4 py-2 bg-neutral-charcoal border border-neutral-gray rounded-lg focus:outline-none focus:border-primary-gold"
+            required
+          >
             {lotteryTypes.map((type) => (
-              <label
-                key={type.value}
-                className={`flex items-center gap-2 p-3 rounded-lg border cursor-pointer transition-all ${
-                  formData.lottery_types.includes(type.value)
-                    ? 'bg-primary-gold/20 border-primary-gold'
-                    : 'bg-neutral-charcoal border-neutral-gray hover:border-primary-gold/50'
-                }`}
-              >
-                <input
-                  type="checkbox"
-                  checked={formData.lottery_types.includes(type.value)}
-                  onChange={() => handleLotteryTypeToggle(type.value)}
-                  className="w-4 h-4 text-primary-gold rounded focus:ring-primary-gold"
-                />
-                <span className="text-sm font-medium">{type.label}</span>
-              </label>
+              <option key={type.value} value={type.value}>
+                {type.label}
+              </option>
             ))}
-          </div>
+          </select>
         </div>
 
         {/* Days Ahead */}
@@ -239,7 +222,7 @@ const AutoCreateModal = ({ isOpen, onClose, onSubmit, loading }) => {
           </button>
           <button
             type="submit"
-            disabled={loading || formData.lottery_types.length === 0 || (formData.frequency === 'custom' && formData.custom_days.length === 0)}
+            disabled={loading || (formData.frequency === 'custom' && formData.custom_days.length === 0)}
             className="px-6 py-2 bg-primary-gold hover:bg-primary-light-gold text-neutral-charcoal font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? 'กำลังสร้าง...' : 'สร้างงวดหวย'}
