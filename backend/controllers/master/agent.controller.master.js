@@ -134,6 +134,23 @@ export const updateAgent = async (req, res, next) => {
       throw new AppError('ไม่พบเอเย่นต์หรือไม่มีสิทธิ์เข้าถึง', 404);
     }
 
+    // Validate commission rates if provided
+    if (commission_rates !== undefined) {
+      // Master can set any rate (0-100), no upper limit validation needed
+      // Just validate the format and range
+      for (const rateConfig of commission_rates) {
+        const rates = rateConfig.rates || {};
+        const rateTypes = ['three_top', 'three_tod', 'two_top', 'two_bottom', 'run_top', 'run_bottom'];
+
+        for (const rateType of rateTypes) {
+          const value = rates[rateType] || 0;
+          if (value < 0 || value > 100) {
+            throw new AppError(`อัตราค่าคอมมิชชันต้องอยู่ระหว่าง 0-100%`, 400);
+          }
+        }
+      }
+    }
+
     // Update fields if provided
     if (name) agent.name = name;
     if (commission_rates !== undefined) agent.commission_rates = commission_rates;

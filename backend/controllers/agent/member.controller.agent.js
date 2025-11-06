@@ -140,6 +140,57 @@ export const updateMember = async (req, res, next) => {
       throw new AppError('ไม่พบผู้เล่นหรือไม่มีสิทธิ์เข้าถึง', 404);
     }
 
+    // Validate commission rates if provided
+    if (commission_rates !== undefined) {
+      // Get agent's commission rates to validate against
+      const agent = await User.findById(agentId);
+
+      if (!agent) {
+        throw new AppError('ไม่พบข้อมูลเอเย่นต์', 404);
+      }
+
+      // Validate each lottery type's commission rates
+      for (const memberRateConfig of commission_rates) {
+        const memberRates = memberRateConfig.rates || {};
+        const lotteryTypeId = memberRateConfig.lottery_type_id;
+
+        // Find agent's commission rate for this lottery type
+        const agentRateConfig = agent.commission_rates?.find(
+          (rate) => rate.lottery_type_id.toString() === lotteryTypeId.toString()
+        );
+
+        const rateTypes = ['three_top', 'three_tod', 'two_top', 'two_bottom', 'run_top', 'run_bottom'];
+        const rateLabels = {
+          three_top: '3 ตัวบน',
+          three_tod: '3 ตัวโต๊ด',
+          two_top: '2 ตัวบน',
+          two_bottom: '2 ตัวล่าง',
+          run_top: 'วิ่งบน',
+          run_bottom: 'วิ่งล่าง'
+        };
+
+        for (const rateType of rateTypes) {
+          const memberValue = memberRates[rateType] || 0;
+
+          // Validate range
+          if (memberValue < 0 || memberValue > 100) {
+            throw new AppError(`อัตราค่าคอมมิชชันต้องอยู่ระหว่าง 0-100%`, 400);
+          }
+
+          // Validate against agent's max rate (downline must be <= upline)
+          if (agentRateConfig) {
+            const agentMaxRate = agentRateConfig.rates[rateType] || 0;
+            if (memberValue > agentMaxRate) {
+              throw new AppError(
+                `อัตราค่าคอม ${rateLabels[rateType]} ของผู้เล่นต้องไม่เกิน ${agentMaxRate}% (ที่เอเย่นต์ได้รับ)`,
+                400
+              );
+            }
+          }
+        }
+      }
+    }
+
     // Update fields if provided
     if (name) member.name = name;
     if (commission_rates !== undefined) member.commission_rates = commission_rates;

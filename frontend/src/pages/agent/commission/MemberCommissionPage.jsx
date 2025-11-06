@@ -52,6 +52,9 @@ const MemberCommissionPage = () => {
       const types = lotteryResponse.data.lotteryTypes || [];
       setLotteryTypes(types);
 
+      // Get agent's commission rates (current user is the agent)
+      const agentCommissionRates = user.commission_rates || [];
+
       // Initialize commission rates
       const rates = types.map((type) => {
         const existingRate = foundMember.commission_rates?.find(
@@ -61,6 +64,17 @@ const MemberCommissionPage = () => {
         return {
           lottery_type_id: type._id,
           rates: existingRate?.rates || {
+            three_top: 0,
+            three_tod: 0,
+            two_top: 0,
+            two_bottom: 0,
+            run_top: 0,
+            run_bottom: 0,
+          },
+          // Store agent's max rates for this lottery type
+          maxRates: agentCommissionRates.find(
+            (rate) => rate.lottery_type_id === type._id
+          )?.rates || {
             three_top: 0,
             three_tod: 0,
             two_top: 0,
@@ -251,11 +265,22 @@ const MemberCommissionPage = () => {
                   {/* Content */}
                   {isExpanded && rateIndex >= 0 && (
                     <div className="p-6 bg-bg-card border-t border-border-default">
+                      {/* Max Rate Info */}
+                      <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                        <p className="text-sm text-blue-800">
+                          <span className="font-semibold">อัตราสูงสุดที่คุณสามารถกำหนดได้:</span>{' '}
+                          ขึ้นอยู่กับอัตราที่คุณได้รับจาก Master (แสดงถัดจากช่องกรอก)
+                        </p>
+                      </div>
+
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {/* 3 ตัวบน */}
                         <div>
                           <label className="block text-sm font-medium text-text-secondary mb-2">
                             3 ตัวบน
+                            <span className="ml-2 text-xs text-blue-600">
+                              (สูงสุด: {commissionRates[rateIndex].maxRates.three_top}%)
+                            </span>
                           </label>
                           <div className="relative">
                             <input
@@ -263,14 +288,22 @@ const MemberCommissionPage = () => {
                               value={commissionRates[rateIndex].rates.three_top}
                               onChange={(e) => {
                                 const newRates = [...commissionRates];
-                                newRates[rateIndex].rates.three_top =
-                                  parseFloat(e.target.value) || 0;
+                                const value = parseFloat(e.target.value) || 0;
+                                const maxRate = newRates[rateIndex].maxRates.three_top;
+
+                                // Warn if exceeds max
+                                if (value > maxRate) {
+                                  toast.error(`อัตราค่าคอม 3 ตัวบน ต้องไม่เกิน ${maxRate}%`);
+                                  return;
+                                }
+
+                                newRates[rateIndex].rates.three_top = value;
                                 setCommissionRates(newRates);
                               }}
                               className="w-full px-4 py-3 bg-bg-light-cream text-text-primary border border-border-default rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-gold"
                               placeholder="0.00"
                               min="0"
-                              max="100"
+                              max={commissionRates[rateIndex].maxRates.three_top}
                               step="0.01"
                             />
                             <span className="absolute right-4 top-1/2 -translate-y-1/2 text-text-muted">
@@ -283,6 +316,9 @@ const MemberCommissionPage = () => {
                         <div>
                           <label className="block text-sm font-medium text-text-secondary mb-2">
                             3 ตัวโต๊ด
+                            <span className="ml-2 text-xs text-blue-600">
+                              (สูงสุด: {commissionRates[rateIndex].maxRates.three_tod}%)
+                            </span>
                           </label>
                           <div className="relative">
                             <input
@@ -290,14 +326,21 @@ const MemberCommissionPage = () => {
                               value={commissionRates[rateIndex].rates.three_tod}
                               onChange={(e) => {
                                 const newRates = [...commissionRates];
-                                newRates[rateIndex].rates.three_tod =
-                                  parseFloat(e.target.value) || 0;
+                                const value = parseFloat(e.target.value) || 0;
+                                const maxRate = newRates[rateIndex].maxRates.three_tod;
+
+                                if (value > maxRate) {
+                                  toast.error(`อัตราค่าคอม 3 ตัวโต๊ด ต้องไม่เกิน ${maxRate}%`);
+                                  return;
+                                }
+
+                                newRates[rateIndex].rates.three_tod = value;
                                 setCommissionRates(newRates);
                               }}
                               className="w-full px-4 py-3 bg-bg-light-cream text-text-primary border border-border-default rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-gold"
                               placeholder="0.00"
                               min="0"
-                              max="100"
+                              max={commissionRates[rateIndex].maxRates.three_tod}
                               step="0.01"
                             />
                             <span className="absolute right-4 top-1/2 -translate-y-1/2 text-text-muted">
@@ -310,6 +353,9 @@ const MemberCommissionPage = () => {
                         <div>
                           <label className="block text-sm font-medium text-text-secondary mb-2">
                             2 ตัวบน
+                            <span className="ml-2 text-xs text-blue-600">
+                              (สูงสุด: {commissionRates[rateIndex].maxRates.two_top}%)
+                            </span>
                           </label>
                           <div className="relative">
                             <input
@@ -317,14 +363,21 @@ const MemberCommissionPage = () => {
                               value={commissionRates[rateIndex].rates.two_top}
                               onChange={(e) => {
                                 const newRates = [...commissionRates];
-                                newRates[rateIndex].rates.two_top =
-                                  parseFloat(e.target.value) || 0;
+                                const value = parseFloat(e.target.value) || 0;
+                                const maxRate = newRates[rateIndex].maxRates.two_top;
+
+                                if (value > maxRate) {
+                                  toast.error(`อัตราค่าคอม 2 ตัวบน ต้องไม่เกิน ${maxRate}%`);
+                                  return;
+                                }
+
+                                newRates[rateIndex].rates.two_top = value;
                                 setCommissionRates(newRates);
                               }}
                               className="w-full px-4 py-3 bg-bg-light-cream text-text-primary border border-border-default rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-gold"
                               placeholder="0.00"
                               min="0"
-                              max="100"
+                              max={commissionRates[rateIndex].maxRates.two_top}
                               step="0.01"
                             />
                             <span className="absolute right-4 top-1/2 -translate-y-1/2 text-text-muted">
@@ -337,6 +390,9 @@ const MemberCommissionPage = () => {
                         <div>
                           <label className="block text-sm font-medium text-text-secondary mb-2">
                             2 ตัวล่าง
+                            <span className="ml-2 text-xs text-blue-600">
+                              (สูงสุด: {commissionRates[rateIndex].maxRates.two_bottom}%)
+                            </span>
                           </label>
                           <div className="relative">
                             <input
@@ -344,14 +400,21 @@ const MemberCommissionPage = () => {
                               value={commissionRates[rateIndex].rates.two_bottom}
                               onChange={(e) => {
                                 const newRates = [...commissionRates];
-                                newRates[rateIndex].rates.two_bottom =
-                                  parseFloat(e.target.value) || 0;
+                                const value = parseFloat(e.target.value) || 0;
+                                const maxRate = newRates[rateIndex].maxRates.two_bottom;
+
+                                if (value > maxRate) {
+                                  toast.error(`อัตราค่าคอม 2 ตัวล่าง ต้องไม่เกิน ${maxRate}%`);
+                                  return;
+                                }
+
+                                newRates[rateIndex].rates.two_bottom = value;
                                 setCommissionRates(newRates);
                               }}
                               className="w-full px-4 py-3 bg-bg-light-cream text-text-primary border border-border-default rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-gold"
                               placeholder="0.00"
                               min="0"
-                              max="100"
+                              max={commissionRates[rateIndex].maxRates.two_bottom}
                               step="0.01"
                             />
                             <span className="absolute right-4 top-1/2 -translate-y-1/2 text-text-muted">
@@ -364,6 +427,9 @@ const MemberCommissionPage = () => {
                         <div>
                           <label className="block text-sm font-medium text-text-secondary mb-2">
                             วิ่งบน
+                            <span className="ml-2 text-xs text-blue-600">
+                              (สูงสุด: {commissionRates[rateIndex].maxRates.run_top}%)
+                            </span>
                           </label>
                           <div className="relative">
                             <input
@@ -371,14 +437,21 @@ const MemberCommissionPage = () => {
                               value={commissionRates[rateIndex].rates.run_top}
                               onChange={(e) => {
                                 const newRates = [...commissionRates];
-                                newRates[rateIndex].rates.run_top =
-                                  parseFloat(e.target.value) || 0;
+                                const value = parseFloat(e.target.value) || 0;
+                                const maxRate = newRates[rateIndex].maxRates.run_top;
+
+                                if (value > maxRate) {
+                                  toast.error(`อัตราค่าคอม วิ่งบน ต้องไม่เกิน ${maxRate}%`);
+                                  return;
+                                }
+
+                                newRates[rateIndex].rates.run_top = value;
                                 setCommissionRates(newRates);
                               }}
                               className="w-full px-4 py-3 bg-bg-light-cream text-text-primary border border-border-default rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-gold"
                               placeholder="0.00"
                               min="0"
-                              max="100"
+                              max={commissionRates[rateIndex].maxRates.run_top}
                               step="0.01"
                             />
                             <span className="absolute right-4 top-1/2 -translate-y-1/2 text-text-muted">
@@ -391,6 +464,9 @@ const MemberCommissionPage = () => {
                         <div>
                           <label className="block text-sm font-medium text-text-secondary mb-2">
                             วิ่งล่าง
+                            <span className="ml-2 text-xs text-blue-600">
+                              (สูงสุด: {commissionRates[rateIndex].maxRates.run_bottom}%)
+                            </span>
                           </label>
                           <div className="relative">
                             <input
@@ -398,14 +474,21 @@ const MemberCommissionPage = () => {
                               value={commissionRates[rateIndex].rates.run_bottom}
                               onChange={(e) => {
                                 const newRates = [...commissionRates];
-                                newRates[rateIndex].rates.run_bottom =
-                                  parseFloat(e.target.value) || 0;
+                                const value = parseFloat(e.target.value) || 0;
+                                const maxRate = newRates[rateIndex].maxRates.run_bottom;
+
+                                if (value > maxRate) {
+                                  toast.error(`อัตราค่าคอม วิ่งล่าง ต้องไม่เกิน ${maxRate}%`);
+                                  return;
+                                }
+
+                                newRates[rateIndex].rates.run_bottom = value;
                                 setCommissionRates(newRates);
                               }}
                               className="w-full px-4 py-3 bg-bg-light-cream text-text-primary border border-border-default rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-gold"
                               placeholder="0.00"
                               min="0"
-                              max="100"
+                              max={commissionRates[rateIndex].maxRates.run_bottom}
                               step="0.01"
                             />
                             <span className="absolute right-4 top-1/2 -translate-y-1/2 text-text-muted">
