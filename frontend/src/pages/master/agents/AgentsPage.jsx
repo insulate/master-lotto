@@ -17,7 +17,7 @@ import {
   isValidPassword,
 } from '../../../lib/utils';
 import toast from 'react-hot-toast';
-import { Edit, Percent, Wallet, History, Ban, CheckCircle } from 'lucide-react';
+import { Edit, Percent, Wallet, History, Ban, CheckCircle, Key } from 'lucide-react';
 
 /**
  * Agent Management Page
@@ -47,6 +47,7 @@ const AgentManagement = () => {
   const [creditModalOpen, setCreditModalOpen] = useState(false);
   const [creditHistoryModalOpen, setCreditHistoryModalOpen] = useState(false);
   const [statusDialogOpen, setStatusDialogOpen] = useState(false);
+  const [passwordModalOpen, setPasswordModalOpen] = useState(false);
 
   // Selected Agent
   const [selectedAgent, setSelectedAgent] = useState(null);
@@ -71,6 +72,10 @@ const AgentManagement = () => {
   const [creditFormData, setCreditFormData] = useState({
     amount: 0,
     action: 'add',
+  });
+
+  const [passwordFormData, setPasswordFormData] = useState({
+    newPassword: '',
   });
 
   // Loading States
@@ -214,6 +219,16 @@ const AgentManagement = () => {
             </span>
           </button>
           <button
+            onClick={() => handlePasswordClick(row)}
+            className="p-2 bg-purple-600 hover:bg-purple-700 text-white rounded transition-colors group relative"
+            title="เปลี่ยนรหัสผ่าน"
+          >
+            <Key size={16} />
+            <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+              เปลี่ยนรหัสผ่าน
+            </span>
+          </button>
+          <button
             onClick={() => handleCreditClick(row)}
             className="p-2 bg-primary-mustard hover:bg-primary-dark-gold text-white rounded transition-colors group relative"
             title="ปรับเครดิต"
@@ -319,6 +334,15 @@ const AgentManagement = () => {
     }
   };
 
+  // Handle Password Change Click
+  const handlePasswordClick = (agent) => {
+    setSelectedAgent(agent);
+    setPasswordFormData({
+      newPassword: '',
+    });
+    setPasswordModalOpen(true);
+  };
+
   // Close all modals
   const closeAllModals = () => {
     setCreateModalOpen(false);
@@ -326,6 +350,7 @@ const AgentManagement = () => {
     setCreditModalOpen(false);
     setCreditHistoryModalOpen(false);
     setStatusDialogOpen(false);
+    setPasswordModalOpen(false);
     setSelectedAgent(null);
   };
 
@@ -595,6 +620,17 @@ const AgentManagement = () => {
           </button>
         </div>
       </Modal>
+
+      {/* Change Password Modal */}
+      <ChangePasswordModal
+        isOpen={passwordModalOpen}
+        onClose={closeAllModals}
+        selectedAgent={selectedAgent}
+        passwordFormData={passwordFormData}
+        setPasswordFormData={setPasswordFormData}
+        submitLoading={submitLoading}
+        setSubmitLoading={setSubmitLoading}
+      />
     </div>
   );
 };
@@ -1149,6 +1185,135 @@ const AdjustCreditModal = ({
                 ? 'เพิ่มเครดิต'
                 : 'ลดเครดิต'}
             </span>
+          </button>
+        </div>
+      </form>
+    </Modal>
+  );
+};
+
+// Change Password Modal Component
+const ChangePasswordModal = ({
+  isOpen,
+  onClose,
+  selectedAgent,
+  passwordFormData,
+  setPasswordFormData,
+  submitLoading,
+  setSubmitLoading,
+}) => {
+  const [errors, setErrors] = useState({});
+
+  // Validate form
+  const validateForm = () => {
+    const newErrors = {};
+
+    if (!passwordFormData.newPassword.trim()) {
+      newErrors.newPassword = 'กรุณากรอกรหัสผ่านใหม่';
+    } else if (passwordFormData.newPassword.length < 6) {
+      newErrors.newPassword = 'รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  // Handle form submission
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!validateForm()) {
+      return;
+    }
+
+    try {
+      setSubmitLoading(true);
+      await agentService.changePassword(selectedAgent._id, passwordFormData.newPassword);
+      toast.success(`เปลี่ยนรหัสผ่านเอเย่นต์ ${selectedAgent.username} สำเร็จ`);
+      onClose();
+    } catch (err) {
+      toast.error(parseErrorMessage(err));
+    } finally {
+      setSubmitLoading(false);
+    }
+  };
+
+  return (
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title={`เปลี่ยนรหัสผ่าน`}
+      size="sm"
+    >
+      <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Agent Info */}
+        <div className="bg-bg-light-cream p-4 rounded-lg border border-border-default">
+          <p className="text-sm text-text-secondary mb-1">Username</p>
+          <p className="font-medium text-text-primary">{selectedAgent?.username}</p>
+        </div>
+
+        {/* New Password Input */}
+        <div>
+          <label className="block text-sm font-medium text-text-secondary mb-2">
+            รหัสผ่านใหม่ <span className="text-accent-error">*</span>
+          </label>
+          <input
+            type="password"
+            value={passwordFormData.newPassword}
+            onChange={(e) =>
+              setPasswordFormData({
+                ...passwordFormData,
+                newPassword: e.target.value,
+              })
+            }
+            className={`w-full px-4 py-2 bg-bg-light-cream text-text-primary border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-gold focus:border-transparent ${
+              errors.newPassword ? 'border-accent-error' : 'border-border-default'
+            }`}
+            placeholder="กรอกรหัสผ่านใหม่ (อย่างน้อย 6 ตัวอักษร)"
+          />
+          {errors.newPassword && (
+            <p className="text-accent-error text-sm mt-1">{errors.newPassword}</p>
+          )}
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex justify-end space-x-3">
+          <button
+            type="button"
+            onClick={onClose}
+            disabled={submitLoading}
+            className="px-6 py-2 bg-[#6c757d] text-white rounded-lg hover:bg-[#5a6268] transition-colors disabled:opacity-50"
+          >
+            ยกเลิก
+          </button>
+          <button
+            type="submit"
+            disabled={submitLoading}
+            className="px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors disabled:opacity-50 flex items-center space-x-2"
+          >
+            {submitLoading && (
+              <svg
+                className="animate-spin h-4 w-4 text-white"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                ></circle>
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                ></path>
+              </svg>
+            )}
+            <span>{submitLoading ? 'กำลังดำเนินการ...' : 'เปลี่ยนรหัสผ่าน'}</span>
           </button>
         </div>
       </form>

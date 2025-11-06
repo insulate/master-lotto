@@ -98,6 +98,20 @@ const agentService = {
     const response = await httpClient.get(`/master/agents/${id}/credit-history`);
     return response.data;
   },
+
+  /**
+   * เปลี่ยนรหัสผ่านเอเย่นต์
+   * PUT /master/agents/:id/change-password
+   * @param {string} id - Agent ID
+   * @param {string} newPassword - รหัสผ่านใหม่ (required, min 6 characters)
+   * @returns {Promise} - Success message
+   */
+  changePassword: async (id, newPassword) => {
+    const response = await httpClient.put(`/master/agents/${id}/change-password`, {
+      newPassword,
+    });
+    return response.data;
+  },
 };
 
 export default agentService;

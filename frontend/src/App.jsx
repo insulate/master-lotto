@@ -13,6 +13,7 @@ import LotteryDrawManagement from './pages/master/lottery-draws/LotteryDrawsPage
 import AgentDashboard from './pages/agent/AgentDashboard';
 import MemberManagement from './pages/agent/members/MembersPage';
 import MemberCommissionPage from './pages/agent/commission/MemberCommissionPage';
+import ChangePasswordPage from './pages/profile/ChangePasswordPage';
 import { useAuthStore } from './store/authStore';
 
 function App() {
@@ -163,6 +164,18 @@ function App() {
                 <AgentLayout>
                   <MemberCommissionPage />
                 </AgentLayout>
+              </PrivateRoute>
+            }
+          />
+
+          {/* Profile Routes - Available for all roles */}
+          <Route
+            path="/profile/change-password"
+            element={
+              <PrivateRoute>
+                <Layout>
+                  <ChangePasswordPage />
+                </Layout>
               </PrivateRoute>
             }
           />

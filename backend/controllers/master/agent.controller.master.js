@@ -297,3 +297,45 @@ export const adjustAgentCredit = async (req, res, next) => {
     next(error);
   }
 };
+
+// PUT /api/v1/master/agents/:id/change-password
+// Change agent password
+export const changeAgentPassword = async (req, res, next) => {
+  try {
+    const masterId = req.user.id;
+    const { id } = req.params;
+    const { newPassword } = req.body;
+
+    // Validate input
+    if (!newPassword) {
+      throw new AppError('กรุณากรอกรหัสผ่านใหม่', 400);
+    }
+
+    // Validate password length
+    if (newPassword.length < 6) {
+      throw new AppError('รหัสผ่านใหม่ต้องมีความยาวอย่างน้อย 6 ตัวอักษร', 400);
+    }
+
+    // Find agent and verify it belongs to current master
+    const agent = await User.findOne({
+      _id: id,
+      role: 'agent',
+      parent_id: masterId
+    });
+
+    if (!agent) {
+      throw new AppError('ไม่พบเอเย่นต์หรือไม่มีสิทธิ์เข้าถึง', 404);
+    }
+
+    // Hash new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // Update password
+    agent.password = hashedPassword;
+    await agent.save();
+
+    return successResponse(res, `เปลี่ยนรหัสผ่านเอเย่นต์ ${agent.username} สำเร็จ`, null, 200);
+  } catch (error) {
+    next(error);
+  }
+};
