@@ -1,6 +1,9 @@
 import { ChevronLeft, Crown, Star, Clock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import lotteryService from './lotteryService';
+import toast from 'react-hot-toast';
+import { parseErrorMessage } from '../../lib/utils';
 
 /**
  * Home Page - หน้าแสดงรายการหวยทั้งหมด
@@ -8,20 +11,55 @@ import { useState, useEffect } from 'react';
 const HomePage = () => {
   const navigate = useNavigate();
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [lotteryTypes, setLotteryTypes] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  // Mock lottery data - จะต้องเชื่อมต่อกับ API จริงในภายหลัง
-  const lotteryTypes = [
-    {
-      id: 1,
-      name: 'หวยทั้งหมด',
-      items: [
-        { id: 'gov-pat', name: 'หวยรัฐบาล', subName: 'ปิดรับแทง', status: 'closed', closingTime: '16:30', country: 'th' },
-        { id: 'lao', name: 'ลาวพัฒนา', subName: 'ปิดรับแทง', status: 'closed', closingTime: '13:30', country: 'la' },
-        { id: 'hanoi', name: 'ฮานอยปกติ', subName: 'ปิดรับแทง', status: 'closed', closingTime: '18:30', country: 'vn' },
-        { id: 'hanoi-vip', name: 'ฮานอย VIP', round: '88 รอบ', vip: true, status: 'open', closingTime: '09:00', country: 'vn' },
-      ]
-    },
-  ];
+  // Helper function to map lottery type values to country codes
+  const getCountryCode = (value) => {
+    const countryMap = {
+      'government': 'th',
+      'lao_pattana': 'la',
+      'hanoi_regular': 'vn',
+      'hanoi_vip': 'vn'
+    };
+    return countryMap[value] || 'th';
+  };
+
+  // Fetch lottery types from API
+  const fetchLotteryTypes = useCallback(async () => {
+    try {
+      setLoading(true);
+      const response = await lotteryService.getLotteryTypes();
+      const types = response.data.lotteryTypes || [];
+
+      setLotteryTypes([
+        {
+          id: 1,
+          name: 'หวยทั้งหมด',
+          items: types.map(type => ({
+            id: type.value,
+            name: type.label,
+            subName: 'ปิดรับแทง',
+            status: 'closed',
+            closingTime: '16:30',
+            country: getCountryCode(type.value),
+            vip: type.value === 'hanoi_vip',
+            icon: type.icon
+          }))
+        }
+      ]);
+    } catch (err) {
+      toast.error(parseErrorMessage(err));
+      setLotteryTypes([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // Fetch lottery types on mount
+  useEffect(() => {
+    fetchLotteryTypes();
+  }, [fetchLotteryTypes]);
 
   // Update time every second
   useEffect(() => {
@@ -69,6 +107,21 @@ const HomePage = () => {
     };
     return flags[country] || '';
   };
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center py-8">
+        <div className="w-[800px]">
+          <div className="bg-white border-2 border-primary-gold/30 rounded-xl shadow-2xl p-6">
+            <div className="text-center py-12">
+              <div className="text-primary-gold text-lg">กำลังโหลด...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center py-8">

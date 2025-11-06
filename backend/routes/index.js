@@ -5,6 +5,7 @@ import lotteryDrawRoutesMaster from './master/lotteryDraw.routes.master.js';
 import lotteryTypeRoutesMaster from './master/lotteryType.routes.master.js';
 import memberRoutesAgent from './agent/member.routes.agent.js';
 import lotteryTypeRoutesAgent from './agent/lotteryType.routes.agent.js';
+import lotteryTypeRoutesMember from './member/lotteryType.routes.member.js';
 
 const router = express.Router();
 
@@ -15,5 +16,6 @@ router.use('/master/lottery-draws', lotteryDrawRoutesMaster);
 router.use('/master/lottery-types', lotteryTypeRoutesMaster);
 router.use('/agent/members', memberRoutesAgent);
 router.use('/agent/lottery-types', lotteryTypeRoutesAgent);
+router.use('/member/lottery-types', lotteryTypeRoutesMember);
 
 export default router;
