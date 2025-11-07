@@ -7,6 +7,7 @@ import memberRoutesAgent from './agent/member.routes.agent.js';
 import lotteryTypeRoutesAgent from './agent/lotteryType.routes.agent.js';
 import lotteryTypeRoutesMember from './member/lotteryType.routes.member.js';
 import lotteryDrawRoutesMember from './member/lotteryDraw.routes.member.js';
+import betRoutesMember from './member/bet.routes.member.js';
 
 const router = express.Router();
 
@@ -19,5 +20,6 @@ router.use('/agent/members', memberRoutesAgent);
 router.use('/agent/lottery-types', lotteryTypeRoutesAgent);
 router.use('/member/lottery-types', lotteryTypeRoutesMember);
 router.use('/member/lottery-draws', lotteryDrawRoutesMember);
+router.use('/member/bets', betRoutesMember);
 
 export default router;
