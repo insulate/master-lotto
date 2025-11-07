@@ -1,4 +1,4 @@
-import { ChevronLeft, Crown, Star, Clock } from 'lucide-react';
+import { Crown, Star, Clock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect, useCallback } from 'react';
 import lotteryService from './lotteryService';
@@ -183,7 +183,7 @@ const HomePage = () => {
   // Initialize WebSocket connection and listen for updates
   useEffect(() => {
     // Initialize socket
-    const socket = initSocket();
+    initSocket();
 
     // Handle lottery updates
     const handleLotteryUpdate = (data) => {
