@@ -1,5 +1,5 @@
-import { Outlet, useNavigate } from 'react-router-dom';
-import { Wallet, LogOut } from 'lucide-react';
+import { Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { Wallet, LogOut, Home, FileText, User } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import toast from 'react-hot-toast';
 
@@ -8,6 +8,7 @@ import toast from 'react-hot-toast';
  */
 const AppLayout = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, logout } = useAuthStore();
 
   // Calculate total balance
@@ -17,6 +18,18 @@ const AppLayout = () => {
     await logout();
     toast.success('ออกจากระบบสำเร็จ');
     navigate('/login');
+  };
+
+  // Navigation items
+  const navItems = [
+    { path: '/app/home', icon: Home, label: 'หน้าหลัก' },
+    { path: '/app/history', icon: FileText, label: 'ประวัติ' },
+    { path: '/app/profile', icon: User, label: 'โปรไฟล์' },
+  ];
+
+  // Check if current path is active
+  const isActive = (path) => {
+    return location.pathname === path || location.pathname.startsWith(path + '/');
   };
 
   return (
@@ -76,11 +89,38 @@ const AppLayout = () => {
       </header>
 
       {/* Main content */}
-      <div className="pt-16">
+      <div className="pt-16 pb-20">
         <main className="p-4 lg:p-6">
           <Outlet />
         </main>
       </div>
+
+      {/* Bottom Navigation */}
+      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t-2 border-primary-gold/30 shadow-lg z-40">
+        <div className="flex items-center justify-around h-16">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            const active = isActive(item.path);
+
+            return (
+              <button
+                key={item.path}
+                onClick={() => navigate(item.path)}
+                className={`flex flex-col items-center justify-center gap-1 px-4 py-2 transition-colors ${
+                  active
+                    ? 'text-primary-gold'
+                    : 'text-gray-500 hover:text-primary-gold'
+                }`}
+              >
+                <Icon className={`w-6 h-6 ${active ? 'stroke-2' : 'stroke-1.5'}`} />
+                <span className={`text-xs ${active ? 'font-bold' : 'font-medium'}`}>
+                  {item.label}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </nav>
     </div>
   );
 };
