@@ -355,12 +355,22 @@ export const adjustMemberCredit = async (req, res, next) => {
     // Emit WebSocket event to notify member about credit update
     const io = req.app.get('io');
     if (io) {
+      // Notify member about credit change
       io.emit('credit:update', {
         userId: member._id.toString(),
         action: action,
         amount: creditAmount,
         newCredit: balanceAfter,
         performedBy: agent.name
+      });
+
+      // Notify agent about their own credit change
+      io.emit('credit:update', {
+        userId: agentId,
+        action: action === 'add' ? 'reduce' : 'add', // Inverse action for agent
+        amount: creditAmount,
+        newCredit: agent.credit,
+        performedBy: 'System'
       });
     }
 

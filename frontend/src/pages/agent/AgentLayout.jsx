@@ -4,6 +4,7 @@ import { cn } from '../../lib/utils';
 import { Wallet } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import toast from 'react-hot-toast';
+import { useCreditSync } from '../../hooks/useCreditSync';
 
 // Menu items for Agent role
 const agentMenuItems = [
@@ -40,6 +41,9 @@ export default function AgentLayout({ children }) {
   // Get user data and logout function from auth store
   const user = useAuthStore((state) => state.user);
   const logout = useAuthStore((state) => state.logout);
+
+  // Sync credit updates via WebSocket
+  useCreditSync();
 
   // Calculate total balance (credit + balance)
   const totalBalance = (user?.credit || 0) + (user?.balance || 0);

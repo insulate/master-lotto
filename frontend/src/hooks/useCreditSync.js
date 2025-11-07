@@ -29,23 +29,26 @@ export const useCreditSync = () => {
         try {
           await getMe();
 
-          // Show toast notification
-          const actionText = data.action === 'add' ? 'เพิ่ม' : 'ลด';
-          const amountText = data.amount.toLocaleString('th-TH', {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          });
-
-          toast.success(
-            `${data.performedBy} ${actionText}เครดิตให้คุณ ${amountText} บาท\nเครดิตปัจจุบัน: ${data.newCredit.toLocaleString('th-TH', {
+          // Show toast notification only for members (not agents)
+          // Agents already see toast from the action they performed
+          if (user.role === 'member') {
+            const actionText = data.action === 'add' ? 'เพิ่ม' : 'ลด';
+            const amountText = data.amount.toLocaleString('th-TH', {
               minimumFractionDigits: 2,
               maximumFractionDigits: 2,
-            })} บาท`,
-            {
-              duration: 5000,
-              icon: '💰',
-            }
-          );
+            });
+
+            toast.success(
+              `${data.performedBy} ${actionText}เครดิตให้คุณ ${amountText} บาท\nเครดิตปัจจุบัน: ${data.newCredit.toLocaleString('th-TH', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })} บาท`,
+              {
+                duration: 5000,
+                icon: '💰',
+              }
+            );
+          }
         } catch (error) {
           console.error('Failed to refresh user data:', error);
         }

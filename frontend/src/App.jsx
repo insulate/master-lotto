@@ -36,6 +36,9 @@ function App() {
         position="top-right"
         reverseOrder={false}
         gutter={8}
+        containerStyle={{
+          top: 80, // เว้นระยะจาก header (64px + 16px margin)
+        }}
         toastOptions={{
           // Default options
           duration: 4000,
