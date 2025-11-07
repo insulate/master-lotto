@@ -1,7 +1,9 @@
+import { useState } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { Wallet, LogOut, Home, FileText, Key } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import toast from 'react-hot-toast';
+import ChangePasswordModal from '../../components/modals/ChangePasswordModal';
 
 /**
  * App Layout - Layout สำหรับ Member UI แบบ Lottery App
@@ -10,6 +12,7 @@ const AppLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, logout } = useAuthStore();
+  const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
 
   // Calculate total balance
   const totalBalance = (user?.credit || 0) + (user?.balance || 0);
@@ -22,14 +25,23 @@ const AppLayout = () => {
 
   // Navigation items
   const navItems = [
-    { path: '/app/home', icon: Home, label: 'หน้าหลัก' },
-    { path: '/app/history', icon: FileText, label: 'ประวัติ' },
-    { path: '/profile/change-password', icon: Key, label: 'เปลี่ยนรหัสผ่าน' },
+    { path: '/app/home', icon: Home, label: 'หน้าหลัก', action: 'navigate' },
+    { path: '/app/history', icon: FileText, label: 'ประวัติ', action: 'navigate' },
+    { path: 'change-password', icon: Key, label: 'เปลี่ยนรหัสผ่าน', action: 'modal' },
   ];
 
   // Check if current path is active
   const isActive = (path) => {
     return location.pathname === path || location.pathname.startsWith(path + '/');
+  };
+
+  // Handle navigation item click
+  const handleNavClick = (item) => {
+    if (item.action === 'modal') {
+      setShowChangePasswordModal(true);
+    } else {
+      navigate(item.path);
+    }
   };
 
   return (
@@ -100,12 +112,12 @@ const AppLayout = () => {
         <div className="flex items-center justify-around h-16">
           {navItems.map((item) => {
             const Icon = item.icon;
-            const active = isActive(item.path);
+            const active = item.action === 'navigate' && isActive(item.path);
 
             return (
               <button
                 key={item.path}
-                onClick={() => navigate(item.path)}
+                onClick={() => handleNavClick(item)}
                 className={`flex flex-col items-center justify-center gap-1 px-4 py-2 transition-colors ${
                   active
                     ? 'text-primary-gold'
@@ -121,6 +133,12 @@ const AppLayout = () => {
           })}
         </div>
       </nav>
+
+      {/* Change Password Modal */}
+      <ChangePasswordModal
+        isOpen={showChangePasswordModal}
+        onClose={() => setShowChangePasswordModal(false)}
+      />
     </div>
   );
 };
