@@ -278,7 +278,7 @@ const HomePage = () => {
   // Loading state with skeleton
   if (loading) {
     return (
-      <div className="min-h-screen flex items-start justify-center pt-40 pb-8">
+      <div className="flex items-center justify-center pt-40">
         <div className="w-[800px]">
           <div className="bg-white border-2 border-primary-gold/30 rounded-xl shadow-2xl p-6 overflow-hidden">
             {/* Skeleton Clock */}
@@ -322,7 +322,7 @@ const HomePage = () => {
       {/* Inject animation styles */}
       <style>{pulseGlowStyles}</style>
 
-      <div className="min-h-screen flex items-start justify-center pt-40 pb-8">
+      <div className="flex items-center justify-center pt-40">
         <div className="w-[800px]">
           {/* Main Card */}
           <div className="bg-white border-2 border-primary-gold/30 rounded-xl shadow-2xl p-6">
