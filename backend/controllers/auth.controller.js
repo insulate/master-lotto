@@ -8,7 +8,7 @@ import { successResponse } from '../utils/response.js';
 const generateAccessToken = (user) => {
   return jwt.sign(
     {
-      id: user.id,
+      id: user._id,
       username: user.username,
       role: user.role
     },
@@ -21,7 +21,7 @@ const generateAccessToken = (user) => {
 const generateRefreshToken = (user) => {
   return jwt.sign(
     {
-      id: user.id,
+      id: user._id,
       username: user.username
     },
     process.env.JWT_REFRESH_SECRET || 'your-refresh-secret-key',
