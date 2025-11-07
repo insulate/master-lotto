@@ -114,15 +114,21 @@ export const createLotteryDraw = async (req, res, next) => {
     }
 
     // Create lottery draw
-    const lotteryDraw = await LotteryDraw.create({
+    const drawData = {
       lottery_type,
       draw_date: drawDate,
       open_time: openDate,
       close_time: closeDate,
-      bet_settings: bet_settings || {}, // Use provided bet_settings or defaults from model
       created_by: masterId,
       status: 'open',
-    });
+    };
+
+    // Only include bet_settings if provided, otherwise let Mongoose use defaults
+    if (bet_settings && Object.keys(bet_settings).length > 0) {
+      drawData.bet_settings = bet_settings;
+    }
+
+    const lotteryDraw = await LotteryDraw.create(drawData);
 
     // Emit WebSocket event for real-time update
     const io = req.app.get('io');
@@ -527,15 +533,21 @@ export const bulkCreateLotteryDraws = async (req, res, next) => {
           }
 
           // Create the draw
-          const lotteryDraw = await LotteryDraw.create({
+          const drawData = {
             lottery_type,
             draw_date,
             open_time,
             close_time,
-            bet_settings: bet_settings || {},
             created_by: masterId,
             status: 'open',
-          });
+          };
+
+          // Only include bet_settings if provided, otherwise let Mongoose use defaults
+          if (bet_settings && Object.keys(bet_settings).length > 0) {
+            drawData.bet_settings = bet_settings;
+          }
+
+          const lotteryDraw = await LotteryDraw.create(drawData);
 
           createdDraws.push(lotteryDraw);
         } catch (error) {

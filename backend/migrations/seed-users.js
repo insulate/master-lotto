@@ -27,7 +27,7 @@ export const seedUsers = async () => {
     // สร้าง master user
     const masterUser = new User({
       username: masterUsername,
-      name: 'Master Admin',
+      name: 'Master',
       password: hashedPassword,
       role: 'master',
       parent_id: null,
@@ -35,7 +35,7 @@ export const seedUsers = async () => {
       balance: 0,
       commission_rate: {
         three_top: 30,
-        three_tod: 30,
+        three_bottom: 30,
         two_top: 30,
         two_bottom: 30,
         run_top: 30,

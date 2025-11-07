@@ -61,7 +61,7 @@ const AgentCommissionPage = () => {
           lottery_type_id: type._id,
           rates: existingRate?.rates || {
             three_top: 0,
-            three_tod: 0,
+            three_bottom: 0,
             two_top: 0,
             two_bottom: 0,
             run_top: 0,
@@ -94,7 +94,7 @@ const AgentCommissionPage = () => {
           lottery_type_id: rate.lottery_type_id,
           rates: {
             three_top: rate.rates.three_top || 0,
-            three_tod: rate.rates.three_tod || 0,
+            three_bottom: rate.rates.three_bottom || 0,
             two_top: rate.rates.two_top || 0,
             two_bottom: rate.rates.two_bottom || 0,
             run_top: rate.rates.run_top || 0,
@@ -278,18 +278,18 @@ const AgentCommissionPage = () => {
                           </div>
                         </div>
 
-                        {/* 3 ตัวโต๊ด */}
+                        {/* 3 ตัวล่าง */}
                         <div>
                           <label className="block text-sm font-medium text-text-secondary mb-2">
-                            3 ตัวโต๊ด
+                            3 ตัวล่าง
                           </label>
                           <div className="relative">
                             <input
                               type="number"
-                              value={commissionRates[rateIndex].rates.three_tod}
+                              value={commissionRates[rateIndex].rates.three_bottom}
                               onChange={(e) => {
                                 const newRates = [...commissionRates];
-                                newRates[rateIndex].rates.three_tod =
+                                newRates[rateIndex].rates.three_bottom =
                                   parseFloat(e.target.value) || 0;
                                 setCommissionRates(newRates);
                               }}

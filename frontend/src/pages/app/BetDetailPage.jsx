@@ -56,7 +56,7 @@ const BetDetailPage = () => {
   const getBetTypeLabel = (betType) => {
     const labels = {
       three_top: '3 ตัวบน',
-      three_tod: '3 ตัวโต๊ด',
+      three_bottom: '3 ตัวล่าง',
       two_top: '2 ตัวบน',
       two_bottom: '2 ตัวล่าง',
       run_top: 'วิ่งบน',

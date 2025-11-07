@@ -140,7 +140,7 @@ export const updateAgent = async (req, res, next) => {
       // Just validate the format and range
       for (const rateConfig of commission_rates) {
         const rates = rateConfig.rates || {};
-        const rateTypes = ['three_top', 'three_tod', 'two_top', 'two_bottom', 'run_top', 'run_bottom'];
+        const rateTypes = ['three_top', 'three_bottom', 'two_top', 'two_bottom', 'run_top', 'run_bottom'];
 
         for (const rateType of rateTypes) {
           const value = rates[rateType] || 0;

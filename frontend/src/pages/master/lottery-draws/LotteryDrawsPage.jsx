@@ -59,7 +59,7 @@ const LotteryDrawManagement = () => {
     close_time: '',
     bet_settings: {
       three_top: { payout_rate: 900, min_bet: 1, max_bet: 10000, enabled: true },
-      three_tod: { payout_rate: 150, min_bet: 1, max_bet: 10000, enabled: true },
+      three_bottom: { payout_rate: 150, min_bet: 1, max_bet: 10000, enabled: true },
       two_top: { payout_rate: 90, min_bet: 1, max_bet: 10000, enabled: true },
       two_bottom: { payout_rate: 90, min_bet: 1, max_bet: 10000, enabled: true },
       run_top: { payout_rate: 3, min_bet: 1, max_bet: 10000, enabled: true },
@@ -322,7 +322,7 @@ const LotteryDrawManagement = () => {
       close_time: formatDateTimeLocal(tomorrow),
       bet_settings: {
         three_top: { payout_rate: 900, min_bet: 1, max_bet: 10000, enabled: true },
-        three_tod: { payout_rate: 150, min_bet: 1, max_bet: 10000, enabled: true },
+        three_bottom: { payout_rate: 150, min_bet: 1, max_bet: 10000, enabled: true },
         two_top: { payout_rate: 90, min_bet: 1, max_bet: 10000, enabled: true },
         two_bottom: { payout_rate: 90, min_bet: 1, max_bet: 10000, enabled: true },
         run_top: { payout_rate: 3, min_bet: 1, max_bet: 10000, enabled: true },

@@ -132,7 +132,7 @@ const BettingPage = () => {
   // Bet Types
   const betTypes = [
     { key: 'three_top', label: '3 ตัวบน', digits: 3 },
-    { key: 'three_tod', label: '3 ตัวโต๊ด', digits: 3 },
+    { key: 'three_bottom', label: '3 ตัวล่าง', digits: 3 },
     { key: 'two_top', label: '2 ตัวบน', digits: 2 },
     { key: 'two_bottom', label: '2 ตัวล่าง', digits: 2 },
     { key: 'run_top', label: 'วิ่งบน', digits: 1 },
@@ -145,7 +145,7 @@ const BettingPage = () => {
   // Bet items for current bet type
   const [betItems, setBetItems] = useState({
     three_top: [],
-    three_tod: [],
+    three_bottom: [],
     two_top: [],
     two_bottom: [],
     run_top: [],
@@ -252,7 +252,7 @@ const BettingPage = () => {
   const handleClearAll = () => {
     setBetItems({
       three_top: [],
-      three_tod: [],
+      three_bottom: [],
       two_top: [],
       two_bottom: [],
       run_top: [],

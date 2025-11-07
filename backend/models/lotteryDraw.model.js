@@ -66,8 +66,8 @@ const lotteryDrawSchema = new mongoose.Schema(
         },
       },
 
-      // 3 ตัวโต๊ด
-      three_tod: {
+      // 3 ตัวล่าง
+      three_bottom: {
         payout_rate: {
           type: Number,
           default: 150,

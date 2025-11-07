@@ -9,7 +9,7 @@ const betItemSchema = new mongoose.Schema(
     // ประเภทการแทง
     bet_type: {
       type: String,
-      enum: ['three_top', 'three_tod', 'two_top', 'two_bottom', 'run_top', 'run_bottom'],
+      enum: ['three_top', 'three_bottom', 'two_top', 'two_bottom', 'run_top', 'run_bottom'],
       required: true,
     },
 
