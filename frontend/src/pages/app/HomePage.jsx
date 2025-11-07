@@ -372,7 +372,7 @@ const HomePage = () => {
                       ? 'text-primary-dark-gold'
                       : 'text-gray-400'
                   }`}>
-                    {lottery.round || (lottery.subName !== 'รอเปิด' ? lottery.subName : '')}
+                    {lottery.round || ''}
                   </div>
 
                   {/* Closing Time / Countdown */}
