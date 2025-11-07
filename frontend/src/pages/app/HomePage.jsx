@@ -144,7 +144,8 @@ const HomePage = () => {
           country: getCountryCode(type.value),
           vip: type.value === 'hanoi_vip',
           icon: type.icon,
-          draw: draw // Keep full draw data for later use
+          draw: draw, // Keep full draw data for later use
+          result: draw?.result || null // Add result data
         };
       });
 
@@ -365,6 +366,8 @@ const HomePage = () => {
                   className={`relative p-4 rounded-xl text-left transition-all ${
                     lottery.status === 'open'
                       ? 'bg-gradient-to-br from-primary-light-gold/30 to-primary-gold/40 hover:from-primary-gold/40 hover:to-primary-dark-gold/50 border-2 border-primary-gold/60 shadow-lg hover:shadow-xl transform hover:scale-105'
+                      : lottery.status === 'completed'
+                      ? 'bg-gradient-to-br from-emerald-50 to-green-50 border-2 border-emerald-300 cursor-default'
                       : 'bg-gray-100 border-2 border-gray-300 opacity-60 cursor-not-allowed'
                   }`}
                 >
@@ -372,11 +375,19 @@ const HomePage = () => {
                   <span className={`absolute top-3 right-3 text-xs font-bold px-2 py-1 rounded ${
                     lottery.status === 'open'
                       ? 'bg-green-500/90 text-white border border-green-600 badge-pulse-glow'
+                      : lottery.status === 'completed'
+                      ? 'bg-emerald-500/90 text-white border border-emerald-600'
                       : lottery.subName === 'รอเปิด'
                       ? 'bg-blue-500/80 text-white border border-blue-600'
                       : 'bg-red-500/90 text-white border border-red-600'
                   }`}>
-                    {lottery.status === 'open' ? 'เปิดรับ' : lottery.subName === 'รอเปิด' ? 'รอเปิด' : 'ปิดรับ'}
+                    {lottery.status === 'open'
+                      ? 'เปิดรับ'
+                      : lottery.status === 'completed'
+                      ? 'ประกาศผล'
+                      : lottery.subName === 'รอเปิด'
+                      ? 'รอเปิด'
+                      : 'ปิดรับ'}
                   </span>
 
                   {/* Country Flag */}
@@ -388,6 +399,8 @@ const HomePage = () => {
                   <h3 className={`text-lg font-bold mb-1 pr-16 ${
                     lottery.status === 'open'
                       ? 'text-bg-dark'
+                      : lottery.status === 'completed'
+                      ? 'text-emerald-700'
                       : 'text-gray-400'
                   }`}>
                     {lottery.name}
@@ -397,22 +410,56 @@ const HomePage = () => {
                   <div className={`text-2xl font-bold mb-1 ${
                     lottery.status === 'open'
                       ? 'text-primary-dark-gold'
+                      : lottery.status === 'completed'
+                      ? 'text-emerald-600'
                       : 'text-gray-400'
                   }`}>
                     {lottery.round || ''}
                   </div>
 
-                  {/* Closing Time / Countdown */}
-                  <div className={`text-sm ${
-                    lottery.status === 'open'
-                      ? 'text-bg-dark/70'
-                      : 'text-gray-400'
-                  }`}>
-                    {lottery.countdownTime
-                      ? getTimeRemaining(lottery.countdownTime)
-                      : `ปิดรับ ${lottery.closingTime}`
-                    }
-                  </div>
+                  {/* Result Display (if completed) */}
+                  {lottery.status === 'completed' && lottery.result ? (
+                    <div className="mt-2 space-y-1">
+                      <div className="grid grid-cols-2 gap-2 text-xs">
+                        {lottery.result.three_top && (
+                          <div className="bg-primary-gold/20 px-2 py-1 rounded">
+                            <span className="text-gray-600">3 ตัวบน:</span>{' '}
+                            <span className="font-bold text-primary-dark-gold">{lottery.result.three_top}</span>
+                          </div>
+                        )}
+                        {lottery.result.three_bottom && (
+                          <div className="bg-primary-gold/20 px-2 py-1 rounded">
+                            <span className="text-gray-600">3 ตัวล่าง:</span>{' '}
+                            <span className="font-bold text-primary-dark-gold">{lottery.result.three_bottom}</span>
+                          </div>
+                        )}
+                        {lottery.result.two_top && (
+                          <div className="bg-primary-gold/20 px-2 py-1 rounded">
+                            <span className="text-gray-600">2 ตัวบน:</span>{' '}
+                            <span className="font-bold text-primary-dark-gold">{lottery.result.two_top}</span>
+                          </div>
+                        )}
+                        {lottery.result.two_bottom && (
+                          <div className="bg-primary-gold/20 px-2 py-1 rounded">
+                            <span className="text-gray-600">2 ตัวล่าง:</span>{' '}
+                            <span className="font-bold text-primary-dark-gold">{lottery.result.two_bottom}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ) : (
+                    /* Closing Time / Countdown */
+                    <div className={`text-sm ${
+                      lottery.status === 'open'
+                        ? 'text-bg-dark/70'
+                        : 'text-gray-400'
+                    }`}>
+                      {lottery.countdownTime
+                        ? getTimeRemaining(lottery.countdownTime)
+                        : `ปิดรับ ${lottery.closingTime}`
+                      }
+                    </div>
+                  )}
                 </button>
               ))}
             </div>

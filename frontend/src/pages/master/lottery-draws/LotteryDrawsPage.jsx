@@ -69,6 +69,7 @@ const LotteryDrawManagement = () => {
 
   const [resultFormData, setResultFormData] = useState({
     three_top: '',
+    three_bottom: '',
     two_top: '',
     two_bottom: '',
     run_top: '',
@@ -350,6 +351,7 @@ const LotteryDrawManagement = () => {
     setSelectedDraw(draw);
     setResultFormData({
       three_top: '',
+      three_bottom: '',
       two_top: '',
       two_bottom: '',
       run_top: '',
@@ -364,6 +366,7 @@ const LotteryDrawManagement = () => {
     const result = draw.result || {};
     setResultFormData({
       three_top: result.three_top || '',
+      three_bottom: result.three_bottom || '',
       two_top: result.two_top || '',
       two_bottom: result.two_bottom || '',
       run_top: Array.isArray(result.run_top) ? result.run_top.join(',') : '',
@@ -442,6 +445,7 @@ const LotteryDrawManagement = () => {
       // Convert comma-separated strings to arrays
       const resultData = {
         three_top: resultFormData.three_top,
+        three_bottom: resultFormData.three_bottom,
         two_top: resultFormData.two_top,
         two_bottom: resultFormData.two_bottom,
         run_top: resultFormData.run_top
@@ -783,6 +787,20 @@ const LotteryDrawManagement = () => {
               onChange={(e) => setResultFormData({ ...resultFormData, three_top: e.target.value })}
               className="w-full px-4 py-2 bg-neutral-charcoal border border-neutral-gray rounded-lg focus:outline-none focus:border-primary-gold"
               placeholder="เช่น 123"
+              disabled={selectedDraw?.status === 'completed'}
+            />
+          </div>
+
+          {/* Three Bottom */}
+          <div>
+            <label className="block text-sm font-medium mb-2">3 ตัวล่าง</label>
+            <input
+              type="text"
+              maxLength={3}
+              value={resultFormData.three_bottom}
+              onChange={(e) => setResultFormData({ ...resultFormData, three_bottom: e.target.value })}
+              className="w-full px-4 py-2 bg-neutral-charcoal border border-neutral-gray rounded-lg focus:outline-none focus:border-primary-gold"
+              placeholder="เช่น 456"
               disabled={selectedDraw?.status === 'completed'}
             />
           </div>

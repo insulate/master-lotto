@@ -1,6 +1,10 @@
 import LotteryDraw from '../../models/lotteryDraw.model.js';
+import Bet from '../../models/bet.model.js';
+import User from '../../models/user.model.js';
 import AppError from '../../utils/AppError.js';
 import { successResponse } from '../../utils/response.js';
+import { calculateBetResult, determineBetStatus } from '../../services/resultCalculation.service.js';
+import mongoose from 'mongoose';
 
 // GET /api/v1/master/lottery-draws
 // Get all lottery draws with filters
@@ -288,8 +292,11 @@ export const updateDrawStatus = async (req, res, next) => {
 };
 
 // PATCH /api/v1/master/lottery-draws/:id/result
-// Update lottery draw result
+// Update lottery draw result and calculate winnings
 export const updateDrawResult = async (req, res, next) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
   try {
     const masterId = req.user._id;
     const { id } = req.params;
@@ -303,7 +310,7 @@ export const updateDrawResult = async (req, res, next) => {
     const lotteryDraw = await LotteryDraw.findOne({
       _id: id,
       created_by: masterId,
-    });
+    }).session(session);
 
     if (!lotteryDraw) {
       throw new AppError('ไม่พบงวดหวยหรือไม่มีสิทธิ์เข้าถึง', 404);
@@ -322,8 +329,81 @@ export const updateDrawResult = async (req, res, next) => {
 
     // Auto set status to 'completed'
     lotteryDraw.status = 'completed';
+    lotteryDraw.result_announced_at = new Date();
 
-    await lotteryDraw.save();
+    await lotteryDraw.save({ session });
+
+    // Get all pending bets for this lottery draw
+    const pendingBets = await Bet.find({
+      lottery_draw_id: id,
+      status: 'pending'
+    }).session(session);
+
+    let totalWinners = 0;
+    let totalPayout = 0;
+    let totalCommissionAgent = 0;
+    let totalCommissionMaster = 0;
+
+    // Process each bet
+    for (const bet of pendingBets) {
+      // Calculate bet result
+      const { updatedBetItems, totalWinAmount, hasWin } = calculateBetResult(bet, result);
+
+      // Update bet status and amounts
+      bet.bet_items = updatedBetItems;
+      bet.actual_win_amount = totalWinAmount;
+      bet.status = determineBetStatus(totalWinAmount);
+      bet.settled_at = new Date();
+
+      await bet.save({ session });
+
+      // If won, pay out to member
+      if (hasWin && totalWinAmount > 0) {
+        const member = await User.findById(bet.member_id).session(session);
+        if (member) {
+          member.balance += totalWinAmount;
+          await member.save({ session });
+
+          totalWinners++;
+          totalPayout += totalWinAmount;
+        }
+      }
+
+      // Accumulate commissions
+      totalCommissionAgent += bet.commission_data?.agent?.total_commission || 0;
+      totalCommissionMaster += bet.commission_data?.master?.total_commission || 0;
+    }
+
+    // Pay commission to agents and master
+    if (totalCommissionAgent > 0 || totalCommissionMaster > 0) {
+      // Get unique agents
+      const agentIds = [...new Set(pendingBets.map(b => b.agent_id.toString()))];
+
+      for (const agentId of agentIds) {
+        const agentBets = pendingBets.filter(b => b.agent_id.toString() === agentId);
+        const agentCommission = agentBets.reduce((sum, b) => sum + (b.commission_data?.agent?.total_commission || 0), 0);
+
+        if (agentCommission > 0) {
+          const agent = await User.findById(agentId).session(session);
+          if (agent) {
+            agent.balance += agentCommission;
+            await agent.save({ session });
+          }
+        }
+      }
+
+      // Pay master commission
+      if (totalCommissionMaster > 0) {
+        const master = await User.findById(masterId).session(session);
+        if (master) {
+          master.balance += totalCommissionMaster;
+          await master.save({ session });
+        }
+      }
+    }
+
+    // Commit transaction
+    await session.commitTransaction();
 
     // Emit WebSocket event for real-time update
     const io = req.app.get('io');
@@ -333,11 +413,39 @@ export const updateDrawResult = async (req, res, next) => {
         lottery_type: lotteryDraw.lottery_type,
         draw: lotteryDraw
       });
+
+      // Notify winners
+      const winners = pendingBets.filter(b => b.status === 'won');
+      for (const bet of winners) {
+        io.emit('bet:result', {
+          userId: bet.member_id.toString(),
+          betId: bet._id.toString(),
+          status: 'won',
+          winAmount: bet.actual_win_amount
+        });
+      }
     }
 
-    return successResponse(res, 'ประกาศผลรางวัลสำเร็จ', { lotteryDraw }, 200);
+    return successResponse(
+      res,
+      'ประกาศผลรางวัลสำเร็จ',
+      {
+        lotteryDraw,
+        summary: {
+          totalBets: pendingBets.length,
+          totalWinners,
+          totalPayout,
+          totalCommissionAgent,
+          totalCommissionMaster
+        }
+      },
+      200
+    );
   } catch (error) {
+    await session.abortTransaction();
     next(error);
+  } finally {
+    session.endSession();
   }
 };
 

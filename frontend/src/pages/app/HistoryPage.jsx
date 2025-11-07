@@ -291,9 +291,16 @@ const HistoryPage = () => {
 
                           {/* Total Amount */}
                           <td className="px-4 py-3 text-right">
-                            <span className="font-bold text-primary-dark-gold">
-                              {bet.total_amount.toLocaleString()} ฿
-                            </span>
+                            <div>
+                              <div className="font-bold text-primary-dark-gold">
+                                {bet.total_amount.toLocaleString()} ฿
+                              </div>
+                              {bet.status === 'won' && bet.actual_win_amount > 0 && (
+                                <div className="text-xs text-green-600 font-semibold mt-1">
+                                  ชนะ: +{bet.actual_win_amount.toLocaleString()} ฿
+                                </div>
+                              )}
+                            </div>
                           </td>
 
                           {/* Status */}
@@ -383,11 +390,21 @@ const HistoryPage = () => {
                     </div>
 
                     {/* Total Amount */}
-                    <div className="flex items-center justify-between pt-3 border-t border-gray-200">
-                      <span className="text-sm font-semibold text-gray-700">ยอดแทง:</span>
-                      <span className="text-lg font-bold text-primary-dark-gold">
-                        {bet.total_amount.toLocaleString()} ฿
-                      </span>
+                    <div className="pt-3 border-t border-gray-200 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-semibold text-gray-700">ยอดแทง:</span>
+                        <span className="text-lg font-bold text-primary-dark-gold">
+                          {bet.total_amount.toLocaleString()} ฿
+                        </span>
+                      </div>
+                      {bet.status === 'won' && bet.actual_win_amount > 0 && (
+                        <div className="flex items-center justify-between bg-green-50 px-3 py-2 rounded-lg">
+                          <span className="text-sm font-semibold text-green-700">ยอดที่ชนะ:</span>
+                          <span className="text-lg font-bold text-green-600">
+                            +{bet.actual_win_amount.toLocaleString()} ฿
+                          </span>
+                        </div>
+                      )}
                     </div>
                   </div>
                 );
