@@ -275,14 +275,41 @@ const HomePage = () => {
     return flags[country] || '';
   };
 
-  // Loading state
+  // Loading state with skeleton
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center py-8">
         <div className="w-[800px]">
-          <div className="bg-white border-2 border-primary-gold/30 rounded-xl shadow-2xl p-6">
-            <div className="text-center py-12">
-              <div className="text-primary-gold text-lg">กำลังโหลด...</div>
+          <div className="bg-white border-2 border-primary-gold/30 rounded-xl shadow-2xl p-6 overflow-hidden">
+            {/* Skeleton Clock */}
+            <div className="flex items-center justify-center gap-3 mb-6 pb-4 border-b-2 border-primary-gold/20">
+              <div className="w-6 h-6 bg-gray-200 rounded animate-pulse"></div>
+              <div className="text-center">
+                <div className="h-9 w-48 bg-gray-200 rounded animate-pulse mb-2"></div>
+                <div className="h-4 w-40 bg-gray-200 rounded animate-pulse mx-auto"></div>
+              </div>
+            </div>
+
+            {/* Skeleton Cards */}
+            <div className="grid grid-cols-2 gap-4">
+              {[1, 2, 3, 4].map((i) => (
+                <div
+                  key={i}
+                  className="relative p-4 rounded-xl bg-gray-100 border-2 border-gray-200 h-32"
+                >
+                  {/* Badge skeleton */}
+                  <div className="absolute top-3 right-3 w-12 h-6 bg-gray-200 rounded animate-pulse"></div>
+
+                  {/* Flag skeleton */}
+                  <div className="w-8 h-8 bg-gray-200 rounded mb-2 animate-pulse"></div>
+
+                  {/* Name skeleton */}
+                  <div className="h-6 w-32 bg-gray-200 rounded animate-pulse mb-2"></div>
+
+                  {/* Time skeleton */}
+                  <div className="h-4 w-36 bg-gray-200 rounded animate-pulse"></div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
