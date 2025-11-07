@@ -6,7 +6,7 @@
 /**
  * ตรวจสอบว่า bet item ถูกรางวัลหรือไม่
  * @param {Object} betItem - รายการเลขที่แทง { bet_type, number, amount, payout_rate, potential_win }
- * @param {Object} result - ผลรางวัล { three_top, three_bottom, two_top, two_bottom, run_top[], run_bottom[] }
+ * @param {Object} result - ผลรางวัล { three_top, three_tod, two_top, two_bottom, run_top[], run_bottom[] }
  * @returns {Object} { isWin: boolean, winAmount: number }
  */
 export const checkBetItem = (betItem, result) => {
@@ -20,9 +20,9 @@ export const checkBetItem = (betItem, result) => {
       isWin = result.three_top && result.three_top === number;
       break;
 
-    case 'three_bottom':
-      // ตรวจ 3 ตัวล่าง - ต้องตรงทั้ง 3 หลัก
-      isWin = result.three_bottom && result.three_bottom === number;
+    case 'three_tod':
+      // ตรวจ 3 ตัวโต๊ด - ต้องตรงทั้ง 3 หลัก
+      isWin = result.three_tod && result.three_tod === number;
       break;
 
     case 'two_top':

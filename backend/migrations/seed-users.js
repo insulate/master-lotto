@@ -35,7 +35,7 @@ export const seedUsers = async () => {
       balance: 0,
       commission_rate: {
         three_top: 30,
-        three_bottom: 30,
+        three_tod: 30,
         two_top: 30,
         two_bottom: 30,
         run_top: 30,

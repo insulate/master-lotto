@@ -9,7 +9,7 @@ const betItemSchema = new mongoose.Schema(
     // ประเภทการแทง
     bet_type: {
       type: String,
-      enum: ['three_top', 'three_bottom', 'two_top', 'two_bottom', 'run_top', 'run_bottom'],
+      enum: ['three_top', 'three_tod', 'two_top', 'two_bottom', 'run_top', 'run_bottom'],
       required: true,
     },
 
@@ -137,7 +137,7 @@ const betSchema = new mongoose.Schema(
         // อัตราค่าคอมแต่ละประเภท ณ เวลาที่แทง
         rates: {
           three_top: { type: Number, default: 0, min: 0, max: 100 },
-          three_bottom: { type: Number, default: 0, min: 0, max: 100 },
+          three_tod: { type: Number, default: 0, min: 0, max: 100 },
           two_top: { type: Number, default: 0, min: 0, max: 100 },
           two_bottom: { type: Number, default: 0, min: 0, max: 100 },
           run_top: { type: Number, default: 0, min: 0, max: 100 },
@@ -155,7 +155,7 @@ const betSchema = new mongoose.Schema(
         // อัตราค่าคอมแต่ละประเภท ณ เวลาที่แทง
         rates: {
           three_top: { type: Number, default: 0, min: 0, max: 100 },
-          three_bottom: { type: Number, default: 0, min: 0, max: 100 },
+          three_tod: { type: Number, default: 0, min: 0, max: 100 },
           two_top: { type: Number, default: 0, min: 0, max: 100 },
           two_bottom: { type: Number, default: 0, min: 0, max: 100 },
           run_top: { type: Number, default: 0, min: 0, max: 100 },

@@ -66,8 +66,8 @@ const lotteryDrawSchema = new mongoose.Schema(
         },
       },
 
-      // 3 ตัวล่าง
-      three_bottom: {
+      // 3 ตัวโต๊ด
+      three_tod: {
         payout_rate: {
           type: Number,
           default: 150,
@@ -188,7 +188,7 @@ const lotteryDrawSchema = new mongoose.Schema(
         type: String,
         default: null,
       },
-      three_bottom: {
+      three_tod: {
         type: String,
         default: null,
       },
@@ -244,7 +244,7 @@ lotteryDrawSchema.pre('save', function (next) {
 
 // Validation: min_bet must be less than or equal to max_bet
 lotteryDrawSchema.pre('save', function (next) {
-  const betTypes = ['three_top', 'three_bottom', 'two_top', 'two_bottom', 'run_top', 'run_bottom'];
+  const betTypes = ['three_top', 'three_tod', 'two_top', 'two_bottom', 'run_top', 'run_bottom'];
 
   for (const betType of betTypes) {
     const settings = this.bet_settings[betType];

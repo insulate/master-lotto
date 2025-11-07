@@ -427,10 +427,10 @@ const HomePage = () => {
                             <span className="font-bold text-primary-dark-gold">{lottery.result.three_top}</span>
                           </div>
                         )}
-                        {lottery.result.three_bottom && (
+                        {lottery.result.three_tod && (
                           <div className="bg-primary-gold/20 px-2 py-1 rounded">
-                            <span className="text-gray-600">3 ตัวล่าง:</span>{' '}
-                            <span className="font-bold text-primary-dark-gold">{lottery.result.three_bottom}</span>
+                            <span className="text-gray-600">3 ตัวโต๊ด:</span>{' '}
+                            <span className="font-bold text-primary-dark-gold">{lottery.result.three_tod}</span>
                           </div>
                         )}
                         {lottery.result.two_top && (

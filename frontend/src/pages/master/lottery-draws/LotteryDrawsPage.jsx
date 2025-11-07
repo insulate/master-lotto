@@ -59,7 +59,7 @@ const LotteryDrawManagement = () => {
     close_time: '',
     bet_settings: {
       three_top: { payout_rate: 900, min_bet: 1, max_bet: 10000, enabled: true },
-      three_bottom: { payout_rate: 150, min_bet: 1, max_bet: 10000, enabled: true },
+      three_tod: { payout_rate: 150, min_bet: 1, max_bet: 10000, enabled: true },
       two_top: { payout_rate: 90, min_bet: 1, max_bet: 10000, enabled: true },
       two_bottom: { payout_rate: 90, min_bet: 1, max_bet: 10000, enabled: true },
       run_top: { payout_rate: 3, min_bet: 1, max_bet: 10000, enabled: true },
@@ -69,7 +69,7 @@ const LotteryDrawManagement = () => {
 
   const [resultFormData, setResultFormData] = useState({
     three_top: '',
-    three_bottom: '',
+    three_tod: '',
     two_top: '',
     two_bottom: '',
     run_top: '',
@@ -323,7 +323,7 @@ const LotteryDrawManagement = () => {
       close_time: formatDateTimeLocal(tomorrow),
       bet_settings: {
         three_top: { payout_rate: 900, min_bet: 1, max_bet: 10000, enabled: true },
-        three_bottom: { payout_rate: 150, min_bet: 1, max_bet: 10000, enabled: true },
+        three_tod: { payout_rate: 150, min_bet: 1, max_bet: 10000, enabled: true },
         two_top: { payout_rate: 90, min_bet: 1, max_bet: 10000, enabled: true },
         two_bottom: { payout_rate: 90, min_bet: 1, max_bet: 10000, enabled: true },
         run_top: { payout_rate: 3, min_bet: 1, max_bet: 10000, enabled: true },
@@ -351,7 +351,7 @@ const LotteryDrawManagement = () => {
     setSelectedDraw(draw);
     setResultFormData({
       three_top: '',
-      three_bottom: '',
+      three_tod: '',
       two_top: '',
       two_bottom: '',
       run_top: '',
@@ -366,7 +366,7 @@ const LotteryDrawManagement = () => {
     const result = draw.result || {};
     setResultFormData({
       three_top: result.three_top || '',
-      three_bottom: result.three_bottom || '',
+      three_tod: result.three_tod || '',
       two_top: result.two_top || '',
       two_bottom: result.two_bottom || '',
       run_top: Array.isArray(result.run_top) ? result.run_top.join(',') : '',
@@ -445,7 +445,7 @@ const LotteryDrawManagement = () => {
       // Convert comma-separated strings to arrays
       const resultData = {
         three_top: resultFormData.three_top,
-        three_bottom: resultFormData.three_bottom,
+        three_tod: resultFormData.three_tod,
         two_top: resultFormData.two_top,
         two_bottom: resultFormData.two_bottom,
         run_top: resultFormData.run_top
@@ -791,14 +791,14 @@ const LotteryDrawManagement = () => {
             />
           </div>
 
-          {/* Three Bottom */}
+          {/* Three Tod */}
           <div>
-            <label className="block text-sm font-medium mb-2">3 ตัวล่าง</label>
+            <label className="block text-sm font-medium mb-2">3 ตัวโต๊ด</label>
             <input
               type="text"
               maxLength={3}
-              value={resultFormData.three_bottom}
-              onChange={(e) => setResultFormData({ ...resultFormData, three_bottom: e.target.value })}
+              value={resultFormData.three_tod}
+              onChange={(e) => setResultFormData({ ...resultFormData, three_tod: e.target.value })}
               className="w-full px-4 py-2 bg-neutral-charcoal border border-neutral-gray rounded-lg focus:outline-none focus:border-primary-gold"
               placeholder="เช่น 456"
               disabled={selectedDraw?.status === 'completed'}

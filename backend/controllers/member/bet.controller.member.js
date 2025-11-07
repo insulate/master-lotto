@@ -83,7 +83,7 @@ export const placeBet = async (req, res, next) => {
     const getDigitCount = (betType) => {
       const digitMap = {
         three_top: 3,
-        three_bottom: 3,
+        three_tod: 3,
         two_top: 2,
         two_bottom: 2,
         run_top: 1,
@@ -97,7 +97,7 @@ export const placeBet = async (req, res, next) => {
       const { bet_type, number, amount } = item;
 
       // Validate bet_type
-      if (!bet_type || !['three_top', 'three_bottom', 'two_top', 'two_bottom', 'run_top', 'run_bottom'].includes(bet_type)) {
+      if (!bet_type || !['three_top', 'three_tod', 'two_top', 'two_bottom', 'run_top', 'run_bottom'].includes(bet_type)) {
         throw new AppError(`ประเภทการแทงไม่ถูกต้อง: ${bet_type}`, 400);
       }
 

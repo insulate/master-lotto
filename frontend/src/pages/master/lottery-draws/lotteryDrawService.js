@@ -49,7 +49,7 @@ const lotteryDrawService = {
    * @param {number} data.bet_settings.three_top.min_bet - ขั้นต่ำ (default: 1)
    * @param {number} data.bet_settings.three_top.max_bet - สูงสุด (default: 10000)
    * @param {boolean} data.bet_settings.three_top.enabled - เปิดใช้งาน (default: true)
-   * @param {Object} data.bet_settings.three_bottom - 3 ตัวล่าง
+   * @param {Object} data.bet_settings.three_tod - 3 ตัวโต๊ด
    * @param {Object} data.bet_settings.two_top - 2 ตัวบน
    * @param {Object} data.bet_settings.two_bottom - 2 ตัวล่าง
    * @param {Object} data.bet_settings.run_top - วิ่งบน

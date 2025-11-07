@@ -66,7 +66,7 @@ const MemberCommissionPage = () => {
           lottery_type_id: type._id,
           rates: existingRate?.rates || {
             three_top: 0,
-            three_bottom: 0,
+            three_tod: 0,
             two_top: 0,
             two_bottom: 0,
             run_top: 0,
@@ -77,7 +77,7 @@ const MemberCommissionPage = () => {
             (rate) => rate.lottery_type_id === type._id
           )?.rates || {
             three_top: 0,
-            three_bottom: 0,
+            three_tod: 0,
             two_top: 0,
             two_bottom: 0,
             run_top: 0,
@@ -110,7 +110,7 @@ const MemberCommissionPage = () => {
           lottery_type_id: rate.lottery_type_id,
           rates: {
             three_top: rate.rates.three_top || 0,
-            three_bottom: rate.rates.three_bottom || 0,
+            three_tod: rate.rates.three_tod || 0,
             two_top: rate.rates.two_top || 0,
             two_bottom: rate.rates.two_bottom || 0,
             run_top: rate.rates.run_top || 0,
@@ -313,35 +313,35 @@ const MemberCommissionPage = () => {
                           </div>
                         </div>
 
-                        {/* 3 ตัวล่าง */}
+                        {/* 3 ตัวโต๊ด */}
                         <div>
                           <label className="block text-sm font-medium text-text-secondary mb-2">
-                            3 ตัวล่าง
+                            3 ตัวโต๊ด
                             <span className="ml-2 text-xs text-blue-600">
-                              (สูงสุด: {commissionRates[rateIndex].maxRates.three_bottom}%)
+                              (สูงสุด: {commissionRates[rateIndex].maxRates.three_tod}%)
                             </span>
                           </label>
                           <div className="relative">
                             <input
                               type="number"
-                              value={commissionRates[rateIndex].rates.three_bottom}
+                              value={commissionRates[rateIndex].rates.three_tod}
                               onChange={(e) => {
                                 const newRates = [...commissionRates];
                                 const value = parseFloat(e.target.value) || 0;
-                                const maxRate = newRates[rateIndex].maxRates.three_bottom;
+                                const maxRate = newRates[rateIndex].maxRates.three_tod;
 
                                 if (value > maxRate) {
-                                  toast.error(`อัตราค่าคอม 3 ตัวล่าง ต้องไม่เกิน ${maxRate}%`);
+                                  toast.error(`อัตราค่าคอม 3 ตัวโต๊ด ต้องไม่เกิน ${maxRate}%`);
                                   return;
                                 }
 
-                                newRates[rateIndex].rates.three_bottom = value;
+                                newRates[rateIndex].rates.three_tod = value;
                                 setCommissionRates(newRates);
                               }}
                               className="w-full px-4 py-3 bg-bg-light-cream text-text-primary border border-border-default rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-gold"
                               placeholder="0.00"
                               min="0"
-                              max={commissionRates[rateIndex].maxRates.three_bottom}
+                              max={commissionRates[rateIndex].maxRates.three_tod}
                               step="0.01"
                             />
                             <span className="absolute right-4 top-1/2 -translate-y-1/2 text-text-muted">

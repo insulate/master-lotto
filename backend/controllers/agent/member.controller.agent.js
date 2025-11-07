@@ -159,10 +159,10 @@ export const updateMember = async (req, res, next) => {
           (rate) => rate.lottery_type_id.toString() === lotteryTypeId.toString()
         );
 
-        const rateTypes = ['three_top', 'three_bottom', 'two_top', 'two_bottom', 'run_top', 'run_bottom'];
+        const rateTypes = ['three_top', 'three_tod', 'two_top', 'two_bottom', 'run_top', 'run_bottom'];
         const rateLabels = {
           three_top: '3 ตัวบน',
-          three_bottom: '3 ตัวล่าง',
+          three_tod: '3 ตัวโต๊ด',
           two_top: '2 ตัวบน',
           two_bottom: '2 ตัวล่าง',
           run_top: 'วิ่งบน',
