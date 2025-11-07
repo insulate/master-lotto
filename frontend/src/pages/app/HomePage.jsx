@@ -15,11 +15,11 @@ const HomePage = () => {
     @keyframes pulse-glow {
       0%, 100% {
         transform: scale(1);
-        box-shadow: 0 0 8px rgba(184, 134, 11, 0.6), 0 0 12px rgba(218, 165, 32, 0.4);
+        box-shadow: 0 0 8px rgba(34, 197, 94, 0.6), 0 0 12px rgba(22, 163, 74, 0.4);
       }
       50% {
         transform: scale(1.05);
-        box-shadow: 0 0 12px rgba(184, 134, 11, 0.8), 0 0 20px rgba(218, 165, 32, 0.6);
+        box-shadow: 0 0 12px rgba(34, 197, 94, 0.8), 0 0 20px rgba(22, 163, 74, 0.6);
       }
     }
     .badge-pulse-glow {
@@ -148,11 +148,23 @@ const HomePage = () => {
         };
       });
 
+      // Sort items: open first, then waiting, then closed
+      const sortedItems = items.sort((a, b) => {
+        // Define priority: open = 0, waiting (รอเปิด) = 1, closed = 2
+        const getPriority = (item) => {
+          if (item.status === 'open') return 0;
+          if (item.subName === 'รอเปิด') return 1;
+          return 2;
+        };
+
+        return getPriority(a) - getPriority(b);
+      });
+
       setLotteryTypes([
         {
           id: 1,
           name: 'หวยทั้งหมด',
-          items
+          items: sortedItems
         }
       ]);
     } catch (err) {
@@ -176,8 +188,8 @@ const HomePage = () => {
     // Handle lottery updates
     const handleLotteryUpdate = (data) => {
       console.log('📡 Received lottery update:', data);
-      // Refetch lottery types when update received
-      fetchLotteryTypes();
+      // Refetch lottery types when update received (silent = no loading)
+      fetchLotteryTypes(true);
     };
 
     // Listen for lottery updates
@@ -332,10 +344,10 @@ const HomePage = () => {
                   {/* Status Badge */}
                   <span className={`absolute top-3 right-3 text-xs font-bold px-2 py-1 rounded ${
                     lottery.status === 'open'
-                      ? 'bg-primary-dark-gold/80 text-white border border-primary-dark-gold badge-pulse-glow'
+                      ? 'bg-green-500/90 text-white border border-green-600 badge-pulse-glow'
                       : lottery.subName === 'รอเปิด'
                       ? 'bg-blue-500/80 text-white border border-blue-600'
-                      : 'bg-gray-200 text-gray-500 border border-gray-300'
+                      : 'bg-red-500/90 text-white border border-red-600'
                   }`}>
                     {lottery.status === 'open' ? 'เปิดรับ' : lottery.subName === 'รอเปิด' ? 'รอเปิด' : 'ปิดรับ'}
                   </span>
