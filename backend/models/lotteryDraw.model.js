@@ -188,6 +188,10 @@ const lotteryDrawSchema = new mongoose.Schema(
         type: String,
         default: null,
       },
+      three_bottom: {
+        type: String,
+        default: null,
+      },
       two_top: {
         type: String,
         default: null,
