@@ -79,10 +79,40 @@ export const offLotteryUpdate = (callback) => {
   }
 };
 
+/**
+ * Listen for credit updates
+ * @param {Function} callback - Function to call when credit updated
+ */
+export const onCreditUpdate = (callback) => {
+  if (!socket) {
+    console.warn('⚠️ Socket not initialized. Call initSocket() first.');
+    return;
+  }
+
+  console.log('👂 Listening for credit:update events...');
+  socket.on('credit:update', callback);
+};
+
+/**
+ * Stop listening for credit updates
+ * @param {Function} callback - Function to remove
+ */
+export const offCreditUpdate = (callback) => {
+  if (!socket) return;
+
+  if (callback) {
+    socket.off('credit:update', callback);
+  } else {
+    socket.off('credit:update');
+  }
+};
+
 export default {
   initSocket,
   getSocket,
   disconnectSocket,
   onLotteryUpdate,
-  offLotteryUpdate
+  offLotteryUpdate,
+  onCreditUpdate,
+  offCreditUpdate
 };

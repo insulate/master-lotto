@@ -4,6 +4,7 @@ import { Wallet, LogOut, Home, FileText, Key } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import toast from 'react-hot-toast';
 import ChangePasswordModal from '../../components/modals/ChangePasswordModal';
+import { useCreditSync } from '../../hooks/useCreditSync';
 
 /**
  * App Layout - Layout สำหรับ Member UI แบบ Lottery App
@@ -13,6 +14,9 @@ const AppLayout = () => {
   const location = useLocation();
   const { user, logout } = useAuthStore();
   const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
+
+  // Sync credit updates via WebSocket
+  useCreditSync();
 
   // Calculate total balance
   const totalBalance = (user?.credit || 0) + (user?.balance || 0);

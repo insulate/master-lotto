@@ -352,6 +352,18 @@ export const adjustMemberCredit = async (req, res, next) => {
       note: req.body.note || ''
     });
 
+    // Emit WebSocket event to notify member about credit update
+    const io = req.app.get('io');
+    if (io) {
+      io.emit('credit:update', {
+        userId: member._id.toString(),
+        action: action,
+        amount: creditAmount,
+        newCredit: balanceAfter,
+        performedBy: agent.name
+      });
+    }
+
     const actionText = action === 'add' ? 'เพิ่ม' : 'ลด';
     return successResponse(res, `${actionText}เครดิตผู้เล่นสำเร็จ`, {
       member,

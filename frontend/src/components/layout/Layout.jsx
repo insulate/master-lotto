@@ -4,6 +4,7 @@ import { cn } from '../../lib/utils';
 import { Wallet } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import toast from 'react-hot-toast';
+import { useCreditSync } from '../../hooks/useCreditSync';
 
 // Menu items definition with role-based access
 const allMenuItems = [
@@ -65,6 +66,9 @@ export default function Layout({ children }) {
   const user = useAuthStore((state) => state.user);
   const logout = useAuthStore((state) => state.logout);
   const isInitializing = useAuthStore((state) => state.isInitializing);
+
+  // Sync credit updates via WebSocket
+  useCreditSync();
 
   // Filter menu items based on user role
   // If still initializing and no user, show all items (will be filtered after init)
