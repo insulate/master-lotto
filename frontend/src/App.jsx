@@ -5,6 +5,7 @@ import Layout from './components/layout/Layout';
 import AgentLayout from './pages/agent/AgentLayout';
 import AppLayout from './pages/app/AppLayout';
 import PrivateRoute from './components/auth/PrivateRoute';
+import RoleBasedRedirect from './components/auth/RoleBasedRedirect';
 import Login from './pages/auth/Login';
 import MasterDashboard from './pages/master/MasterDashboard';
 import AgentManagement from './pages/master/agents/AgentsPage';
@@ -82,11 +83,11 @@ function App() {
           {/* Login Route */}
           <Route path="/login" element={<Login />} />
 
-          {/* Protected Routes with Layout */}
+          {/* Master Routes - Only accessible by master role */}
           <Route
             path="/dashboard"
             element={
-              <PrivateRoute>
+              <PrivateRoute allowedRoles={['master']}>
                 <Layout>
                   <MasterDashboard />
                 </Layout>
@@ -94,11 +95,10 @@ function App() {
             }
           />
 
-          {/* Master Routes */}
           <Route
             path="/master/agents"
             element={
-              <PrivateRoute>
+              <PrivateRoute allowedRoles={['master']}>
                 <Layout>
                   <AgentManagement />
                 </Layout>
@@ -109,7 +109,7 @@ function App() {
           <Route
             path="/master/agents/:agentId/commission"
             element={
-              <PrivateRoute>
+              <PrivateRoute allowedRoles={['master']}>
                 <Layout>
                   <AgentCommissionPage />
                 </Layout>
@@ -120,7 +120,7 @@ function App() {
           <Route
             path="/master/lottery-types"
             element={
-              <PrivateRoute>
+              <PrivateRoute allowedRoles={['master']}>
                 <Layout>
                   <LotteryTypesOverview />
                 </Layout>
@@ -131,7 +131,7 @@ function App() {
           <Route
             path="/master/lottery-draws"
             element={
-              <PrivateRoute>
+              <PrivateRoute allowedRoles={['master']}>
                 <Layout>
                   <LotteryDrawManagement />
                 </Layout>
@@ -139,11 +139,11 @@ function App() {
             }
           />
 
-          {/* Agent Routes */}
+          {/* Agent Routes - Only accessible by agent role */}
           <Route
             path="/agent/dashboard"
             element={
-              <PrivateRoute>
+              <PrivateRoute allowedRoles={['agent']}>
                 <AgentLayout>
                   <AgentDashboard />
                 </AgentLayout>
@@ -154,7 +154,7 @@ function App() {
           <Route
             path="/agent/members"
             element={
-              <PrivateRoute>
+              <PrivateRoute allowedRoles={['agent']}>
                 <AgentLayout>
                   <MemberManagement />
                 </AgentLayout>
@@ -165,7 +165,7 @@ function App() {
           <Route
             path="/agent/members/:memberId/commission"
             element={
-              <PrivateRoute>
+              <PrivateRoute allowedRoles={['agent']}>
                 <AgentLayout>
                   <MemberCommissionPage />
                 </AgentLayout>
@@ -173,11 +173,11 @@ function App() {
             }
           />
 
-          {/* App Routes - Member UI */}
+          {/* App Routes - Member UI - Only accessible by member role */}
           <Route
             path="/app"
             element={
-              <PrivateRoute>
+              <PrivateRoute allowedRoles={['member']}>
                 <AppLayout />
               </PrivateRoute>
             }
@@ -202,16 +202,16 @@ function App() {
             }
           />
 
-          {/* Default Route */}
+          {/* Default Route - Redirect based on role */}
           <Route
             path="/"
-            element={<Navigate to="/dashboard" replace />}
+            element={<RoleBasedRedirect />}
           />
 
-          {/* 404 Route */}
+          {/* 404 Route - Redirect based on role */}
           <Route
             path="*"
-            element={<Navigate to="/dashboard" replace />}
+            element={<RoleBasedRedirect />}
           />
         </Routes>
       </Router>
