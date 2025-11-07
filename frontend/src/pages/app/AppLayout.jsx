@@ -1,5 +1,5 @@
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { Wallet, LogOut, Home, FileText, User } from 'lucide-react';
+import { Wallet, LogOut, Home, FileText, Key } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import toast from 'react-hot-toast';
 
@@ -24,7 +24,7 @@ const AppLayout = () => {
   const navItems = [
     { path: '/app/home', icon: Home, label: 'หน้าหลัก' },
     { path: '/app/history', icon: FileText, label: 'ประวัติ' },
-    { path: '/app/profile', icon: User, label: 'โปรไฟล์' },
+    { path: '/profile/change-password', icon: Key, label: 'เปลี่ยนรหัสผ่าน' },
   ];
 
   // Check if current path is active

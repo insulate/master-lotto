@@ -1,4 +1,4 @@
-import { Crown, Star, Clock } from 'lucide-react';
+import { Crown, Star, Clock, Home, FileText, Key } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect, useCallback } from 'react';
 import lotteryService from './lotteryService';
