@@ -219,7 +219,7 @@ const LotteryDrawManagement = () => {
       label: 'ประเภทหวย',
       sortable: true,
       render: (value) => (
-        <span className="font-medium text-primary-light-gold">{getLotteryTypeLabel(value)}</span>
+        <span className="font-medium text-bg-dark">{getLotteryTypeLabel(value)}</span>
       ),
     },
     {
@@ -567,15 +567,15 @@ const LotteryDrawManagement = () => {
         </div>
 
         <div className="flex gap-3">
-          <button
+          {/* <button
             onClick={() => setAutoCreateModalOpen(true)}
             className="px-6 py-2 bg-accent-info hover:bg-accent-info/90 text-white font-semibold rounded-lg transition-colors"
           >
             ⚡ สร้างอัตโนมัติ
-          </button>
+          </button> */}
           <button
             onClick={handleCreateClick}
-            className="px-6 py-2 bg-primary-gold hover:bg-primary-light-gold text-neutral-charcoal font-semibold rounded-lg transition-colors"
+            className="px-6 py-2 bg-primary-gold text-bg-dark font-semibold rounded-lg"
           >
             + สร้างงวดหวยใหม่
           </button>

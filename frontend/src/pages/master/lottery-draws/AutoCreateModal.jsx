@@ -212,18 +212,18 @@ const AutoCreateModal = ({ isOpen, onClose, onSubmit, loading }) => {
           {/* Open Time Offset */}
           <div>
             <label className="block text-sm font-medium mb-2">
-              เปิดรับแทงก่อนออกผล (ชั่วโมง)
+              เปิดรับแทงก่อนออกผล (นาที)
             </label>
             <input
               type="number"
               min="1"
-              max="8760"
-              value={Math.abs(formData.open_time_offset) / 60}
-              onChange={(e) => setFormData({ ...formData, open_time_offset: -parseInt(e.target.value) * 60 })}
+              max="525600"
+              value={Math.abs(formData.open_time_offset)}
+              onChange={(e) => setFormData({ ...formData, open_time_offset: -parseInt(e.target.value) })}
               className="w-full px-4 py-2 bg-neutral-charcoal border border-neutral-gray rounded-lg focus:outline-none focus:border-primary-gold"
               required
             />
-            <p className="text-xs text-text-muted mt-1">ค่าเริ่มต้น: 24 ชั่วโมง (สูงสุด: 365 วัน)</p>
+            <p className="text-xs text-text-muted mt-1">ค่าเริ่มต้น: 1440 นาที (24 ชั่วโมง)</p>
           </div>
 
           {/* Close Time Offset */}
