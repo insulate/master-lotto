@@ -80,7 +80,7 @@ export const logout = async (req, res, next) => {
   try {
     // For stateless JWT, logout is handled client-side
     // If using refresh token storage, remove it here
-    // const userId = req.user.id;
+    // const userId = req.user._id;
     // await removeRefreshToken(userId);
 
     return successResponse(res, 'ออกจากระบบสำเร็จ', null, 200);
@@ -92,7 +92,7 @@ export const logout = async (req, res, next) => {
 // GET /api/v1/auth/me
 export const getMe = async (req, res, next) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user._id;
 
     // Get user from database
     const user = await User.findById(userId);
@@ -155,7 +155,7 @@ export const refresh = async (req, res, next) => {
 // PUT /api/v1/auth/change-password
 export const changePassword = async (req, res, next) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user._id;
     const { currentPassword, newPassword } = req.body;
 
     if (!currentPassword || !newPassword) {

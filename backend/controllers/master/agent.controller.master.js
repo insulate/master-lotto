@@ -8,7 +8,7 @@ import { successResponse } from '../../utils/response.js';
 // Get all agents under current master
 export const getAgents = async (req, res, next) => {
   try {
-    const masterId = req.user.id;
+    const masterId = req.user._id;
 
     // Find all users where role is 'agent' and parent_id is current master
     const agents = await User.find({
@@ -29,7 +29,7 @@ export const getAgents = async (req, res, next) => {
 // Get single agent by ID
 export const getAgentById = async (req, res, next) => {
   try {
-    const masterId = req.user.id;
+    const masterId = req.user._id;
     const { id } = req.params;
 
     // Find agent and verify it belongs to current master
@@ -55,7 +55,7 @@ export const getAgentById = async (req, res, next) => {
 // Create new agent
 export const createAgent = async (req, res, next) => {
   try {
-    const masterId = req.user.id;
+    const masterId = req.user._id;
     const { username, name, password, credit, commission_rates, contact } = req.body;
 
     // Validate required fields
@@ -119,7 +119,7 @@ export const createAgent = async (req, res, next) => {
 // Update agent information
 export const updateAgent = async (req, res, next) => {
   try {
-    const masterId = req.user.id;
+    const masterId = req.user._id;
     const { id } = req.params;
     const { name, commission_rates, contact } = req.body;
 
@@ -170,7 +170,7 @@ export const updateAgent = async (req, res, next) => {
 // Toggle agent status (active/suspended)
 export const toggleAgentStatus = async (req, res, next) => {
   try {
-    const masterId = req.user.id;
+    const masterId = req.user._id;
     const { id } = req.params;
     const { status } = req.body;
 
@@ -207,7 +207,7 @@ export const toggleAgentStatus = async (req, res, next) => {
 // Get credit transaction history for specific agent
 export const getAgentCreditHistory = async (req, res, next) => {
   try {
-    const masterId = req.user.id;
+    const masterId = req.user._id;
     const { id } = req.params;
 
     // Verify agent belongs to current master
@@ -241,7 +241,7 @@ export const getAgentCreditHistory = async (req, res, next) => {
 // Adjust agent credit (add or deduct)
 export const adjustAgentCredit = async (req, res, next) => {
   try {
-    const masterId = req.user.id;
+    const masterId = req.user._id;
     const { id } = req.params;
     const { amount, action } = req.body;
 
@@ -319,7 +319,7 @@ export const adjustAgentCredit = async (req, res, next) => {
 // Change agent password
 export const changeAgentPassword = async (req, res, next) => {
   try {
-    const masterId = req.user.id;
+    const masterId = req.user._id;
     const { id } = req.params;
     const { newPassword } = req.body;
 

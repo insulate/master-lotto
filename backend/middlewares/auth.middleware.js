@@ -20,7 +20,7 @@ export const authenticate = (req, res, next) => {
 
       // Add user info to request
       req.user = {
-        id: decoded.id,
+        _id: decoded.id,
         username: decoded.username,
         role: decoded.role
       };

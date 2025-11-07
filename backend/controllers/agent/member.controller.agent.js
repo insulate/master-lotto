@@ -8,7 +8,7 @@ import { successResponse } from '../../utils/response.js';
 // Get all members under current agent
 export const getMembers = async (req, res, next) => {
   try {
-    const agentId = req.user.id;
+    const agentId = req.user._id;
 
     // Find all users where role is 'member' and parent_id is current agent
     const members = await User.find({
@@ -29,7 +29,7 @@ export const getMembers = async (req, res, next) => {
 // Get single member by ID
 export const getMemberById = async (req, res, next) => {
   try {
-    const agentId = req.user.id;
+    const agentId = req.user._id;
     const { id } = req.params;
 
     // Find member and verify it belongs to current agent
@@ -55,7 +55,7 @@ export const getMemberById = async (req, res, next) => {
 // Create new member
 export const createMember = async (req, res, next) => {
   try {
-    const agentId = req.user.id;
+    const agentId = req.user._id;
     const { username, name, password, credit, commission_rates, contact } = req.body;
 
     // Validate required fields
@@ -125,7 +125,7 @@ export const createMember = async (req, res, next) => {
 // Update member information
 export const updateMember = async (req, res, next) => {
   try {
-    const agentId = req.user.id;
+    const agentId = req.user._id;
     const { id } = req.params;
     const { name, commission_rates, contact } = req.body;
 
@@ -210,7 +210,7 @@ export const updateMember = async (req, res, next) => {
 // Toggle member status (active/suspended)
 export const toggleMemberStatus = async (req, res, next) => {
   try {
-    const agentId = req.user.id;
+    const agentId = req.user._id;
     const { id } = req.params;
     const { status } = req.body;
 
@@ -247,7 +247,7 @@ export const toggleMemberStatus = async (req, res, next) => {
 // Get credit transaction history for specific member
 export const getMemberCreditHistory = async (req, res, next) => {
   try {
-    const agentId = req.user.id;
+    const agentId = req.user._id;
     const { id } = req.params;
 
     // Verify member belongs to current agent
@@ -281,7 +281,7 @@ export const getMemberCreditHistory = async (req, res, next) => {
 // Adjust member credit (add or deduct)
 export const adjustMemberCredit = async (req, res, next) => {
   try {
-    const agentId = req.user.id;
+    const agentId = req.user._id;
     const { id } = req.params;
     const { amount, action } = req.body;
 
@@ -366,7 +366,7 @@ export const adjustMemberCredit = async (req, res, next) => {
 // Change member password
 export const changeMemberPassword = async (req, res, next) => {
   try {
-    const agentId = req.user.id;
+    const agentId = req.user._id;
     const { id } = req.params;
     const { newPassword } = req.body;
 

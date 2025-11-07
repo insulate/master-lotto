@@ -1,31 +1,22 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Plus, Trash2, Calculator, Delete, X, ChevronDown, ChevronUp } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Calculator, Delete, X, ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import lotteryDrawService from './lotteryDrawService';
+import betService from '../../services/betService';
+import { parseErrorMessage } from '../../lib/utils';
 
 /**
- * Betting Page - หน้าแทงหวย (Mockup)
+ * Betting Page - หน้าแทงหวย
  */
 const BettingPage = () => {
   const { lotteryId } = useParams();
   const navigate = useNavigate();
 
-  // Mockup Data - งวดหวยที่เลือก
-  const [lotteryDraw] = useState({
-    id: lotteryId || 'government',
-    name: 'หวยรัฐบาล',
-    round: 'รอบที่ 123',
-    draw_date: '2025-01-15T14:30:00',
-    close_time: '2025-01-15T14:00:00',
-    bet_settings: {
-      three_top: { payout_rate: 900, min_bet: 1, max_bet: 10000, enabled: true },
-      three_tod: { payout_rate: 150, min_bet: 1, max_bet: 10000, enabled: true },
-      two_top: { payout_rate: 90, min_bet: 1, max_bet: 10000, enabled: true },
-      two_bottom: { payout_rate: 90, min_bet: 1, max_bet: 10000, enabled: true },
-      run_top: { payout_rate: 3, min_bet: 1, max_bet: 10000, enabled: true },
-      run_bottom: { payout_rate: 3, min_bet: 1, max_bet: 10000, enabled: true },
-    }
-  });
+  // Lottery draw data
+  const [lotteryDraw, setLotteryDraw] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
 
   // Bet Types
   const betTypes = [
@@ -65,6 +56,7 @@ const BettingPage = () => {
 
   // Get bet settings for current type
   const getBetSettings = () => {
+    if (!lotteryDraw) return { payout_rate: 0, min_bet: 1, max_bet: 1000, enabled: false };
     return lotteryDraw.bet_settings[currentBetType];
   };
 
@@ -175,26 +167,99 @@ const BettingPage = () => {
     return { totalItems, totalAmount, totalPotentialWin };
   };
 
-  const { totalItems, totalAmount, totalPotentialWin } = calculateTotals();
+  const { totalItems, totalAmount, totalPotentialWin} = calculateTotals();
 
-  // Submit bet (mockup)
-  const handleSubmit = () => {
+  // Fetch lottery draw on mount
+  useEffect(() => {
+    const fetchLotteryDraw = async () => {
+      try {
+        setLoading(true);
+        const response = await lotteryDrawService.getDrawById(lotteryId);
+        const draw = response.data.lotteryDraw;
+
+        if (!draw) {
+          toast.error('ไม่พบข้อมูลงวดหวย');
+          navigate('/app/home');
+          return;
+        }
+
+        // Check if draw is open
+        const now = new Date();
+        const openTime = new Date(draw.open_time);
+        const closeTime = new Date(draw.close_time);
+
+        if (draw.status !== 'open' || now < openTime || now >= closeTime) {
+          toast.error('งวดหวยนี้ปิดรับแทงแล้ว');
+          navigate('/app/home');
+          return;
+        }
+
+        setLotteryDraw(draw);
+      } catch (err) {
+        toast.error(parseErrorMessage(err));
+        navigate('/app/home');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchLotteryDraw();
+  }, [lotteryId, navigate]);
+
+  // Submit bet
+  const handleSubmit = async () => {
     if (totalItems === 0) {
       toast.error('กรุณาเพิ่มเลขก่อนยืนยันการแทง');
       return;
     }
 
-    // Mockup success
-    toast.success('ยืนยันการแทงสำเร็จ! (Mockup)');
+    if (!lotteryDraw) {
+      toast.error('ไม่พบข้อมูลงวดหวย');
+      return;
+    }
 
-    // Clear all bets after submit
-    setTimeout(() => {
+    try {
+      setSubmitting(true);
+
+      // Prepare bet_items for API
+      const apiBetItems = [];
+      Object.keys(betItems).forEach(betType => {
+        betItems[betType].forEach(item => {
+          apiBetItems.push({
+            bet_type: betType,
+            number: item.number,
+            amount: item.amount
+          });
+        });
+      });
+
+      // Call API
+      const response = await betService.placeBet({
+        lottery_draw_id: lotteryDraw._id,
+        bet_items: apiBetItems
+      });
+
+      const { bet, deducted, remaining } = response.data;
+
+      // Success
+      toast.success(
+        `แทงหวยสำเร็จ!\nตัดเครดิต ${deducted.total.toLocaleString()} บาท\nคงเหลือ ${remaining.total.toLocaleString()} บาท`,
+        { duration: 5000 }
+      );
+
+      // Clear all bets after submit
       handleClearAll();
-    }, 1000);
+    } catch (err) {
+      toast.error(parseErrorMessage(err), { duration: 5000 });
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   // Format time remaining
   const getTimeRemaining = () => {
+    if (!lotteryDraw) return '-';
+
     const now = new Date();
     const closeTime = new Date(lotteryDraw.close_time);
     const diff = closeTime - now;
@@ -224,6 +289,22 @@ const BettingPage = () => {
     setNumber('');
   };
 
+  // Loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-12 h-12 animate-spin text-primary-gold mx-auto mb-4" />
+          <p className="text-gray-600">กำลังโหลดข้อมูล...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!lotteryDraw) {
+    return null;
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 pb-24 md:pb-8">
       {/* Mobile Header - Compact */}
@@ -236,7 +317,9 @@ const BettingPage = () => {
             <ArrowLeft className="w-6 h-6" />
           </button>
           <div className="flex-1 text-center px-4">
-            <h1 className="text-lg font-bold text-primary-dark-gold truncate">{lotteryDraw.name}</h1>
+            <h1 className="text-lg font-bold text-primary-dark-gold truncate">
+              {lotteryDraw.lottery_type_label || lotteryDraw.lottery_type}
+            </h1>
             <p className="text-xs text-gray-600">{getTimeRemaining()}</p>
           </div>
           <button
@@ -507,13 +590,20 @@ const BettingPage = () => {
                     handleSubmit();
                     setShowSummary(false);
                   }}
-                  disabled={totalItems === 0}
-                  className="w-full bg-green-500 active:bg-green-600 text-white font-bold py-4 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+                  disabled={totalItems === 0 || submitting}
+                  className="w-full bg-green-500 active:bg-green-600 text-white font-bold py-4 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg flex items-center justify-center gap-2"
                 >
-                  ยืนยันการแทง
+                  {submitting ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      กำลังแทง...
+                    </>
+                  ) : (
+                    'ยืนยันการแทง'
+                  )}
                 </button>
 
-                {totalItems > 0 && (
+                {totalItems > 0 && !submitting && (
                   <button
                     onClick={handleClearAll}
                     className="w-full bg-red-500 active:bg-red-600 text-white font-bold py-4 rounded-xl transition-all shadow-lg"
@@ -521,13 +611,6 @@ const BettingPage = () => {
                     ลบทั้งหมด
                   </button>
                 )}
-
-                {/* Mockup Notice */}
-                <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                  <p className="text-xs text-yellow-800 text-center">
-                    🚧 หน้านี้เป็น Mockup ยังไม่เชื่อมต่อ Backend
-                  </p>
-                </div>
               </div>
             </div>
           </div>

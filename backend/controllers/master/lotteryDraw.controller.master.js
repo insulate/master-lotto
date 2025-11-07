@@ -6,7 +6,7 @@ import { successResponse } from '../../utils/response.js';
 // Get all lottery draws with filters
 export const getLotteryDraws = async (req, res, next) => {
   try {
-    const masterId = req.user.id;
+    const masterId = req.user._id;
     const { lottery_type, status, start_date, end_date, page = 1, limit = 10 } = req.query;
 
     // Build query
@@ -64,7 +64,7 @@ export const getLotteryDraws = async (req, res, next) => {
 // Get single lottery draw by ID
 export const getLotteryDrawById = async (req, res, next) => {
   try {
-    const masterId = req.user.id;
+    const masterId = req.user._id;
     const { id } = req.params;
 
     const lotteryDraw = await LotteryDraw.findOne({
@@ -86,7 +86,7 @@ export const getLotteryDrawById = async (req, res, next) => {
 // Create new lottery draw
 export const createLotteryDraw = async (req, res, next) => {
   try {
-    const masterId = req.user.id;
+    const masterId = req.user._id;
     const { lottery_type, draw_date, open_time, close_time, bet_settings } = req.body;
 
     // Validate required fields
@@ -144,7 +144,7 @@ export const createLotteryDraw = async (req, res, next) => {
 // Update lottery draw information
 export const updateLotteryDraw = async (req, res, next) => {
   try {
-    const masterId = req.user.id;
+    const masterId = req.user._id;
     const { id } = req.params;
     const { draw_date, open_time, close_time, bet_settings } = req.body;
 
@@ -214,7 +214,7 @@ export const updateLotteryDraw = async (req, res, next) => {
 // Update lottery draw status
 export const updateDrawStatus = async (req, res, next) => {
   try {
-    const masterId = req.user.id;
+    const masterId = req.user._id;
     const { id } = req.params;
     const { status } = req.body;
 
@@ -285,7 +285,7 @@ export const updateDrawStatus = async (req, res, next) => {
 // Update lottery draw result
 export const updateDrawResult = async (req, res, next) => {
   try {
-    const masterId = req.user.id;
+    const masterId = req.user._id;
     const { id } = req.params;
     const { result } = req.body;
 
@@ -339,7 +339,7 @@ export const updateDrawResult = async (req, res, next) => {
 // Delete lottery draw
 export const deleteLotteryDraw = async (req, res, next) => {
   try {
-    const masterId = req.user.id;
+    const masterId = req.user._id;
     const { id } = req.params;
 
     // Find lottery draw
@@ -385,7 +385,7 @@ export const deleteLotteryDraw = async (req, res, next) => {
 // Create multiple lottery draws at once
 export const bulkCreateLotteryDraws = async (req, res, next) => {
   try {
-    const masterId = req.user.id;
+    const masterId = req.user._id;
     const {
       lottery_types,  // Array of lottery types to create
       days_ahead,     // Number of days to create ahead

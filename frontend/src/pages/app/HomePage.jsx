@@ -360,7 +360,7 @@ const HomePage = () => {
               {section.items.map((lottery) => (
                 <button
                   key={lottery.id}
-                  onClick={() => lottery.status === 'open' && navigate(`/app/betting/${lottery.id}`)}
+                  onClick={() => lottery.status === 'open' && lottery.draw?._id && navigate(`/app/betting/${lottery.draw._id}`)}
                   disabled={lottery.status === 'closed'}
                   className={`relative p-4 rounded-xl text-left transition-all ${
                     lottery.status === 'open'

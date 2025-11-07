@@ -1,5 +1,6 @@
 import LotteryDraw from '../../models/lotteryDraw.model.js';
 import LotteryType from '../../models/lotteryType.model.js';
+import AppError from '../../utils/AppError.js';
 import { successResponse } from '../../utils/response.js';
 
 // GET /api/v1/member/lottery-draws
@@ -40,6 +41,33 @@ export const getLotteryDraws = async (req, res, next) => {
       page: parseInt(page),
       limit: parseInt(limit),
       totalPages: Math.ceil(total / parseInt(limit))
+    }, 200);
+  } catch (error) {
+    next(error);
+  }
+};
+
+// GET /api/v1/member/lottery-draws/:id
+// Get single lottery draw by ID
+export const getLotteryDrawById = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    // Find lottery draw
+    const lotteryDraw = await LotteryDraw.findById(id).lean();
+
+    if (!lotteryDraw) {
+      throw new AppError('ไม่พบข้อมูลงวดหวย', 404);
+    }
+
+    // Get lottery type label
+    const lotteryType = await LotteryType.findOne({ value: lotteryDraw.lottery_type }).lean();
+    if (lotteryType) {
+      lotteryDraw.lottery_type_label = lotteryType.label;
+    }
+
+    return successResponse(res, 'ดึงข้อมูลงวดหวยสำเร็จ', {
+      lotteryDraw
     }, 200);
   } catch (error) {
     next(error);

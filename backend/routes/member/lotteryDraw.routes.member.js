@@ -2,6 +2,7 @@ import express from 'express';
 import { authenticate, authorize } from '../../middlewares/auth.middleware.js';
 import {
   getLotteryDraws,
+  getLotteryDrawById,
   getOpenLotteryDraws
 } from '../../controllers/member/lotteryDraw.controller.member.js';
 
@@ -24,5 +25,12 @@ router.get('/open', getOpenLotteryDraws);
  * @access  Private (Member only)
  */
 router.get('/', getLotteryDraws);
+
+/**
+ * @route   GET /api/v1/member/lottery-draws/:id
+ * @desc    Get single lottery draw by ID
+ * @access  Private (Member only)
+ */
+router.get('/:id', getLotteryDrawById);
 
 export default router;
