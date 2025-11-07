@@ -350,7 +350,7 @@ const BettingPage = () => {
         bet_items: apiBetItems
       });
 
-      const { bet, deducted, remaining } = response.data;
+      const { deducted, remaining } = response.data;
 
       // Update user balance in store
       await getMe();

@@ -17,7 +17,7 @@ export const useCreditSync = () => {
     }
 
     // Initialize WebSocket connection
-    const socket = initSocket();
+    initSocket();
 
     // Handle credit update events
     const handleCreditUpdate = async (data) => {

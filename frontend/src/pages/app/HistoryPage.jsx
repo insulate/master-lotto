@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Clock, Calendar, TrendingUp, FileText, Loader2, Filter, ChevronDown } from 'lucide-react';
+import { Clock, Calendar, TrendingUp, FileText, Loader2, Filter, ChevronDown, Eye, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 import betService from '../../services/betService';
 import { parseErrorMessage } from '../../lib/utils';
@@ -16,12 +16,15 @@ const HistoryPage = () => {
   const [total, setTotal] = useState(0);
   const [statusFilter, setStatusFilter] = useState('all');
   const [showFilter, setShowFilter] = useState(false);
+  const [selectedBet, setSelectedBet] = useState(null);
+  const [showDetailModal, setShowDetailModal] = useState(false);
 
   const limit = 20;
 
   // Fetch bets
   useEffect(() => {
     fetchBets();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, statusFilter]);
 
   const fetchBets = async () => {
@@ -111,6 +114,12 @@ const HistoryPage = () => {
       grouped[item.bet_type].push(item);
     });
     return grouped;
+  };
+
+  // Handle view detail
+  const handleViewDetail = (bet) => {
+    setSelectedBet(bet);
+    setShowDetailModal(true);
   };
 
   return (
@@ -224,6 +233,7 @@ const HistoryPage = () => {
                       <th className="px-4 py-3 text-left text-sm font-bold">เลขที่แทง</th>
                       <th className="px-4 py-3 text-right text-sm font-bold">ยอดแทง</th>
                       <th className="px-4 py-3 text-center text-sm font-bold">สถานะ</th>
+                      <th className="px-4 py-3 text-center text-sm font-bold"></th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200">
@@ -307,13 +317,24 @@ const HistoryPage = () => {
                           <td className="px-4 py-3 text-center">
                             {getStatusBadge(bet.status)}
                           </td>
+
+                          {/* Actions */}
+                          <td className="px-4 py-3 text-center">
+                            <button
+                              onClick={() => handleViewDetail(bet)}
+                              className="inline-flex items-center gap-1 px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-sm font-semibold transition-colors shadow-sm"
+                            >
+                              <Eye className="w-4 h-4" />
+                              ดูรายละเอียด
+                            </button>
+                          </td>
                         </tr>
                       );
                     })}
                   </tbody>
                   <tfoot className="bg-gray-50 border-t-2 border-primary-gold/30">
                     <tr>
-                      <td colSpan="4" className="px-4 py-4 text-right">
+                      <td colSpan="5" className="px-4 py-4 text-right">
                         <span className="text-lg font-bold text-gray-700">ยอดแทงรวมทั้งหมด:</span>
                       </td>
                       <td className="px-4 py-4 text-right">
@@ -406,6 +427,15 @@ const HistoryPage = () => {
                         </div>
                       )}
                     </div>
+
+                    {/* View Detail Button */}
+                    <button
+                      onClick={() => handleViewDetail(bet)}
+                      className="w-full mt-3 flex items-center justify-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-semibold transition-colors shadow-sm"
+                    >
+                      <Eye className="w-4 h-4" />
+                      ดูรายละเอียดแบบตาราง
+                    </button>
                   </div>
                 );
               })}
@@ -446,6 +476,183 @@ const HistoryPage = () => {
           </div>
         )}
       </div>
+
+      {/* Detail Modal */}
+      {showDetailModal && selectedBet && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+            {/* Modal Header */}
+            <div className="bg-gradient-to-r from-primary-gold to-primary-dark-gold text-white px-6 py-4 flex items-center justify-between">
+              <div>
+                <h2 className="text-xl font-bold">รายละเอียดบิลการแทง</h2>
+                <p className="text-sm opacity-90 mt-1">
+                  {selectedBet.lottery_draw_id?.lottery_type
+                    ? getLotteryTypeLabel(selectedBet.lottery_draw_id.lottery_type)
+                    : 'หวย'} - {selectedBet.lottery_draw_id?.draw_date
+                    ? new Date(selectedBet.lottery_draw_id.draw_date).toLocaleDateString('th-TH', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                      })
+                    : '-'}
+                </p>
+              </div>
+              <button
+                onClick={() => setShowDetailModal(false)}
+                className="p-2 hover:bg-white/20 rounded-lg transition-colors"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="flex-1 overflow-y-auto p-6">
+              {/* Summary Info */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <div className="text-sm text-gray-600 mb-1">เวลาแทง</div>
+                  <div className="font-bold text-gray-800">{formatDate(selectedBet.createdAt)}</div>
+                </div>
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <div className="text-sm text-gray-600 mb-1">สถานะ</div>
+                  <div>{getStatusBadge(selectedBet.status)}</div>
+                </div>
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <div className="text-sm text-gray-600 mb-1">ยอดแทงรวม</div>
+                  <div className="font-bold text-primary-dark-gold text-lg">
+                    {selectedBet.total_amount.toLocaleString()} ฿
+                  </div>
+                </div>
+              </div>
+
+              {/* Bet Items Table */}
+              <div className="border-2 border-primary-gold/30 rounded-lg overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead className="bg-primary-gold text-white">
+                      <tr>
+                        <th className="px-4 py-3 text-left font-bold">ลำดับ</th>
+                        <th className="px-4 py-3 text-left font-bold">ประเภท</th>
+                        <th className="px-4 py-3 text-center font-bold">เลข</th>
+                        <th className="px-4 py-3 text-right font-bold">ยอดแทง</th>
+                        <th className="px-4 py-3 text-right font-bold">อัตราจ่าย</th>
+                        <th className="px-4 py-3 text-right font-bold">อาจได้รับ</th>
+                        {selectedBet.status !== 'pending' && (
+                          <>
+                            <th className="px-4 py-3 text-center font-bold">ผล</th>
+                            <th className="px-4 py-3 text-right font-bold">ได้จริง</th>
+                          </>
+                        )}
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200">
+                      {selectedBet.bet_items.map((item, index) => (
+                        <tr
+                          key={index}
+                          className={`${
+                            item.is_win
+                              ? 'bg-green-50 hover:bg-green-100'
+                              : 'bg-white hover:bg-gray-50'
+                          } transition-colors`}
+                        >
+                          <td className="px-4 py-3 text-gray-700">{index + 1}</td>
+                          <td className="px-4 py-3">
+                            <span className="font-semibold text-gray-700">
+                              {getBetTypeLabel(item.bet_type)}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3 text-center">
+                            <span className="font-bold text-primary-dark-gold text-lg">
+                              {item.number}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3 text-right font-medium text-gray-700">
+                            {item.amount.toLocaleString()} ฿
+                          </td>
+                          <td className="px-4 py-3 text-right text-gray-600">
+                            ×{item.payout_rate}
+                          </td>
+                          <td className="px-4 py-3 text-right font-medium text-gray-700">
+                            {item.potential_win.toLocaleString()} ฿
+                          </td>
+                          {selectedBet.status !== 'pending' && (
+                            <>
+                              <td className="px-4 py-3 text-center">
+                                {item.is_win ? (
+                                  <span className="inline-flex items-center gap-1 text-green-600 font-bold">
+                                    <span className="text-xl">✓</span> ถูก
+                                  </span>
+                                ) : (
+                                  <span className="inline-flex items-center gap-1 text-red-500 font-medium">
+                                    <span className="text-xl">✗</span> ไม่ถูก
+                                  </span>
+                                )}
+                              </td>
+                              <td className="px-4 py-3 text-right">
+                                {item.is_win ? (
+                                  <span className="font-bold text-green-600 text-lg">
+                                    +{item.win_amount.toLocaleString()} ฿
+                                  </span>
+                                ) : (
+                                  <span className="text-gray-400">-</span>
+                                )}
+                              </td>
+                            </>
+                          )}
+                        </tr>
+                      ))}
+                    </tbody>
+                    <tfoot className="bg-gray-50 border-t-2 border-primary-gold/30">
+                      <tr>
+                        <td
+                          colSpan={selectedBet.status !== 'pending' ? 6 : 5}
+                          className="px-4 py-4 text-right"
+                        >
+                          <span className="text-lg font-bold text-gray-700">รวมทั้งหมด:</span>
+                        </td>
+                        {selectedBet.status !== 'pending' && <td></td>}
+                        <td className="px-4 py-4 text-right">
+                          <div>
+                            <div className="text-sm text-gray-600">ยอดแทง</div>
+                            <div className="font-bold text-primary-dark-gold text-xl">
+                              {selectedBet.total_amount.toLocaleString()} ฿
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                      {selectedBet.status === 'won' && selectedBet.actual_win_amount > 0 && (
+                        <tr className="bg-green-50">
+                          <td
+                            colSpan={selectedBet.status !== 'pending' ? 7 : 6}
+                            className="px-4 py-4 text-right"
+                          >
+                            <span className="text-lg font-bold text-green-700">ชนะทั้งหมด:</span>
+                          </td>
+                          <td className="px-4 py-4 text-right">
+                            <div className="font-bold text-green-600 text-2xl">
+                              +{selectedBet.actual_win_amount.toLocaleString()} ฿
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </tfoot>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="border-t border-gray-200 px-6 py-4 flex justify-end">
+              <button
+                onClick={() => setShowDetailModal(false)}
+                className="px-6 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg font-semibold transition-colors"
+              >
+                ปิด
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

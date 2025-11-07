@@ -19,6 +19,7 @@ const BetDetailPage = () => {
   // Fetch bet detail
   useEffect(() => {
     fetchBetDetail();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [betId]);
 
   const fetchBetDetail = async () => {
