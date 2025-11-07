@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Clock, Calendar, TrendingUp, FileText, Loader2, Filter, ChevronDown, Eye } from 'lucide-react';
+import { Clock, Calendar, TrendingUp, FileText, Loader2, Filter, ChevronDown } from 'lucide-react';
 import toast from 'react-hot-toast';
 import betService from '../../services/betService';
 import { parseErrorMessage } from '../../lib/utils';
@@ -9,8 +8,6 @@ import { parseErrorMessage } from '../../lib/utils';
  * History Page - หน้าประวัติการแทง
  */
 const HistoryPage = () => {
-  const navigate = useNavigate();
-
   // State
   const [bets, setBets] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -116,11 +113,6 @@ const HistoryPage = () => {
     return grouped;
   };
 
-  // View bet detail
-  const viewBetDetail = (betId) => {
-    navigate(`/app/history/${betId}`);
-  };
-
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
       {/* Header */}
@@ -219,116 +211,113 @@ const HistoryPage = () => {
             <p className="text-gray-500 text-lg">ยังไม่มีประวัติการแทง</p>
           </div>
         ) : (
-          <div className="space-y-4">
-            {bets.map((bet) => {
-              const groupedItems = groupBetItemsByType(bet.bet_items);
+          <div className="bg-white border-2 border-primary-gold/30 rounded-xl shadow-md overflow-hidden">
+            {/* Table */}
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gradient-to-r from-primary-gold to-primary-dark-gold text-white">
+                  <tr>
+                    <th className="px-4 py-3 text-left text-sm font-bold">ประเภทหวย</th>
+                    <th className="px-4 py-3 text-left text-sm font-bold">วันที่ออกรางวัล</th>
+                    <th className="px-4 py-3 text-left text-sm font-bold">วันที่แทง</th>
+                    <th className="px-4 py-3 text-left text-sm font-bold">เลขที่แทง</th>
+                    <th className="px-4 py-3 text-right text-sm font-bold">ยอดแทง</th>
+                    <th className="px-4 py-3 text-center text-sm font-bold">สถานะ</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200">
+                  {bets.map((bet) => {
+                    const groupedItems = groupBetItemsByType(bet.bet_items);
 
-              return (
-                <div
-                  key={bet._id}
-                  className="bg-white border-2 border-primary-gold/30 rounded-xl p-4 shadow-md hover:shadow-lg transition-shadow"
-                >
-                  {/* Bet Header */}
-                  <div className="flex items-start justify-between mb-3 pb-3 border-b border-gray-200">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
-                        <h3 className="font-bold text-primary-dark-gold">
-                          {bet.lottery_draw_id?.lottery_type
-                            ? getLotteryTypeLabel(bet.lottery_draw_id.lottery_type)
-                            : 'หวย'}
-                        </h3>
-                        {getStatusBadge(bet.status)}
-                      </div>
-                      <div className="flex items-center gap-4 text-sm text-gray-600">
-                        <div className="flex items-center gap-1">
-                          <Calendar className="w-4 h-4" />
-                          <span>
-                            {bet.lottery_draw_id?.draw_date
-                              ? new Date(bet.lottery_draw_id.draw_date).toLocaleDateString('th-TH')
-                              : '-'}
+                    return (
+                      <tr
+                        key={bet._id}
+                        className="hover:bg-gray-50 transition-colors"
+                      >
+                        {/* Lottery Type */}
+                        <td className="px-4 py-3">
+                          <span className="font-semibold text-primary-dark-gold">
+                            {bet.lottery_draw_id?.lottery_type
+                              ? getLotteryTypeLabel(bet.lottery_draw_id.lottery_type)
+                              : 'หวย'}
                           </span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Clock className="w-4 h-4" />
-                          <span>{formatDate(bet.createdAt)}</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                        </td>
 
-                  {/* Bet Items Summary */}
-                  <div className="space-y-2 mb-3">
-                    {Object.keys(groupedItems).map((betType) => {
-                      const items = groupedItems[betType];
-                      const typeTotal = items.reduce((sum, item) => sum + item.amount, 0);
-
-                      return (
-                        <div key={betType} className="bg-gray-50 rounded-lg p-3">
-                          <div className="flex items-center justify-between mb-2">
-                            <span className="text-sm font-bold text-gray-700">
-                              {getBetTypeLabel(betType)}
-                            </span>
-                            <span className="text-xs text-gray-600">
-                              {items.length} เลข - {typeTotal.toLocaleString()} ฿
+                        {/* Draw Date */}
+                        <td className="px-4 py-3">
+                          <div className="flex items-center gap-1 text-sm text-gray-700">
+                            <Calendar className="w-4 h-4" />
+                            <span>
+                              {bet.lottery_draw_id?.draw_date
+                                ? new Date(bet.lottery_draw_id.draw_date).toLocaleDateString('th-TH', {
+                                    year: 'numeric',
+                                    month: 'short',
+                                    day: 'numeric',
+                                  })
+                                : '-'}
                             </span>
                           </div>
-                          <div className="flex flex-wrap gap-2">
-                            {items.slice(0, 5).map((item, idx) => (
-                              <span
-                                key={idx}
-                                className="bg-white px-3 py-1 rounded-md text-sm font-semibold text-primary-dark-gold border border-primary-gold/30"
-                              >
-                                {item.number}
-                              </span>
-                            ))}
-                            {items.length > 5 && (
-                              <span className="px-3 py-1 text-sm text-gray-500">
-                                +{items.length - 5} เลข
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
+                        </td>
 
-                  {/* Bet Footer */}
-                  <div className="flex items-center justify-between pt-3 border-t border-gray-200">
-                    <div className="flex gap-4">
-                      <div>
-                        <p className="text-xs text-gray-600">ยอดแทง</p>
-                        <p className="font-bold text-primary-dark-gold">
-                          {bet.total_amount.toLocaleString()} ฿
-                        </p>
-                      </div>
-                      {bet.status === 'won' && bet.total_win_amount > 0 && (
-                        <div>
-                          <p className="text-xs text-gray-600">ยอดถูกรางวัล</p>
-                          <p className="font-bold text-green-600">
-                            +{bet.total_win_amount.toLocaleString()} ฿
-                          </p>
-                        </div>
-                      )}
-                      {bet.status === 'pending' && (
-                        <div>
-                          <p className="text-xs text-gray-600">ถูกได้สูงสุด</p>
-                          <p className="font-bold text-green-600">
-                            {bet.total_potential_win.toLocaleString()} ฿
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                    <button
-                      onClick={() => viewBetDetail(bet._id)}
-                      className="bg-primary-gold text-white px-4 py-2 rounded-lg font-bold flex items-center gap-2 hover:bg-primary-gold/90 transition-colors"
-                    >
-                      <Eye className="w-4 h-4" />
-                      ดูรายละเอียด
-                    </button>
-                  </div>
-                </div>
-              );
-            })}
+                        {/* Bet Date */}
+                        <td className="px-4 py-3">
+                          <div className="flex items-center gap-1 text-sm text-gray-700">
+                            <Clock className="w-4 h-4" />
+                            <span>{formatDate(bet.createdAt)}</span>
+                          </div>
+                        </td>
+
+                        {/* Bet Numbers */}
+                        <td className="px-4 py-3">
+                          <div className="space-y-1">
+                            {Object.keys(groupedItems).map((betType) => {
+                              const items = groupedItems[betType];
+                              const numbers = items.map(item => item.number).join(', ');
+
+                              return (
+                                <div key={betType} className="text-sm">
+                                  <span className="font-semibold text-gray-700">
+                                    {getBetTypeLabel(betType)}:
+                                  </span>{' '}
+                                  <span className="text-primary-dark-gold font-medium">
+                                    {numbers}
+                                  </span>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </td>
+
+                        {/* Total Amount */}
+                        <td className="px-4 py-3 text-right">
+                          <span className="font-bold text-primary-dark-gold">
+                            {bet.total_amount.toLocaleString()} ฿
+                          </span>
+                        </td>
+
+                        {/* Status */}
+                        <td className="px-4 py-3 text-center">
+                          {getStatusBadge(bet.status)}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+                <tfoot className="bg-gray-50 border-t-2 border-primary-gold/30">
+                  <tr>
+                    <td colSpan="4" className="px-4 py-4 text-right">
+                      <span className="text-lg font-bold text-gray-700">ยอดแทงรวมทั้งหมด:</span>
+                    </td>
+                    <td className="px-4 py-4 text-right">
+                      <span className="text-xl font-bold text-primary-dark-gold">
+                        {bets.reduce((sum, bet) => sum + bet.total_amount, 0).toLocaleString()} ฿
+                      </span>
+                    </td>
+                    <td className="px-4 py-4"></td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
           </div>
         )}
 

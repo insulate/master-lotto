@@ -65,6 +65,17 @@ const BetDetailPage = () => {
     return labels[betType] || betType;
   };
 
+  // Get lottery type label
+  const getLotteryTypeLabel = (lotteryType) => {
+    const labels = {
+      government: 'หวยรัฐบาลไทย',
+      lao_pattana: 'หวยลาวพัฒนา',
+      hanoi_regular: 'หวยฮานอย ปกติ',
+      hanoi_vip: 'หวยฮานอย VIP',
+    };
+    return labels[lotteryType] || lotteryType;
+  };
+
   // Format date
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -136,7 +147,9 @@ const BetDetailPage = () => {
           <div className="flex items-start justify-between mb-4">
             <div>
               <h2 className="text-2xl font-bold text-primary-dark-gold mb-2">
-                {bet.lottery_draw_id?.lottery_type || 'หวย'}
+                {bet.lottery_draw_id?.lottery_type
+                  ? getLotteryTypeLabel(bet.lottery_draw_id.lottery_type)
+                  : 'หวย'}
               </h2>
               <div className="space-y-2 text-gray-600">
                 <div className="flex items-center gap-2">
