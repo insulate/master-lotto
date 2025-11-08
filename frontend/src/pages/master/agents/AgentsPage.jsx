@@ -582,10 +582,10 @@ const AgentManagement = () => {
                       {formatCurrency(transaction.amount)}
                     </td>
                     <td className="px-4 py-3 text-sm text-right text-text-muted">
-                      {formatCurrency(transaction.balance_before)}
+                      {formatCurrency((transaction.credit_before || 0) + (transaction.balance_before || 0))}
                     </td>
                     <td className="px-4 py-3 text-sm text-right font-semibold text-primary-gold">
-                      {formatCurrency(transaction.balance_after)}
+                      {formatCurrency((transaction.credit_after || 0) + (transaction.balance_after || 0))}
                     </td>
                     <td className="px-4 py-3 text-sm text-text-primary">
                       {transaction.performed_by?.name || 'N/A'}
