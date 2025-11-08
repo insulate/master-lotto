@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Plus, Trash2, Calculator, Delete, X, ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
+import { ArrowLeft, Trash2, Calculator, Delete, X, ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import lotteryDrawService from './lotteryDrawService';
 import betService from '../../services/betService';
@@ -8,16 +8,87 @@ import { parseErrorMessage } from '../../lib/utils';
 import { useAuthStore } from '../../store/authStore';
 
 /**
+ * Bet Item Row Component - Individual bet item with edit functionality
+ */
+const BetItemRow = ({ item, betType, index, lotteryDraw, handleRemoveBet, handleUpdateAmount }) => {
+  const [editAmount, setEditAmount] = useState(item.amount.toString());
+
+  const handleAmountChange = (e) => {
+    const newValue = e.target.value;
+    setEditAmount(newValue);
+
+    const newAmount = parseFloat(newValue);
+    const settings = lotteryDraw.bet_settings[betType];
+
+    // Validate and update only if valid
+    if (newAmount && newAmount > 0) {
+      if (newAmount < settings.min_bet) {
+        // Don't update if below minimum
+        return;
+      }
+      if (newAmount > settings.max_bet) {
+        // Don't update if above maximum
+        return;
+      }
+      // Update immediately if valid
+      handleUpdateAmount(betType, index, newAmount);
+    }
+  };
+
+  const handleBlur = () => {
+    // Revert to current amount if input is invalid
+    const newAmount = parseFloat(editAmount);
+    if (!newAmount || newAmount <= 0) {
+      setEditAmount(item.amount.toString());
+    }
+  };
+
+  return (
+    <div className="flex justify-between items-center bg-gray-50 p-3 rounded-lg">
+      <div className="flex items-center gap-2">
+        <span className="font-bold text-lg text-primary-dark-gold">{item.number}</span>
+        <div className="flex items-center gap-1">
+          <span className="text-sm text-gray-600">x</span>
+          <input
+            type="number"
+            value={editAmount}
+            onChange={handleAmountChange}
+            onBlur={handleBlur}
+            className="w-16 px-2 py-1 border border-gray-300 rounded text-sm text-center focus:border-primary-gold focus:outline-none"
+            min={lotteryDraw.bet_settings[betType].min_bet}
+            max={lotteryDraw.bet_settings[betType].max_bet}
+          />
+          <span className="text-sm text-gray-600">฿</span>
+        </div>
+      </div>
+      <div className="flex items-center gap-2">
+        <span className="text-sm text-green-600 font-semibold">
+          {item.potential_win.toLocaleString()} ฿
+        </span>
+        <button
+          onClick={() => handleRemoveBet(betType, index)}
+          className="text-red-500 hover:text-red-600 p-1"
+        >
+          <Trash2 className="w-4 h-4" />
+        </button>
+      </div>
+    </div>
+  );
+};
+
+/**
  * Summary Content Component - Reusable for both Desktop and Mobile
  */
 const SummaryContent = ({
   betItems,
   betTypes,
+  lotteryDraw,
   totalItems,
   totalAmount,
-  totalPotentialWin,
   handleSubmit,
   handleClearAll,
+  handleRemoveBet,
+  handleUpdateAmount,
   submitting,
   onClose = null, // Optional close function for mobile
 }) => {
@@ -29,16 +100,10 @@ const SummaryContent = ({
           <span className="text-gray-600 font-medium">จำนวนเลข</span>
           <span className="font-bold text-xl">{totalItems}</span>
         </div>
-        <div className="flex justify-between items-center py-2 border-b">
+        <div className="flex justify-between items-center py-2">
           <span className="text-gray-600 font-medium">ยอดรวม</span>
           <span className="font-bold text-xl text-primary-dark-gold">
             {totalAmount.toLocaleString()} ฿
-          </span>
-        </div>
-        <div className="flex justify-between items-center py-2">
-          <span className="text-gray-600 font-medium">ถูกได้สูงสุด</span>
-          <span className="font-bold text-xl text-green-600">
-            {totalPotentialWin.toLocaleString()} ฿
           </span>
         </div>
       </div>
@@ -58,18 +123,15 @@ const SummaryContent = ({
               </h3>
               <div className="space-y-2">
                 {betItems[betTypeKey].map((item, index) => (
-                  <div
+                  <BetItemRow
                     key={index}
-                    className="flex justify-between items-center bg-gray-50 p-3 rounded-lg"
-                  >
-                    <div>
-                      <span className="font-bold text-lg text-primary-dark-gold">{item.number}</span>
-                      <span className="text-sm text-gray-600 ml-2">x {item.amount} ฿</span>
-                    </div>
-                    <span className="text-sm text-green-600 font-semibold">
-                      {item.potential_win.toLocaleString()} ฿
-                    </span>
-                  </div>
+                    item={item}
+                    betType={betTypeKey}
+                    index={index}
+                    lotteryDraw={lotteryDraw}
+                    handleRemoveBet={handleRemoveBet}
+                    handleUpdateAmount={handleUpdateAmount}
+                  />
                 ))}
               </div>
             </div>
@@ -129,18 +191,38 @@ const BettingPage = () => {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
-  // Bet Types
-  const betTypes = [
-    { key: 'three_top', label: '3 ตัวบน', digits: 3 },
-    { key: 'three_tod', label: '3 ตัวโต๊ด', digits: 3 },
-    { key: 'two_top', label: '2 ตัวบน', digits: 2 },
-    { key: 'two_bottom', label: '2 ตัวล่าง', digits: 2 },
-    { key: 'run_top', label: 'วิ่งบน', digits: 1 },
-    { key: 'run_bottom', label: 'วิ่งล่าง', digits: 1 },
+  // Bet Types - Grouped by digits
+  const betTypeGroups = [
+    {
+      digits: 3,
+      types: [
+        { key: 'three_top', label: '3 ตัวบน' },
+        { key: 'three_tod', label: '3 ตัวโต๊ด' },
+      ]
+    },
+    {
+      digits: 2,
+      types: [
+        { key: 'two_top', label: '2 ตัวบน' },
+        { key: 'two_bottom', label: '2 ตัวล่าง' },
+      ]
+    },
+    {
+      digits: 1,
+      types: [
+        { key: 'run_top', label: 'วิ่งบน' },
+        { key: 'run_bottom', label: 'วิ่งล่าง' },
+      ]
+    },
   ];
 
-  // Current bet type selection
-  const [currentBetType, setCurrentBetType] = useState('three_top');
+  // Flatten for backward compatibility
+  const betTypes = betTypeGroups.flatMap(group =>
+    group.types.map(type => ({ ...type, digits: group.digits }))
+  );
+
+  // Selected bet types (multiple selection)
+  const [selectedBetTypes, setSelectedBetTypes] = useState(['three_top']);
 
   // Bet items for current bet type
   const [betItems, setBetItems] = useState({
@@ -154,80 +236,101 @@ const BettingPage = () => {
 
   // Form state
   const [number, setNumber] = useState('');
-  const [amount, setAmount] = useState('');
 
   // UI state for mobile
   const [showSummary, setShowSummary] = useState(false);
   const [summaryExpanded, setSummaryExpanded] = useState(false);
 
-  // Get current bet type info
-  const getCurrentBetType = () => {
-    return betTypes.find(bt => bt.key === currentBetType);
+  // Get selected bet types info
+  const getSelectedBetTypes = () => {
+    return betTypes.filter(bt => selectedBetTypes.includes(bt.key));
   };
 
-  // Get bet settings for current type
-  const getBetSettings = () => {
+  // Get current digit count based on selected types
+  const getCurrentDigits = () => {
+    const selected = getSelectedBetTypes();
+    return selected.length > 0 ? selected[0].digits : 3;
+  };
+
+  // Get bet settings for a specific type
+  const getBetSettings = (betType = null) => {
     if (!lotteryDraw) return { payout_rate: 0, min_bet: 1, max_bet: 1000, enabled: false };
-    return lotteryDraw.bet_settings[currentBetType];
+    const type = betType || selectedBetTypes[0];
+    return lotteryDraw.bet_settings[type];
   };
 
-  // Add bet item
-  const handleAddBet = () => {
-    const betType = getCurrentBetType();
-    const settings = getBetSettings();
+  // Toggle bet type selection
+  const toggleBetType = (betTypeKey) => {
+    const clickedType = betTypes.find(bt => bt.key === betTypeKey);
+    if (!clickedType) return;
 
-    // Validation
-    if (!number) {
-      toast.error('กรุณากรอกเลข');
-      return;
+    // Check if already selected
+    const isSelected = selectedBetTypes.includes(betTypeKey);
+
+    if (isSelected) {
+      // Deselect - but keep at least one selected
+      if (selectedBetTypes.length > 1) {
+        setSelectedBetTypes(selectedBetTypes.filter(key => key !== betTypeKey));
+      }
+    } else {
+      // Check if any other type from same group is selected
+      const currentDigits = getCurrentDigits();
+
+      if (clickedType.digits === currentDigits) {
+        // Same group - add to selection
+        setSelectedBetTypes([...selectedBetTypes, betTypeKey]);
+      } else {
+        // Different group - replace with new selection
+        setSelectedBetTypes([betTypeKey]);
+      }
     }
-
-    if (number.length !== betType.digits) {
-      toast.error(`กรุณากรอกเลข ${betType.digits} หลัก`);
-      return;
-    }
-
-    if (!amount || parseFloat(amount) <= 0) {
-      toast.error('กรุณากรอกจำนวนเงิน');
-      return;
-    }
-
-    const amountNum = parseFloat(amount);
-
-    if (amountNum < settings.min_bet) {
-      toast.error(`ขั้นต่ำ ${settings.min_bet} บาท`);
-      return;
-    }
-
-    if (amountNum > settings.max_bet) {
-      toast.error(`สูงสุด ${settings.max_bet} บาท`);
-      return;
-    }
-
-    // Check if number already exists
-    const existingItem = betItems[currentBetType].find(item => item.number === number);
-    if (existingItem) {
-      toast.error('เลขนี้มีในรายการแล้ว');
-      return;
-    }
-
-    // Add item
-    const newItem = {
-      number,
-      amount: amountNum,
-      payout_rate: settings.payout_rate,
-      potential_win: amountNum * settings.payout_rate,
-    };
-
-    setBetItems({
-      ...betItems,
-      [currentBetType]: [...betItems[currentBetType], newItem]
-    });
 
     // Clear form
     setNumber('');
-    setAmount('');
-    toast.success('เพิ่มเลขเรียบร้อย');
+  };
+
+  // Auto-add bet with default amount (1 baht)
+  const autoAddBet = (numberToAdd) => {
+    const defaultAmount = 1;
+
+    // Check if number already exists in any selected type
+    for (const betTypeKey of selectedBetTypes) {
+      const existingItem = betItems[betTypeKey].find(item => item.number === numberToAdd);
+      if (existingItem) {
+        toast.error(`เลข ${numberToAdd} มีในรายการแล้ว`);
+        setNumber('');
+        return;
+      }
+    }
+
+    // Add item to all selected types with default amount
+    const updatedBetItems = { ...betItems };
+
+    selectedBetTypes.forEach(betTypeKey => {
+      const settings = getBetSettings(betTypeKey);
+      const newItem = {
+        number: numberToAdd,
+        amount: defaultAmount,
+        payout_rate: settings.payout_rate,
+        potential_win: defaultAmount * settings.payout_rate,
+      };
+      updatedBetItems[betTypeKey] = [...updatedBetItems[betTypeKey], newItem];
+    });
+
+    setBetItems(updatedBetItems);
+
+    // Clear number field
+    setNumber('');
+
+    // Success message
+    if (selectedBetTypes.length === 1) {
+      toast.success(`เพิ่มเลข ${numberToAdd} (${defaultAmount} บาท)`);
+    } else {
+      const typeLabels = selectedBetTypes.map(key =>
+        betTypes.find(bt => bt.key === key).label
+      ).join(', ');
+      toast.success(`เพิ่มเลข ${numberToAdd} ให้ ${typeLabels} (${defaultAmount} บาท)`);
+    }
   };
 
   // Remove bet item
@@ -239,12 +342,30 @@ const BettingPage = () => {
     toast.success('ลบเลขเรียบร้อย');
   };
 
-  // Clear all bets for current type
-  const handleClearCurrentType = () => {
+  // Update bet item amount
+  const handleUpdateAmount = (betType, index, newAmount) => {
+    const settings = getBetSettings(betType);
+    const updatedItems = [...betItems[betType]];
+
+    updatedItems[index] = {
+      ...updatedItems[index],
+      amount: newAmount,
+      potential_win: newAmount * settings.payout_rate,
+    };
+
     setBetItems({
       ...betItems,
-      [currentBetType]: []
+      [betType]: updatedItems,
     });
+  };
+
+  // Clear all bets for selected types
+  const handleClearSelectedTypes = () => {
+    const updatedBetItems = { ...betItems };
+    selectedBetTypes.forEach(betTypeKey => {
+      updatedBetItems[betTypeKey] = [];
+    });
+    setBetItems(updatedBetItems);
     toast.success('ลบเลขทั้งหมดเรียบร้อย');
   };
 
@@ -278,7 +399,7 @@ const BettingPage = () => {
     return { totalItems, totalAmount, totalPotentialWin };
   };
 
-  const { totalItems, totalAmount, totalPotentialWin} = calculateTotals();
+  const { totalItems, totalAmount } = calculateTotals();
 
   // Fetch lottery draw on mount
   useEffect(() => {
@@ -389,9 +510,18 @@ const BettingPage = () => {
 
   // Keypad handlers
   const handleKeypadNumber = (digit) => {
-    const maxDigits = getCurrentBetType().digits;
+    const maxDigits = getCurrentDigits();
     if (number.length < maxDigits) {
-      setNumber(number + digit);
+      const newNumber = number + digit;
+      setNumber(newNumber);
+
+      // Auto-add when number is complete
+      if (newNumber.length === maxDigits) {
+        // Auto-add with default amount of 1 baht
+        setTimeout(() => {
+          autoAddBet(newNumber);
+        }, 100);
+      }
     }
   };
 
@@ -472,31 +602,47 @@ const BettingPage = () => {
           <div className="container mx-auto px-4 py-4 lg:p-0 max-w-2xl">
         {/* Main Content */}
         <div className="space-y-4">
-          {/* Bet Type Selector - Horizontal Scroll on Mobile */}
+          {/* Bet Type Selector - Single Row */}
           <div className="bg-white border-2 border-primary-gold/30 rounded-xl p-4 shadow-lg">
-            <h2 className="text-base font-bold text-primary-dark-gold mb-3">เลือกประเภท</h2>
-            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-              {betTypes.map((betType) => (
-                <button
-                  key={betType.key}
-                  onClick={() => {
-                    setCurrentBetType(betType.key);
-                    setNumber('');
-                    setAmount('');
-                  }}
-                  className={`flex-shrink-0 py-3 px-4 rounded-lg font-semibold transition-all min-w-[100px] ${
-                    currentBetType === betType.key
-                      ? 'bg-primary-gold text-white shadow-lg scale-105'
-                      : 'bg-gray-100 text-gray-700 active:bg-gray-200'
-                  }`}
-                >
-                  <div className="text-sm">{betType.label}</div>
-                  <div className="text-xs mt-1 opacity-90">
-                    x{lotteryDraw.bet_settings[betType.key].payout_rate}
-                  </div>
-                </button>
-              ))}
+            <h2 className="text-sm font-bold text-primary-dark-gold mb-3">
+              เลือกประเภท (เลือกได้หลายประเภท)
+            </h2>
+            <div className="grid grid-cols-3 md:grid-cols-6 gap-2 mb-3">
+              {betTypes.map((betType) => {
+                const isSelected = selectedBetTypes.includes(betType.key);
+                const currentDigits = getCurrentDigits();
+                const isDifferentGroup = betType.digits !== currentDigits;
+
+                return (
+                  <button
+                    key={betType.key}
+                    onClick={() => toggleBetType(betType.key)}
+                    className={`py-2 px-1 rounded-lg font-semibold transition-all border-2 ${
+                      isSelected
+                        ? 'bg-primary-gold text-white border-primary-gold shadow-lg'
+                        : isDifferentGroup
+                        ? 'bg-gray-100 text-gray-600 border-gray-300 hover:bg-gray-200'
+                        : 'bg-white text-gray-700 border-gray-300 active:bg-gray-50'
+                    }`}
+                  >
+                    <div className="text-xs">{betType.label}</div>
+                    <div className="text-xs mt-0.5 opacity-90">
+                      x{lotteryDraw.bet_settings[betType.key].payout_rate}
+                    </div>
+                  </button>
+                );
+              })}
             </div>
+            {selectedBetTypes.length > 1 && (
+              <div className="p-2 bg-blue-50 border border-blue-200 rounded-lg">
+                <p className="text-xs text-blue-700">
+                  กรอกเลข 1 ครั้ง จะแทงให้ทั้ง{' '}
+                  <span className="font-bold">
+                    {selectedBetTypes.map(key => betTypes.find(bt => bt.key === key).label).join(' และ ')}
+                  </span>
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Bet Form - Mobile Optimized */}
@@ -505,11 +651,11 @@ const BettingPage = () => {
             <div className="mb-4">
               <div className="flex justify-between items-center mb-2">
                 <label className="text-sm font-medium text-gray-700">
-                  กรอกเลข ({getCurrentBetType().digits} หลัก)
+                  กรอกเลข ({getCurrentDigits()} หลัก)
                 </label>
-                {betItems[currentBetType].length > 0 && (
+                {selectedBetTypes.some(key => betItems[key].length > 0) && (
                   <button
-                    onClick={handleClearCurrentType}
+                    onClick={handleClearSelectedTypes}
                     className="text-red-500 active:text-red-600 text-xs flex items-center gap-1"
                   >
                     <Trash2 className="w-3 h-3" />
@@ -559,53 +705,15 @@ const BettingPage = () => {
               </button>
             </div>
 
-            {/* Amount Input - Quick Buttons */}
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                จำนวนเงิน (บาท)
-              </label>
-              <input
-                type="number"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                className="w-full px-4 py-4 border-2 border-gray-300 rounded-xl focus:outline-none focus:border-primary-gold text-2xl text-center font-bold mb-2"
-                placeholder="0"
-                min={getBetSettings().min_bet}
-                max={getBetSettings().max_bet}
-              />
-              {/* Quick Amount Buttons */}
-              <div className="grid grid-cols-4 gap-2">
-                {[10, 50, 100, 500].map((quickAmount) => (
-                  <button
-                    key={quickAmount}
-                    onClick={() => setAmount(quickAmount.toString())}
-                    className="bg-gray-100 active:bg-gray-200 border border-gray-300 rounded-lg py-2 text-sm font-semibold text-gray-700"
-                  >
-                    {quickAmount}
-                  </button>
-                ))}
-              </div>
-              <p className="text-xs text-gray-500 mt-2 text-center">
-                ขั้นต่ำ {getBetSettings().min_bet} - สูงสุด {getBetSettings().max_bet.toLocaleString()} บาท
-              </p>
-            </div>
-
-            {/* Add Button - Prominent */}
-            <button
-              onClick={handleAddBet}
-              className="w-full bg-gradient-to-r from-primary-gold to-primary-dark-gold active:from-primary-dark-gold active:to-primary-gold text-white font-bold py-4 rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg active:scale-98 text-lg"
-            >
-              <Plus className="w-6 h-6" />
-              เพิ่มเลข
-            </button>
           </div>
 
-          {/* Current Type Bet List */}
-          {betItems[currentBetType].length > 0 && (
+          {/* Selected Types Bet List */}
+          {selectedBetTypes.some(key => betItems[key].length > 0) && (
             <div className="bg-white border-2 border-primary-gold/30 rounded-xl p-4 shadow-lg">
               <div className="flex justify-between items-center mb-3">
                 <h3 className="text-sm font-bold text-gray-700">
-                  รายการเลข ({betItems[currentBetType].length})
+                  รายการเลขที่เลือก (
+                  {selectedBetTypes.reduce((sum, key) => sum + betItems[key].length, 0)} เลข)
                 </h3>
                 <button
                   onClick={() => setSummaryExpanded(!summaryExpanded)}
@@ -616,24 +724,39 @@ const BettingPage = () => {
                 </button>
               </div>
               {summaryExpanded && (
-                <div className="space-y-2 max-h-60 overflow-y-auto">
-                  {betItems[currentBetType].map((item, index) => (
-                    <div
-                      key={index}
-                      className="flex justify-between items-center bg-gray-50 p-3 rounded-lg"
-                    >
-                      <div className="flex items-center gap-2">
-                        <span className="text-2xl font-bold text-primary-dark-gold">{item.number}</span>
-                        <span className="text-xs text-gray-600">x {item.amount}฿</span>
+                <div className="space-y-3 max-h-60 overflow-y-auto">
+                  {selectedBetTypes.map((betTypeKey) => {
+                    if (betItems[betTypeKey].length === 0) return null;
+
+                    const betTypeInfo = betTypes.find(bt => bt.key === betTypeKey);
+
+                    return (
+                      <div key={betTypeKey}>
+                        <h4 className="text-xs font-semibold text-gray-500 mb-1">
+                          {betTypeInfo.label}
+                        </h4>
+                        <div className="space-y-2">
+                          {betItems[betTypeKey].map((item, index) => (
+                            <div
+                              key={index}
+                              className="flex justify-between items-center bg-gray-50 p-3 rounded-lg"
+                            >
+                              <div className="flex items-center gap-2">
+                                <span className="text-2xl font-bold text-primary-dark-gold">{item.number}</span>
+                                <span className="text-xs text-gray-600">x {item.amount}฿</span>
+                              </div>
+                              <button
+                                onClick={() => handleRemoveBet(betTypeKey, index)}
+                                className="text-red-500 active:text-red-600 p-2"
+                              >
+                                <Trash2 className="w-5 h-5" />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                      <button
-                        onClick={() => handleRemoveBet(currentBetType, index)}
-                        className="text-red-500 active:text-red-600 p-2"
-                      >
-                        <Trash2 className="w-5 h-5" />
-                      </button>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </div>
@@ -648,7 +771,7 @@ const BettingPage = () => {
             {/* Summary Header */}
             <h2 className="text-xl font-bold text-primary-dark-gold flex items-center gap-2 mb-4 pb-3 border-b-2 border-primary-gold/30">
               <Calculator className="w-6 h-6" />
-              สรุปการแทง
+              รายการแทง
             </h2>
 
             {/* Summary Content - Reusable Component */}
@@ -658,8 +781,8 @@ const BettingPage = () => {
               lotteryDraw={lotteryDraw}
               totalItems={totalItems}
               totalAmount={totalAmount}
-              totalPotentialWin={totalPotentialWin}
               handleRemoveBet={handleRemoveBet}
+              handleUpdateAmount={handleUpdateAmount}
               handleClearAll={handleClearAll}
               handleSubmit={handleSubmit}
               submitting={submitting}
@@ -676,7 +799,7 @@ const BettingPage = () => {
             <div className="sticky top-0 bg-white border-b-2 border-primary-gold/30 px-4 py-4 flex justify-between items-center">
               <h2 className="text-lg font-bold text-primary-dark-gold flex items-center gap-2">
                 <Calculator className="w-5 h-5" />
-                สรุปการแทง
+                รายการแทง
               </h2>
               <button
                 onClick={() => setShowSummary(false)}
@@ -691,9 +814,11 @@ const BettingPage = () => {
               <SummaryContent
                 betItems={betItems}
                 betTypes={betTypes}
+                lotteryDraw={lotteryDraw}
                 totalItems={totalItems}
                 totalAmount={totalAmount}
-                totalPotentialWin={totalPotentialWin}
+                handleRemoveBet={handleRemoveBet}
+                handleUpdateAmount={handleUpdateAmount}
                 handleSubmit={handleSubmit}
                 handleClearAll={handleClearAll}
                 submitting={submitting}
