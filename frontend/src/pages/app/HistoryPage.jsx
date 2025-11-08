@@ -194,13 +194,13 @@ const HistoryPage = () => {
 
       {/* Stats Summary */}
       <div className="container mx-auto px-4 py-4">
-        <div className="bg-gradient-to-r from-primary-gold to-primary-dark-gold text-white rounded-xl p-4 shadow-lg">
+        <div className="bg-gradient-to-br from-primary-gold/20 to-primary-dark-gold/20 border border-primary-gold/30 rounded-lg p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm opacity-90">ประวัติทั้งหมด</p>
-              <p className="text-2xl font-bold">{total} รายการ</p>
+              <p className="text-sm text-text-secondary">ประวัติทั้งหมด</p>
+              <p className="text-2xl font-bold text-text-primary">{total} รายการ</p>
             </div>
-            <TrendingUp className="w-12 h-12 opacity-50" />
+            <TrendingUp className="w-8 h-8 text-primary-gold" />
           </div>
         </div>
       </div>
@@ -222,31 +222,31 @@ const HistoryPage = () => {
         ) : (
           <>
             {/* Desktop Table View - Hidden on mobile */}
-            <div className="hidden md:block bg-white border-2 border-primary-gold/30 rounded-xl shadow-md overflow-hidden">
+            <div className="hidden md:block bg-bg-card border border-border-default rounded-xl shadow-md overflow-hidden">
               <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead className="bg-gradient-to-r from-primary-gold to-primary-dark-gold text-white">
+                <table className="w-full divide-y divide-border-default">
+                  <thead className="bg-bg-light-cream">
                     <tr>
-                      <th className="px-4 py-3 text-left text-sm font-bold">ประเภทหวย</th>
-                      <th className="px-4 py-3 text-left text-sm font-bold">วันที่</th>
-                      <th className="px-4 py-3 text-left text-sm font-bold">เลขที่แทง</th>
-                      <th className="px-4 py-3 text-left text-sm font-bold">หมายเหตุ</th>
-                      <th className="px-4 py-3 text-right text-sm font-bold">ยอดแทง</th>
-                      <th className="px-4 py-3 text-center text-sm font-bold">สถานะ</th>
-                      <th className="px-4 py-3 text-center text-sm font-bold"></th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">ประเภทหวย</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">วันที่</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">เลขที่แทง</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">หมายเหตุ</th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-text-secondary uppercase tracking-wider">ยอดแทง</th>
+                      <th className="px-6 py-3 text-center text-xs font-medium text-text-secondary uppercase tracking-wider">สถานะ</th>
+                      <th className="px-6 py-3 text-center text-xs font-medium text-text-secondary uppercase tracking-wider"></th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-200">
+                  <tbody className="bg-white divide-y divide-border-default">
                     {bets.map((bet) => {
                       const groupedItems = groupBetItemsByType(bet.bet_items);
 
                       return (
                         <tr
                           key={bet._id}
-                          className="hover:bg-gray-50 transition-colors"
+                          className="hover:bg-bg-cream transition-colors"
                         >
                           {/* Lottery Type */}
-                          <td className="px-4 py-3">
+                          <td className="px-6 py-4">
                             <span className="font-semibold text-primary-dark-gold">
                               {bet.lottery_draw_id?.lottery_type
                                 ? getLotteryTypeLabel(bet.lottery_draw_id.lottery_type)
@@ -255,7 +255,7 @@ const HistoryPage = () => {
                           </td>
 
                           {/* Dates (Draw Date & Bet Date) */}
-                          <td className="px-4 py-3">
+                          <td className="px-6 py-4">
                             <div className="space-y-1">
                               <div className="flex items-center gap-1 text-sm text-gray-700">
                                 <Calendar className="w-4 h-4" />
@@ -277,7 +277,7 @@ const HistoryPage = () => {
                           </td>
 
                           {/* Bet Numbers */}
-                          <td className="px-4 py-3">
+                          <td className="px-6 py-4">
                             <div className="space-y-1">
                               {Object.keys(groupedItems).map((betType) => {
                                 const items = groupedItems[betType];
@@ -298,7 +298,7 @@ const HistoryPage = () => {
                           </td>
 
                           {/* Note */}
-                          <td className="px-4 py-3">
+                          <td className="px-6 py-4">
                             {bet.note ? (
                               <div className="text-sm text-gray-700 max-w-xs truncate" title={bet.note}>
                                 {bet.note}
@@ -309,7 +309,7 @@ const HistoryPage = () => {
                           </td>
 
                           {/* Total Amount */}
-                          <td className="px-4 py-3 text-right">
+                          <td className="px-6 py-4 text-right">
                             <div>
                               <div className="font-bold text-primary-dark-gold">
                                 {bet.total_amount.toLocaleString()} ฿
@@ -323,12 +323,12 @@ const HistoryPage = () => {
                           </td>
 
                           {/* Status */}
-                          <td className="px-4 py-3 text-center">
+                          <td className="px-6 py-4 text-center">
                             {getStatusBadge(bet.status)}
                           </td>
 
                           {/* Actions */}
-                          <td className="px-4 py-3 text-center">
+                          <td className="px-6 py-4 text-center">
                             <button
                               onClick={() => handleViewDetail(bet)}
                               className="inline-flex items-center gap-1 px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-sm font-semibold transition-colors shadow-sm"
@@ -341,18 +341,18 @@ const HistoryPage = () => {
                       );
                     })}
                   </tbody>
-                  <tfoot className="bg-gray-50 border-t-2 border-primary-gold/30">
+                  <tfoot className="bg-bg-light-cream border-t border-border-default">
                     <tr>
-                      <td colSpan="4" className="px-4 py-4 text-right">
-                        <span className="text-lg font-bold text-gray-700">ยอดแทงรวมทั้งหมด:</span>
+                      <td colSpan="4" className="px-6 py-4 text-right">
+                        <span className="text-lg font-bold text-text-primary">ยอดแทงรวมทั้งหมด:</span>
                       </td>
-                      <td className="px-4 py-4 text-right">
+                      <td className="px-6 py-4 text-right">
                         <span className="text-xl font-bold text-primary-dark-gold">
                           {bets.reduce((sum, bet) => sum + bet.total_amount, 0).toLocaleString()} ฿
                         </span>
                       </td>
-                      <td className="px-4 py-4"></td>
-                      <td className="px-4 py-4"></td>
+                      <td className="px-6 py-4"></td>
+                      <td className="px-6 py-4"></td>
                     </tr>
                   </tfoot>
                 </table>
@@ -552,58 +552,58 @@ const HistoryPage = () => {
               )}
 
               {/* Bet Items Table */}
-              <div className="border-2 border-primary-gold/30 rounded-lg overflow-hidden">
+              <div className="border border-border-default rounded-lg overflow-hidden">
                 <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead className="bg-primary-gold text-white">
+                  <table className="w-full divide-y divide-border-default">
+                    <thead className="bg-bg-light-cream">
                       <tr>
-                        <th className="px-4 py-3 text-left font-bold">ลำดับ</th>
-                        <th className="px-4 py-3 text-left font-bold">ประเภท</th>
-                        <th className="px-4 py-3 text-center font-bold">เลข</th>
-                        <th className="px-4 py-3 text-right font-bold">ยอดแทง</th>
-                        <th className="px-4 py-3 text-right font-bold">อัตราจ่าย</th>
-                        <th className="px-4 py-3 text-right font-bold">เงินรางวัล</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">ลำดับ</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">ประเภท</th>
+                        <th className="px-6 py-3 text-center text-xs font-medium text-text-secondary uppercase tracking-wider">เลข</th>
+                        <th className="px-6 py-3 text-right text-xs font-medium text-text-secondary uppercase tracking-wider">ยอดแทง</th>
+                        <th className="px-6 py-3 text-right text-xs font-medium text-text-secondary uppercase tracking-wider">อัตราจ่าย</th>
+                        <th className="px-6 py-3 text-right text-xs font-medium text-text-secondary uppercase tracking-wider">เงินรางวัล</th>
                         {selectedBet.status !== 'pending' && (
                           <>
-                            <th className="px-4 py-3 text-center font-bold">ผล</th>
-                            <th className="px-4 py-3 text-right font-bold">ได้จริง</th>
+                            <th className="px-6 py-3 text-center text-xs font-medium text-text-secondary uppercase tracking-wider">ผล</th>
+                            <th className="px-6 py-3 text-right text-xs font-medium text-text-secondary uppercase tracking-wider">ได้จริง</th>
                           </>
                         )}
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-200">
+                    <tbody className="bg-white divide-y divide-border-default">
                       {selectedBet.bet_items.map((item, index) => (
                         <tr
                           key={index}
                           className={`${
                             item.is_win
                               ? 'bg-green-50 hover:bg-green-100'
-                              : 'bg-white hover:bg-gray-50'
+                              : 'hover:bg-bg-cream'
                           } transition-colors`}
                         >
-                          <td className="px-4 py-3 text-gray-700">{index + 1}</td>
-                          <td className="px-4 py-3">
-                            <span className="font-semibold text-gray-700">
+                          <td className="px-6 py-4 text-sm text-text-primary">{index + 1}</td>
+                          <td className="px-6 py-4 text-sm">
+                            <span className="font-semibold text-text-primary">
                               {getBetTypeLabel(item.bet_type)}
                             </span>
                           </td>
-                          <td className="px-4 py-3 text-center">
+                          <td className="px-6 py-4 text-center">
                             <span className="font-bold text-green-600 text-lg">
                               {item.number}
                             </span>
                           </td>
-                          <td className="px-4 py-3 text-right font-medium text-gray-700">
+                          <td className="px-6 py-4 text-right text-sm font-medium text-text-primary">
                             {item.amount.toLocaleString()} ฿
                           </td>
-                          <td className="px-4 py-3 text-right text-gray-600">
+                          <td className="px-6 py-4 text-right text-sm text-text-secondary">
                             ×{item.payout_rate}
                           </td>
-                          <td className="px-4 py-3 text-right font-medium text-green-600">
+                          <td className="px-6 py-4 text-right text-sm font-medium text-green-600">
                             {item.potential_win.toLocaleString()} ฿
                           </td>
                           {selectedBet.status !== 'pending' && (
                             <>
-                              <td className="px-4 py-3 text-center">
+                              <td className="px-6 py-4 text-center text-sm">
                                 {item.is_win ? (
                                   <span className="inline-flex items-center gap-1 text-green-600 font-bold">
                                     <span className="text-xl">✓</span> ถูก
@@ -614,7 +614,7 @@ const HistoryPage = () => {
                                   </span>
                                 )}
                               </td>
-                              <td className="px-4 py-3 text-right">
+                              <td className="px-6 py-4 text-right text-sm">
                                 {item.is_win ? (
                                   <span className="font-bold text-green-600 text-lg">
                                     +{item.win_amount.toLocaleString()} ฿
@@ -628,16 +628,16 @@ const HistoryPage = () => {
                         </tr>
                       ))}
                     </tbody>
-                    <tfoot className="bg-gray-50 border-t-2 border-primary-gold/30">
+                    <tfoot className="bg-bg-light-cream border-t border-border-default">
                       <tr>
                         <td
                           colSpan={selectedBet.status !== 'pending' ? 6 : 5}
-                          className="px-4 py-4 text-right"
+                          className="px-6 py-4 text-right"
                         >
-                          <span className="text-lg font-bold text-gray-700">รวมทั้งหมด:</span>
+                          <span className="text-lg font-bold text-text-primary">รวมทั้งหมด:</span>
                         </td>
                         {selectedBet.status !== 'pending' && <td></td>}
-                        <td className="px-4 py-4 text-right">
+                        <td className="px-6 py-4 text-right">
                           <div>
                             <div className="text-sm text-gray-600">ยอดแทง</div>
                             <div className="font-bold text-primary-dark-gold text-xl">
@@ -650,11 +650,11 @@ const HistoryPage = () => {
                         <tr className="bg-green-50">
                           <td
                             colSpan={selectedBet.status !== 'pending' ? 7 : 6}
-                            className="px-4 py-4 text-right"
+                            className="px-6 py-4 text-right"
                           >
                             <span className="text-lg font-bold text-green-700">ชนะทั้งหมด:</span>
                           </td>
-                          <td className="px-4 py-4 text-right">
+                          <td className="px-6 py-4 text-right">
                             <div className="font-bold text-green-600 text-2xl">
                               +{selectedBet.actual_win_amount.toLocaleString()} ฿
                             </div>
