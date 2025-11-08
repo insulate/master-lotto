@@ -536,7 +536,7 @@ const HistoryPage = () => {
                         <th className="px-4 py-3 text-center font-bold">เลข</th>
                         <th className="px-4 py-3 text-right font-bold">ยอดแทง</th>
                         <th className="px-4 py-3 text-right font-bold">อัตราจ่าย</th>
-                        <th className="px-4 py-3 text-right font-bold">อาจได้รับ</th>
+                        <th className="px-4 py-3 text-right font-bold">เงินรางวัล</th>
                         {selectedBet.status !== 'pending' && (
                           <>
                             <th className="px-4 py-3 text-center font-bold">ผล</th>
@@ -562,7 +562,7 @@ const HistoryPage = () => {
                             </span>
                           </td>
                           <td className="px-4 py-3 text-center">
-                            <span className="font-bold text-primary-dark-gold text-lg">
+                            <span className="font-bold text-green-600 text-lg">
                               {item.number}
                             </span>
                           </td>
@@ -572,7 +572,7 @@ const HistoryPage = () => {
                           <td className="px-4 py-3 text-right text-gray-600">
                             ×{item.payout_rate}
                           </td>
-                          <td className="px-4 py-3 text-right font-medium text-gray-700">
+                          <td className="px-4 py-3 text-right font-medium text-green-600">
                             {item.potential_win.toLocaleString()} ฿
                           </td>
                           {selectedBet.status !== 'pending' && (

@@ -219,7 +219,7 @@ const BetDetailPage = () => {
                       <div key={idx} className="px-4 py-3 hover:bg-gray-50 transition-colors">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-4">
-                            <span className="text-2xl font-bold text-primary-dark-gold">
+                            <span className="text-2xl font-bold text-green-600">
                               {item.number}
                             </span>
                             <div className="text-sm text-gray-600">
@@ -230,7 +230,7 @@ const BetDetailPage = () => {
                             <p className="text-sm text-gray-600">แทง</p>
                             <p className="font-bold text-gray-800">{item.amount.toLocaleString()} ฿</p>
                             <p className="text-xs text-green-600">
-                              (ถูกได้ {item.potential_win.toLocaleString()} ฿)
+                              (เงินรางวัล {item.potential_win.toLocaleString()} ฿)
                             </p>
                           </div>
                         </div>
@@ -261,7 +261,7 @@ const BetDetailPage = () => {
                         <p className="font-bold text-gray-800">{typeTotal.toLocaleString()} ฿</p>
                         {bet.status === 'pending' && (
                           <p className="text-xs text-green-600">
-                            (ถูกได้ {typePotentialWin.toLocaleString()} ฿)
+                            (เงินรางวัล {typePotentialWin.toLocaleString()} ฿)
                           </p>
                         )}
                       </div>
