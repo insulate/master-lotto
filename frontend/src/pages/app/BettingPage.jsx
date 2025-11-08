@@ -791,7 +791,7 @@ const BettingPage = () => {
                       <button
                         key={i}
                         onClick={() => autoAddBet(i.toString())}
-                        className="py-2 rounded-lg font-bold text-xs bg-gray-700 text-white hover:bg-primary-gold active:scale-95 border border-yellow-600 transition-all"
+                        className="py-2 rounded-lg font-bold text-xs bg-white text-gray-800 hover:bg-primary-gold hover:text-white active:scale-95 border border-gray-300 transition-all"
                       >
                         {i}
                       </button>
@@ -806,7 +806,7 @@ const BettingPage = () => {
                         <button
                           key={num}
                           onClick={() => autoAddBet(num)}
-                          className="py-2 rounded-lg font-bold text-xs bg-gray-700 text-white hover:bg-primary-gold active:scale-95 border border-yellow-600 transition-all"
+                          className="py-2 rounded-lg font-bold text-xs bg-white text-gray-800 hover:bg-primary-gold hover:text-white active:scale-95 border border-gray-300 transition-all"
                         >
                           {num}
                         </button>
@@ -823,7 +823,7 @@ const BettingPage = () => {
                         <button
                           key={fullNumber}
                           onClick={() => autoAddBet(fullNumber)}
-                          className="py-2 rounded-lg font-bold text-xs bg-gray-700 text-white hover:bg-primary-gold active:scale-95 border border-yellow-600 transition-all"
+                          className="py-2 rounded-lg font-bold text-xs bg-white text-gray-800 hover:bg-primary-gold hover:text-white active:scale-95 border border-gray-300 transition-all"
                         >
                           {fullNumber}
                         </button>
