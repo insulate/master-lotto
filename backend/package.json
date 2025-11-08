@@ -9,6 +9,7 @@
     "dev": "nodemon server.js",
     "seed": "node migrations/run-seed.js",
     "migrate:three-tod": "node migrations/migrate-three-bottom-to-three-tod.js",
+    "migrate:remove-three-tod": "node migrations/remove-three-tod-field.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [

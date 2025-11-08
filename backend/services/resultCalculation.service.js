@@ -4,9 +4,27 @@
  */
 
 /**
+ * ตรวจสอบว่าเลข 2 ตัวเป็น permutation (โต๊ด) ของกันและกันหรือไม่
+ * @param {string} num1 - เลขตัวที่ 1
+ * @param {string} num2 - เลขตัวที่ 2
+ * @returns {boolean} - true ถ้าเป็น permutation ของกัน
+ */
+const isPermutation = (num1, num2) => {
+  if (!num1 || !num2 || num1.length !== num2.length) {
+    return false;
+  }
+
+  // แปลงเป็น array และเรียงตัวเลข แล้วเปรียบเทียบ
+  const sorted1 = num1.split('').sort().join('');
+  const sorted2 = num2.split('').sort().join('');
+
+  return sorted1 === sorted2;
+};
+
+/**
  * ตรวจสอบว่า bet item ถูกรางวัลหรือไม่
  * @param {Object} betItem - รายการเลขที่แทง { bet_type, number, amount, payout_rate, potential_win }
- * @param {Object} result - ผลรางวัล { three_top, three_tod, two_top, two_bottom, run_top[], run_bottom[] }
+ * @param {Object} result - ผลรางวัล { three_top, two_top, two_bottom, run_top[], run_bottom[] }
  * @returns {Object} { isWin: boolean, winAmount: number }
  */
 export const checkBetItem = (betItem, result) => {
@@ -21,8 +39,10 @@ export const checkBetItem = (betItem, result) => {
       break;
 
     case 'three_tod':
-      // ตรวจ 3 ตัวโต๊ด - ต้องตรงทั้ง 3 หลัก
-      isWin = result.three_tod && result.three_tod === number;
+      // ตรวจ 3 ตัวโต๊ด - ต้องเป็น permutation (เรียงสับเปลี่ยน) ของ 3 ตัวบน
+      // ตัวอย่าง: ถ้า 3 ตัวบนออก "123"
+      // เลข "123", "132", "213", "231", "312", "321" จะถูกรางวัลทั้งหมด
+      isWin = result.three_top && isPermutation(number, result.three_top);
       break;
 
     case 'two_top':

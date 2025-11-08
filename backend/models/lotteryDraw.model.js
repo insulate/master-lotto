@@ -188,10 +188,7 @@ const lotteryDrawSchema = new mongoose.Schema(
         type: String,
         default: null,
       },
-      three_tod: {
-        type: String,
-        default: null,
-      },
+      // three_tod ไม่ต้องมี field แยก - คำนวณจาก three_top แทน (permutation)
       two_top: {
         type: String,
         default: null,
