@@ -247,6 +247,9 @@ const BettingPage = () => {
   // For 3-digit grid: selected hundred digit (0-9)
   const [hundredDigit, setHundredDigit] = useState('0');
 
+  // Current time for countdown
+  const [currentTime, setCurrentTime] = useState(new Date());
+
   // Get selected bet types info
   const getSelectedBetTypes = () => {
     return betTypes.filter(bt => selectedBetTypes.includes(bt.key));
@@ -444,6 +447,15 @@ const BettingPage = () => {
     fetchLotteryDraw();
   }, [lotteryId, navigate]);
 
+  // Update current time every second for countdown
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
+
   // Submit bet
   const handleSubmit = async () => {
     if (totalItems === 0) {
@@ -501,9 +513,8 @@ const BettingPage = () => {
   const getTimeRemaining = () => {
     if (!lotteryDraw) return '-';
 
-    const now = new Date();
     const closeTime = new Date(lotteryDraw.close_time);
-    const diff = closeTime - now;
+    const diff = closeTime - currentTime;
 
     if (diff <= 0) return 'ปิดรับแล้ว';
 
