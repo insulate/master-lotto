@@ -786,12 +786,12 @@ const BettingPage = () => {
                 {/* Number Grid */}
                 {getCurrentDigits() === 1 ? (
                   // วิ่ง: แสดง 0-9 (10 ปุ่ม)
-                  <div className="grid grid-cols-10 gap-2">
+                  <div className="grid grid-cols-10 gap-1">
                     {Array.from({ length: 10 }, (_, i) => (
                       <button
                         key={i}
                         onClick={() => autoAddBet(i.toString())}
-                        className="py-4 rounded-lg font-bold text-lg bg-gray-700 text-white hover:bg-primary-gold active:scale-95 border-2 border-yellow-600 transition-all"
+                        className="py-2 rounded-lg font-bold text-xs bg-gray-700 text-white hover:bg-primary-gold active:scale-95 border border-yellow-600 transition-all"
                       >
                         {i}
                       </button>
