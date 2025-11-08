@@ -14,8 +14,8 @@ const creditTransactionSchema = new mongoose.Schema(
       index: true,
     },
 
-    // ผู้รับรายการ (agent)
-    agent_id: {
+    // ผู้รับรายการ (agent หรือ member)
+    downline_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
       required: true,
@@ -36,13 +36,13 @@ const creditTransactionSchema = new mongoose.Schema(
       min: 0,
     },
 
-    // เครดิตของ agent ก่อนทำรายการ
+    // เครดิตก่อนทำรายการ
     balance_before: {
       type: Number,
       required: true,
     },
 
-    // เครดิตของ agent หลังทำรายการ
+    // เครดิตหลังทำรายการ
     balance_after: {
       type: Number,
       required: true,
@@ -60,7 +60,7 @@ const creditTransactionSchema = new mongoose.Schema(
 );
 
 // Indexes for better query performance
-creditTransactionSchema.index({ agent_id: 1, createdAt: -1 });
+creditTransactionSchema.index({ downline_id: 1, createdAt: -1 });
 creditTransactionSchema.index({ performed_by: 1, createdAt: -1 });
 
 const CreditTransaction = mongoose.model('CreditTransaction', creditTransactionSchema);

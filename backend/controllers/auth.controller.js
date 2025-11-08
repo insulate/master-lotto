@@ -103,6 +103,8 @@ export const getMe = async (req, res, next) => {
     const userId = req.user._id;
 
     // Get user from database
+    // MongoDB read operations are atomic - each request will get the latest data
+    // No race condition even if multiple getMe() calls are made simultaneously
     const user = await User.findById(userId);
 
     if (!user) {

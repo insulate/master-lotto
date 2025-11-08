@@ -29,7 +29,7 @@ export function formatNumber(number) {
 }
 
 /**
- * Format date to Thai format
+ * Format date to Thai format (Asia/Bangkok timezone)
  * @param {Date|string} date - Date to format
  * @returns {string} Formatted date
  */
@@ -42,6 +42,7 @@ export function formatDate(date) {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
+      timeZone: 'Asia/Bangkok',
     }).format(dateObj);
   } catch (error) {
     return '-';
@@ -49,7 +50,7 @@ export function formatDate(date) {
 }
 
 /**
- * Format date and time to Thai format
+ * Format date and time to Thai format (Asia/Bangkok timezone)
  * @param {Date|string} date - Date to format
  * @returns {string} Formatted date and time
  */
@@ -64,6 +65,7 @@ export function formatDateTime(date) {
       day: 'numeric',
       hour: '2-digit',
       minute: '2-digit',
+      timeZone: 'Asia/Bangkok',
     }).format(dateObj);
   } catch (error) {
     return '-';

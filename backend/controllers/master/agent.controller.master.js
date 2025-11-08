@@ -223,7 +223,7 @@ export const getAgentCreditHistory = async (req, res, next) => {
 
     // Get transaction history for this agent
     const transactions = await CreditTransaction.find({
-      agent_id: id
+      downline_id: id
     })
       .populate('performed_by', 'name username')
       .sort({ createdAt: -1 }); // Sort by newest first
@@ -297,7 +297,7 @@ export const adjustAgentCredit = async (req, res, next) => {
     // Save transaction history
     await CreditTransaction.create({
       performed_by: masterId,
-      agent_id: id,
+      downline_id: id,
       action: action,
       amount: creditAmount,
       balance_before: balanceBefore,

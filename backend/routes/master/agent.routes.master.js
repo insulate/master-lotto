@@ -10,6 +10,8 @@ import {
   getAgentCreditHistory,
   changeAgentPassword
 } from '../../controllers/master/agent.controller.master.js';
+import { validateCreateAgent } from '../../middlewares/validators/user.validator.js';
+import { validateCreditAdjustment } from '../../middlewares/validators/credit.validator.js';
 
 const router = express.Router();
 
@@ -36,7 +38,7 @@ router.get('/:id', getAgentById);
  * @desc    Create new agent
  * @access  Private (Master only)
  */
-router.post('/', createAgent);
+router.post('/', validateCreateAgent, createAgent);
 
 /**
  * @route   PUT /api/v1/master/agents/:id
@@ -64,7 +66,7 @@ router.get('/:id/credit-history', getAgentCreditHistory);
  * @desc    Adjust agent credit (add or deduct)
  * @access  Private (Master only)
  */
-router.patch('/:id/credit', adjustAgentCredit);
+router.patch('/:id/credit', validateCreditAdjustment, adjustAgentCredit);
 
 /**
  * @route   PUT /api/v1/master/agents/:id/change-password

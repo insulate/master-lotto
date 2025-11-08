@@ -263,7 +263,7 @@ export const getMemberCreditHistory = async (req, res, next) => {
 
     // Get transaction history for this member
     const transactions = await CreditTransaction.find({
-      agent_id: id
+      downline_id: id
     })
       .populate('performed_by', 'name username')
       .sort({ createdAt: -1 }); // Sort by newest first
@@ -344,7 +344,7 @@ export const adjustMemberCredit = async (req, res, next) => {
     // Save transaction history
     await CreditTransaction.create({
       performed_by: agentId,
-      agent_id: id,
+      downline_id: id,
       action: action,
       amount: creditAmount,
       balance_before: balanceBefore,
@@ -365,9 +365,11 @@ export const adjustMemberCredit = async (req, res, next) => {
       });
 
       // Notify agent about their own credit change
+      // When agent adds credit to member, agent's credit is deducted
+      // When agent deducts credit from member, agent's credit is added back
       io.emit('credit:update', {
         userId: agentId,
-        action: action === 'add' ? 'reduce' : 'add', // Inverse action for agent
+        action: action === 'add' ? 'deduct' : 'add',
         amount: creditAmount,
         newCredit: agent.credit,
         performedBy: 'System'
