@@ -173,11 +173,11 @@ export const placeBet = async (req, res, next) => {
     // 8. Get commission rates from member's commission_rates
     // Find commission rates for this lottery type
     const memberCommissionRates = member.commission_rates?.find(
-      (cr) => cr.lottery_type_id?.toString() === lotteryDraw.lottery_type
+      (cr) => cr.lottery_type === lotteryDraw.lottery_type
     );
 
     const agentCommissionRates = agent.commission_rates?.find(
-      (cr) => cr.lottery_type_id?.toString() === lotteryDraw.lottery_type
+      (cr) => cr.lottery_type === lotteryDraw.lottery_type
     );
 
     // Calculate commission for each bet type
@@ -240,7 +240,7 @@ export const placeBet = async (req, res, next) => {
               rates: agentCommissionRates?.rates || {},
               total_commission: agentCommission,
             },
-            master: {
+            member: {
               rates: memberCommissionRates?.rates || {},
               total_commission: memberCommission,
             },

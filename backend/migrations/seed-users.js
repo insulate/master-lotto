@@ -23,7 +23,7 @@ export const seedUsers = async () => {
 
     // Create default commission rates for agents (0% - will be set by master later)
     const defaultAgentCommissionRates = lotteryTypes.map(lt => ({
-      lottery_type_id: lt._id,
+      lottery_type: lt.value,
       rates: {
         three_top: 0,
         three_tod: 0,
@@ -36,7 +36,7 @@ export const seedUsers = async () => {
 
     // Create default commission rates for members (0% - will be set by agent later)
     const defaultMemberCommissionRates = lotteryTypes.map(lt => ({
-      lottery_type_id: lt._id,
+      lottery_type: lt.value,
       rates: {
         three_top: 0,
         three_tod: 0,

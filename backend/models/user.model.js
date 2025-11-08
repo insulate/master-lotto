@@ -51,9 +51,9 @@ const userSchema = new mongoose.Schema(
     commission_rates: {
       type: [
         {
-          lottery_type_id: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'LotteryType',
+          lottery_type: {
+            type: String,
+            enum: ['government', 'lao_pattana', 'hanoi_regular', 'hanoi_vip'],
             required: true
           },
           rates: {

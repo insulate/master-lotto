@@ -158,8 +158,8 @@ const betSchema = new mongoose.Schema(
           min: 0,
         },
       },
-      // ค่าคอม Master
-      master: {
+      // ค่าคอม Member
+      member: {
         // อัตราค่าคอมแต่ละประเภท ณ เวลาที่แทง
         rates: {
           three_top: { type: Number, default: 0, min: 0, max: 100 },
@@ -249,8 +249,8 @@ betSchema.statics.findPendingByDraw = function (lotteryDrawId) {
 // Instance method: คำนวณค่าคอมมิชชั่นรวม
 betSchema.methods.calculateTotalCommission = function () {
   const agentCommission = this.commission_data?.agent?.total_commission || 0;
-  const masterCommission = this.commission_data?.master?.total_commission || 0;
-  return agentCommission + masterCommission;
+  const memberCommission = this.commission_data?.member?.total_commission || 0;
+  return agentCommission + memberCommission;
 };
 
 const Bet = mongoose.model('Bet', betSchema);

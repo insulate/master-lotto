@@ -59,13 +59,13 @@ async function migrateThreeBottomToThreeTod() {
       {
         $or: [
           { 'commission_data.agent.rates.three_bottom': { $exists: true } },
-          { 'commission_data.master.rates.three_bottom': { $exists: true } }
+          { 'commission_data.member.rates.three_bottom': { $exists: true } }
         ]
       },
       {
         $rename: {
           'commission_data.agent.rates.three_bottom': 'commission_data.agent.rates.three_tod',
-          'commission_data.master.rates.three_bottom': 'commission_data.master.rates.three_tod'
+          'commission_data.member.rates.three_bottom': 'commission_data.member.rates.three_tod'
         }
       }
     );

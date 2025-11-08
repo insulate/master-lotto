@@ -152,11 +152,11 @@ export const updateMember = async (req, res, next) => {
       // Validate each lottery type's commission rates
       for (const memberRateConfig of commission_rates) {
         const memberRates = memberRateConfig.rates || {};
-        const lotteryTypeId = memberRateConfig.lottery_type_id;
+        const lotteryType = memberRateConfig.lottery_type;
 
         // Find agent's commission rate for this lottery type
         const agentRateConfig = agent.commission_rates?.find(
-          (rate) => rate.lottery_type_id.toString() === lotteryTypeId.toString()
+          (rate) => rate.lottery_type === lotteryType
         );
 
         const rateTypes = ['three_top', 'three_tod', 'two_top', 'two_bottom', 'run_top', 'run_bottom'];

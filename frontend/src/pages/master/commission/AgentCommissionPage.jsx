@@ -54,11 +54,11 @@ const AgentCommissionPage = () => {
       // Initialize commission rates
       const rates = types.map((type) => {
         const existingRate = foundAgent.commission_rates?.find(
-          (rate) => rate.lottery_type_id === type._id
+          (rate) => rate.lottery_type === type.value
         );
 
         return {
-          lottery_type_id: type._id,
+          lottery_type: type.value,
           rates: existingRate?.rates || {
             three_top: 0,
             three_tod: 0,
@@ -91,7 +91,7 @@ const AgentCommissionPage = () => {
       setSubmitLoading(true);
       const updateData = {
         commission_rates: commissionRates.map((rate) => ({
-          lottery_type_id: rate.lottery_type_id,
+          lottery_type: rate.lottery_type,
           rates: {
             three_top: rate.rates.three_top || 0,
             three_tod: rate.rates.three_tod || 0,
@@ -202,7 +202,7 @@ const AgentCommissionPage = () => {
           <div className="space-y-4">
             {lotteryTypes.map((lotteryType) => {
               const rateIndex = commissionRates.findIndex(
-                (r) => r.lottery_type_id === lotteryType._id
+                (r) => r.lottery_type === lotteryType.value
               );
               const isExpanded = expandedTypes[lotteryType._id];
 
