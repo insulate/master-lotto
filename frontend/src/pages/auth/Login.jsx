@@ -28,7 +28,7 @@ function Login() {
       const role = result.user.role;
       switch (role) {
         case 'master':
-          navigate('/dashboard');
+          navigate('/master/dashboard');
           break;
         case 'agent':
           navigate('/agent/dashboard');

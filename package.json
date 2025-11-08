@@ -1,0 +1,27 @@
+{
+  "name": "master-lotto",
+  "version": "1.0.0",
+  "description": "``` lotto/ ├── frontend/                 # React + Vite Frontend Application ├── backend/                  # Node.js Express Backend API ├── CLAUDE.md                # คำแนะนำสำหรับ AI Assistant ```",
+  "main": "index.js",
+  "scripts": {
+    "dev": "cd backend && npm run dev & cd frontend && npm run dev",
+    "test": "playwright test --project=chromium",
+    "test-all": "playwright test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/insulate/master-lotto.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/insulate/master-lotto/issues"
+  },
+  "homepage": "https://github.com/insulate/master-lotto#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.56.1",
+    "@types/node": "^24.10.0"
+  }
+}

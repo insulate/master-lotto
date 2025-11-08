@@ -98,7 +98,7 @@ export default function AgentDashboard() {
       {/* Page Header */}
       <PageHeader
         title="แดชบอร์ดเอเย่นต์"
-        subtitle="ภาพรวมการจัดการผู้เล่น"
+        subtitle="ภาพรวมระบบ"
         rightContent={
           <div className="text-right">
             <p className="text-sm text-text-muted">วันนี้</p>

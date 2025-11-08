@@ -19,7 +19,7 @@ function PrivateRoute({ children, allowedRoles = null }) {
   if (allowedRoles && user?.role && !allowedRoles.includes(user.role)) {
     // Redirect ไปหน้าที่เหมาะสมตาม role
     const roleRedirects = {
-      master: '/dashboard',
+      master: '/master/dashboard',
       agent: '/agent/dashboard',
       member: '/app/home',
     };

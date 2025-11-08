@@ -89,7 +89,7 @@ function App() {
 
           {/* Master Routes - Only accessible by master role */}
           <Route
-            path="/dashboard"
+            path="/master/dashboard"
             element={
               <PrivateRoute allowedRoles={['master']}>
                 <Layout>

@@ -15,7 +15,7 @@ function RoleBasedRedirect() {
 
   // Redirect ตาม role
   const roleRedirects = {
-    master: '/dashboard',
+    master: '/master/dashboard',
     agent: '/agent/dashboard',
     member: '/app/home',
   };
