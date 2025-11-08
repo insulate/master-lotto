@@ -764,7 +764,7 @@ const BettingPage = () => {
                   {getCurrentDigits() === 3 && (
                     <div className="mb-3">
                       <label className="text-xs font-medium text-gray-600 mb-1 block">เลือกหลักร้อย</label>
-                      <div className="grid grid-cols-10 gap-1">
+                      <div className="grid grid-cols-5 gap-1">
                         {Array.from({ length: 10 }, (_, i) => (
                           <button
                             key={i}
@@ -775,7 +775,7 @@ const BettingPage = () => {
                                 : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                             }`}
                           >
-                            {i}
+                            {i}00
                           </button>
                         ))}
                       </div>
@@ -798,15 +798,15 @@ const BettingPage = () => {
                     ))}
                   </div>
                 ) : getCurrentDigits() === 2 ? (
-                  // 2 หลัก: แสดง 00-99 (10 ปุ่มต่อแถว)
-                  <div className="grid grid-cols-10 gap-1 max-h-96 overflow-y-auto">
+                  // 2 หลัก: แสดง 00-99 (10 ปุ่มต่อแถว, ไม่มี scroll)
+                  <div className="grid grid-cols-10 gap-1">
                     {Array.from({ length: 100 }, (_, i) => {
                       const num = i.toString().padStart(2, '0');
                       return (
                         <button
                           key={num}
                           onClick={() => autoAddBet(num)}
-                          className="py-3 rounded-lg font-bold text-sm bg-gray-700 text-white hover:bg-primary-gold active:scale-95 border-2 border-yellow-600 transition-all"
+                          className="py-2 rounded-lg font-bold text-xs bg-gray-700 text-white hover:bg-primary-gold active:scale-95 border border-yellow-600 transition-all"
                         >
                           {num}
                         </button>
@@ -814,8 +814,8 @@ const BettingPage = () => {
                     })}
                   </div>
                 ) : (
-                  // 3 หลัก: แสดง 00-99 ตามหลักร้อยที่เลือก
-                  <div className="grid grid-cols-10 gap-1 max-h-96 overflow-y-auto">
+                  // 3 หลัก: แสดง 000-999 ตามหลักร้อยที่เลือก (ไม่มี scroll)
+                  <div className="grid grid-cols-10 gap-1">
                     {Array.from({ length: 100 }, (_, i) => {
                       const lastTwoDigits = i.toString().padStart(2, '0');
                       const fullNumber = hundredDigit + lastTwoDigits;
@@ -823,9 +823,9 @@ const BettingPage = () => {
                         <button
                           key={fullNumber}
                           onClick={() => autoAddBet(fullNumber)}
-                          className="py-3 rounded-lg font-bold text-sm bg-gray-700 text-white hover:bg-primary-gold active:scale-95 border-2 border-yellow-600 transition-all"
+                          className="py-2 rounded-lg font-bold text-xs bg-gray-700 text-white hover:bg-primary-gold active:scale-95 border border-yellow-600 transition-all"
                         >
-                          {lastTwoDigits}
+                          {fullNumber}
                         </button>
                       );
                     })}
