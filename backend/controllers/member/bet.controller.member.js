@@ -251,18 +251,21 @@ export const placeBet = async (req, res, next) => {
     return successResponse(res, 'แทงหวยสำเร็จ', {
       bet: populatedBet,
       deducted: {
-        credit: deductedFromCredit,
-        balance: deductedFromBalance,
-        total: totalAmount,
+        amount: totalAmount,
+        balanceBefore: balanceBefore,
+        balanceAfter: member.balance,
       },
       remaining: {
         credit: member.credit,
         balance: member.balance,
-        total: member.credit + member.balance,
+        availableCredit: member.credit + member.balance,
       },
     }, 201);
   } catch (error) {
-    await session.abortTransaction();
+    // Only abort if transaction hasn't been committed
+    if (session.inTransaction()) {
+      await session.abortTransaction();
+    }
     next(error);
   } finally {
     session.endSession();

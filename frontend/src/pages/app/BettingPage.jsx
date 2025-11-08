@@ -586,7 +586,7 @@ const BettingPage = () => {
 
       // Success
       toast.success(
-        `แทงหวยสำเร็จ!\nตัดเครดิต ${deducted.total.toLocaleString()} บาท\nคงเหลือ ${remaining.total.toLocaleString()} บาท`,
+        `แทงหวยสำเร็จ!\nตัดเครดิต ${deducted.amount.toLocaleString()} บาท\nคงเหลือ ${remaining.availableCredit.toLocaleString()} บาท`,
         { duration: 5000 }
       );
 
