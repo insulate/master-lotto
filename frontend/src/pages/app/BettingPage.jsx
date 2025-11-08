@@ -244,6 +244,9 @@ const BettingPage = () => {
   // Input mode: 'keypad' or 'grid'
   const [inputMode, setInputMode] = useState('keypad');
 
+  // For 3-digit grid: selected hundred digit (0-9)
+  const [hundredDigit, setHundredDigit] = useState('0');
+
   // Get selected bet types info
   const getSelectedBetTypes = () => {
     return betTypes.filter(bt => selectedBetTypes.includes(bt.key));
@@ -756,47 +759,76 @@ const BettingPage = () => {
                       </button>
                     )}
                   </div>
+
+                  {/* For 3 digits: Show hundred digit selector */}
+                  {getCurrentDigits() === 3 && (
+                    <div className="mb-3">
+                      <label className="text-xs font-medium text-gray-600 mb-1 block">เลือกหลักร้อย</label>
+                      <div className="grid grid-cols-10 gap-1">
+                        {Array.from({ length: 10 }, (_, i) => (
+                          <button
+                            key={i}
+                            onClick={() => setHundredDigit(i.toString())}
+                            className={`py-2 rounded-lg font-bold text-sm transition-all ${
+                              hundredDigit === i.toString()
+                                ? 'bg-primary-gold text-white shadow-lg'
+                                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                            }`}
+                          >
+                            {i}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Number Grid */}
-                <div className="grid grid-cols-10 gap-1 max-h-96 overflow-y-auto">
-                  {Array.from({ length: 100 }, (_, i) => {
-                    const num = i.toString().padStart(2, '0');
-                    const digits = getCurrentDigits();
-
-                    return (
+                {getCurrentDigits() === 1 ? (
+                  // วิ่ง: แสดง 0-9 (10 ปุ่ม)
+                  <div className="grid grid-cols-10 gap-2">
+                    {Array.from({ length: 10 }, (_, i) => (
                       <button
-                        key={num}
-                        onClick={() => {
-                          if (digits === 2) {
-                            autoAddBet(num);
-                          } else if (digits === 1) {
-                            // For วิ่ง, use last digit
-                            autoAddBet(num[1]);
-                          } else if (digits === 3) {
-                            // For 3 digits, this grid doesn't apply - show message
-                            toast.error('กรุณาใช้ระบบเลขสำหรับ 3 หลัก');
-                          }
-                        }}
-                        disabled={digits === 3}
-                        className={`py-3 rounded-lg font-bold text-sm transition-all ${
-                          digits === 3
-                            ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                            : 'bg-gray-700 text-white hover:bg-primary-gold active:scale-95 border-2 border-yellow-600'
-                        }`}
+                        key={i}
+                        onClick={() => autoAddBet(i.toString())}
+                        className="py-4 rounded-lg font-bold text-lg bg-gray-700 text-white hover:bg-primary-gold active:scale-95 border-2 border-yellow-600 transition-all"
                       >
-                        {num}
+                        {i}
                       </button>
-                    );
-                  })}
-                </div>
-
-                {getCurrentDigits() === 3 && (
-                  <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                    <p className="text-sm text-yellow-800 text-center">
-                      ⚠️ โหมดเลือกเลขรองรับเฉพาะ 2 หลัก และวิ่ง<br />
-                      สำหรับ 3 หลัก กรุณาใช้โหมด &quot;ระบบเลข&quot;
-                    </p>
+                    ))}
+                  </div>
+                ) : getCurrentDigits() === 2 ? (
+                  // 2 หลัก: แสดง 00-99 (10 ปุ่มต่อแถว)
+                  <div className="grid grid-cols-10 gap-1 max-h-96 overflow-y-auto">
+                    {Array.from({ length: 100 }, (_, i) => {
+                      const num = i.toString().padStart(2, '0');
+                      return (
+                        <button
+                          key={num}
+                          onClick={() => autoAddBet(num)}
+                          className="py-3 rounded-lg font-bold text-sm bg-gray-700 text-white hover:bg-primary-gold active:scale-95 border-2 border-yellow-600 transition-all"
+                        >
+                          {num}
+                        </button>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  // 3 หลัก: แสดง 00-99 ตามหลักร้อยที่เลือก
+                  <div className="grid grid-cols-10 gap-1 max-h-96 overflow-y-auto">
+                    {Array.from({ length: 100 }, (_, i) => {
+                      const lastTwoDigits = i.toString().padStart(2, '0');
+                      const fullNumber = hundredDigit + lastTwoDigits;
+                      return (
+                        <button
+                          key={fullNumber}
+                          onClick={() => autoAddBet(fullNumber)}
+                          className="py-3 rounded-lg font-bold text-sm bg-gray-700 text-white hover:bg-primary-gold active:scale-95 border-2 border-yellow-600 transition-all"
+                        >
+                          {lastTwoDigits}
+                        </button>
+                      );
+                    })}
                   </div>
                 )}
               </>
