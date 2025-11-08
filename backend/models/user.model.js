@@ -45,8 +45,8 @@ const userSchema = new mongoose.Schema(
     },
     balance: {
       type: Number,
-      default: 0,
-      min: [0, 'Balance cannot be negative']
+      default: 0
+      // No min validation - balance can go negative within credit limit
     },
     commission_rates: {
       type: [
