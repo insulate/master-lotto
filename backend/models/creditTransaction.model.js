@@ -36,16 +36,28 @@ const creditTransactionSchema = new mongoose.Schema(
       min: 0,
     },
 
-    // เครดิตก่อนทำรายการ
-    balance_before: {
+    // เครดิตก่อนทำรายการ (credit)
+    credit_before: {
       type: Number,
-      required: true,
+      default: 0,
     },
 
-    // เครดิตหลังทำรายการ
+    // เครดิตหลังทำรายการ (credit)
+    credit_after: {
+      type: Number,
+      default: 0,
+    },
+
+    // ยอดก่อนทำรายการ (balance)
+    balance_before: {
+      type: Number,
+      default: 0,
+    },
+
+    // ยอดหลังทำรายการ (balance)
     balance_after: {
       type: Number,
-      required: true,
+      default: 0,
     },
 
     // หมายเหตุ (optional)

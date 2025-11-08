@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { Wallet, LogOut, Home, FileText, Key } from 'lucide-react';
+import { Wallet, LogOut, Home, FileText, Key, Coins } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import toast from 'react-hot-toast';
 import ChangePasswordModal from '../../components/modals/ChangePasswordModal';
@@ -30,7 +30,8 @@ const AppLayout = () => {
   // Navigation items
   const navItems = [
     { path: '/app/home', icon: Home, label: 'หน้าหลัก', action: 'navigate' },
-    { path: '/app/history', icon: FileText, label: 'ประวัติ', action: 'navigate' },
+    { path: '/app/history', icon: FileText, label: 'ประวัติการแทง', action: 'navigate' },
+    { path: '/app/credit-history', icon: Coins, label: 'ประวัติเครดิต', action: 'navigate' },
     { path: 'change-password', icon: Key, label: 'เปลี่ยนรหัสผ่าน', action: 'modal' },
   ];
 

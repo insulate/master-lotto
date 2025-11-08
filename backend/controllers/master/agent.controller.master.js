@@ -272,14 +272,15 @@ export const adjustAgentCredit = async (req, res, next) => {
       throw new AppError('ไม่พบข้อมูลผู้ใช้', 404);
     }
 
-    // Store balance before transaction
-    const balanceBefore = agent.credit;
-    let balanceAfter;
+    // Store credit and balance before transaction
+    const creditBefore = agent.credit;
+    const balanceBefore = agent.balance || 0;
+    let creditAfter;
 
     if (action === 'add') {
       // Master doesn't need credit check - can give unlimited credit to agents
       agent.credit += creditAmount;
-      balanceAfter = agent.credit;
+      creditAfter = agent.credit;
     } else if (action === 'deduct') {
       // Check if agent has enough credit
       if (agent.credit < creditAmount) {
@@ -288,7 +289,7 @@ export const adjustAgentCredit = async (req, res, next) => {
 
       // Deduct credit from agent (master credit is not affected)
       agent.credit -= creditAmount;
-      balanceAfter = agent.credit;
+      creditAfter = agent.credit;
     }
 
     await agent.save();
@@ -300,8 +301,10 @@ export const adjustAgentCredit = async (req, res, next) => {
       downline_id: id,
       action: action,
       amount: creditAmount,
+      credit_before: creditBefore,
+      credit_after: creditAfter,
       balance_before: balanceBefore,
-      balance_after: balanceAfter,
+      balance_after: agent.balance || 0,
       note: req.body.note || ''
     });
 

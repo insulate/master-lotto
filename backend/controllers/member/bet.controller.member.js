@@ -57,6 +57,15 @@ export const placeBet = async (req, res, next) => {
       throw new AppError('ไม่พบข้อมูลงวดหวย', 404);
     }
 
+    // Map lottery_type enum to display name
+    const lotteryTypeNames = {
+      'government': 'หวยรัฐบาลไทย',
+      'lao_pattana': 'หวยลาวพัฒนา',
+      'hanoi_regular': 'หวยฮานอย ปกติ',
+      'hanoi_vip': 'หวยฮานอย VIP'
+    };
+    const lotteryTypeName = lotteryTypeNames[lotteryDraw.lottery_type] || lotteryDraw.lottery_type;
+
     // 5. Validate lottery draw status and time
     const now = new Date();
     const openTime = new Date(lotteryDraw.open_time);
@@ -190,6 +199,7 @@ export const placeBet = async (req, res, next) => {
     // 9. Deduct from balance (credit stays as limit)
     // Credit = ขีดจำกัด (ไม่เปลี่ยน)
     // Balance = เงินจริง (สามารถติดลบได้ภายในกรอบ credit)
+    const creditBefore = member.credit;
     const balanceBefore = member.balance || 0;
     member.balance = balanceBefore - totalAmount;
 
@@ -203,9 +213,11 @@ export const placeBet = async (req, res, next) => {
           downline_id: memberId,
           action: 'deduct',
           amount: totalAmount,
+          credit_before: creditBefore,
+          credit_after: member.credit,
           balance_before: balanceBefore,
           balance_after: member.balance,
-          note: `แทงหวย ${lotteryDraw.lottery_type} งวดวันที่ ${new Date(lotteryDraw.draw_date).toLocaleDateString('th-TH')}`,
+          note: `แทงหวย ${lotteryTypeName} งวดวันที่ ${new Date(lotteryDraw.draw_date).toLocaleDateString('th-TH')}`,
         },
       ],
       { session }

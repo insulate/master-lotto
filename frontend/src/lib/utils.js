@@ -66,6 +66,7 @@ export function formatDateTime(date) {
       hour: '2-digit',
       minute: '2-digit',
       timeZone: 'Asia/Bangkok',
+      calendar: 'buddhist',
     }).format(dateObj);
   } catch (error) {
     return '-';
