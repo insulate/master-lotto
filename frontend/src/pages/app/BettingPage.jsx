@@ -241,6 +241,9 @@ const BettingPage = () => {
   const [showSummary, setShowSummary] = useState(false);
   const [summaryExpanded, setSummaryExpanded] = useState(false);
 
+  // Input mode: 'keypad' or 'grid'
+  const [inputMode, setInputMode] = useState('keypad');
+
   // Get selected bet types info
   const getSelectedBetTypes = () => {
     return betTypes.filter(bt => selectedBetTypes.includes(bt.key));
@@ -647,29 +650,59 @@ const BettingPage = () => {
 
           {/* Bet Form - Mobile Optimized */}
           <div className="bg-white border-2 border-primary-gold/30 rounded-xl p-4 shadow-lg">
-            {/* Number Display */}
-            <div className="mb-4">
-              <div className="flex justify-between items-center mb-2">
-                <label className="text-sm font-medium text-gray-700">
-                  กรอกเลข ({getCurrentDigits()} หลัก)
-                </label>
-                {selectedBetTypes.some(key => betItems[key].length > 0) && (
-                  <button
-                    onClick={handleClearSelectedTypes}
-                    className="text-red-500 active:text-red-600 text-xs flex items-center gap-1"
-                  >
-                    <Trash2 className="w-3 h-3" />
-                    ลบทั้งหมด
-                  </button>
-                )}
-              </div>
-              <div className="w-full px-4 py-6 border-4 border-primary-gold bg-gradient-to-br from-yellow-50 to-amber-50 rounded-xl text-5xl text-center font-bold text-primary-dark-gold min-h-[90px] flex items-center justify-center shadow-inner">
-                {number || '---'}
-              </div>
+            {/* Tab Switcher */}
+            <div className="grid grid-cols-2 gap-2 mb-4">
+              <button
+                onClick={() => setInputMode('keypad')}
+                className={`py-3 rounded-lg font-semibold transition-all ${
+                  inputMode === 'keypad'
+                    ? 'bg-primary-gold text-white shadow-lg'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                <Calculator className="w-5 h-5 inline-block mr-2" />
+                ระบบเลข
+              </button>
+              <button
+                onClick={() => setInputMode('grid')}
+                className={`py-3 rounded-lg font-semibold transition-all ${
+                  inputMode === 'grid'
+                    ? 'bg-primary-gold text-white shadow-lg'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                <svg className="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                </svg>
+                เลือกเลข
+              </button>
             </div>
 
-            {/* Keypad */}
-            <div className="grid grid-cols-3 gap-2 mb-4">
+            {inputMode === 'keypad' ? (
+              <>
+                {/* Number Display */}
+                <div className="mb-4">
+                  <div className="flex justify-between items-center mb-2">
+                    <label className="text-sm font-medium text-gray-700">
+                      กรอกเลข ({getCurrentDigits()} หลัก)
+                    </label>
+                    {selectedBetTypes.some(key => betItems[key].length > 0) && (
+                      <button
+                        onClick={handleClearSelectedTypes}
+                        className="text-red-500 active:text-red-600 text-xs flex items-center gap-1"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                        ลบทั้งหมด
+                      </button>
+                    )}
+                  </div>
+                  <div className="w-full px-4 py-6 border-4 border-primary-gold bg-gradient-to-br from-yellow-50 to-amber-50 rounded-xl text-5xl text-center font-bold text-primary-dark-gold min-h-[90px] flex items-center justify-center shadow-inner">
+                    {number || '---'}
+                  </div>
+                </div>
+
+                {/* Keypad */}
+                <div className="grid grid-cols-3 gap-2 mb-4">
               {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((digit) => (
                 <button
                   key={digit}
@@ -704,6 +737,70 @@ const BettingPage = () => {
                 <Delete className="w-5 h-5" />
               </button>
             </div>
+              </>
+            ) : (
+              <>
+                {/* Grid Selection Mode */}
+                <div className="mb-4">
+                  <div className="flex justify-between items-center mb-2">
+                    <label className="text-sm font-medium text-gray-700">
+                      เลือกเลข ({getCurrentDigits()} หลัก)
+                    </label>
+                    {selectedBetTypes.some(key => betItems[key].length > 0) && (
+                      <button
+                        onClick={handleClearSelectedTypes}
+                        className="text-red-500 active:text-red-600 text-xs flex items-center gap-1"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                        ลบทั้งหมด
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                {/* Number Grid */}
+                <div className="grid grid-cols-10 gap-1 max-h-96 overflow-y-auto">
+                  {Array.from({ length: 100 }, (_, i) => {
+                    const num = i.toString().padStart(2, '0');
+                    const digits = getCurrentDigits();
+
+                    return (
+                      <button
+                        key={num}
+                        onClick={() => {
+                          if (digits === 2) {
+                            autoAddBet(num);
+                          } else if (digits === 1) {
+                            // For วิ่ง, use last digit
+                            autoAddBet(num[1]);
+                          } else if (digits === 3) {
+                            // For 3 digits, this grid doesn't apply - show message
+                            toast.error('กรุณาใช้ระบบเลขสำหรับ 3 หลัก');
+                          }
+                        }}
+                        disabled={digits === 3}
+                        className={`py-3 rounded-lg font-bold text-sm transition-all ${
+                          digits === 3
+                            ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                            : 'bg-gray-700 text-white hover:bg-primary-gold active:scale-95 border-2 border-yellow-600'
+                        }`}
+                      >
+                        {num}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {getCurrentDigits() === 3 && (
+                  <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                    <p className="text-sm text-yellow-800 text-center">
+                      ⚠️ โหมดเลือกเลขรองรับเฉพาะ 2 หลัก และวิ่ง<br />
+                      สำหรับ 3 หลัก กรุณาใช้โหมด &quot;ระบบเลข&quot;
+                    </p>
+                  </div>
+                )}
+              </>
+            )}
 
           </div>
 
