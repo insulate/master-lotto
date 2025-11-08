@@ -152,10 +152,11 @@ export const placeBet = async (req, res, next) => {
     }
 
     // 7. Check if member has sufficient credit
-    const memberTotalBalance = (member.credit || 0) + (member.balance || 0);
-    if (memberTotalBalance < totalAmount) {
+    // Credit is the limit, balance can go negative within credit limit
+    const availableCredit = (member.credit || 0) + (member.balance || 0);
+    if (availableCredit < totalAmount) {
       throw new AppError(
-        `เครดิตไม่เพียงพอ (คงเหลือ ${memberTotalBalance.toLocaleString()} บาท ต้องการ ${totalAmount.toLocaleString()} บาท)`,
+        `เครดิตไม่เพียงพอ (ใช้ได้ ${availableCredit.toLocaleString()} บาท ต้องการ ${totalAmount.toLocaleString()} บาท)`,
         400
       );
     }
@@ -186,21 +187,11 @@ export const placeBet = async (req, res, next) => {
     const memberCommission = calculateCommissionByType(processedBetItems, memberCommissionRates);
     const agentCommission = calculateCommissionByType(processedBetItems, agentCommissionRates);
 
-    // 9. Deduct credit from member
-    let deductedFromCredit = 0;
-    let deductedFromBalance = 0;
-
-    if (member.credit >= totalAmount) {
-      // Deduct from credit only
-      deductedFromCredit = totalAmount;
-      member.credit -= totalAmount;
-    } else {
-      // Deduct from credit first, then balance
-      deductedFromCredit = member.credit;
-      deductedFromBalance = totalAmount - member.credit;
-      member.credit = 0;
-      member.balance -= deductedFromBalance;
-    }
+    // 9. Deduct from balance (credit stays as limit)
+    // Credit = ขีดจำกัด (ไม่เปลี่ยน)
+    // Balance = เงินจริง (สามารถติดลบได้ภายในกรอบ credit)
+    const balanceBefore = member.balance || 0;
+    member.balance = balanceBefore - totalAmount;
 
     await member.save({ session });
 
@@ -212,8 +203,8 @@ export const placeBet = async (req, res, next) => {
           downline_id: memberId,
           action: 'deduct',
           amount: totalAmount,
-          balance_before: memberTotalBalance,
-          balance_after: member.credit + member.balance,
+          balance_before: balanceBefore,
+          balance_after: member.balance,
           note: `แทงหวย ${lotteryDraw.lottery_type} งวดวันที่ ${new Date(lotteryDraw.draw_date).toLocaleDateString('th-TH')}`,
         },
       ],
