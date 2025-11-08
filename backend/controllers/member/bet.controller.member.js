@@ -209,7 +209,7 @@ export const placeBet = async (req, res, next) => {
       [
         {
           performed_by: memberId,
-          agent_id: agent._id,
+          downline_id: memberId,
           action: 'deduct',
           amount: totalAmount,
           balance_before: memberTotalBalance,
