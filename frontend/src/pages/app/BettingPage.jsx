@@ -391,6 +391,18 @@ const BettingPage = () => {
     toast.success('ลบเลขทั้งหมดเรียบร้อย');
   };
 
+  // Clear all bets silently (no toast)
+  const clearAllSilently = () => {
+    setBetItems({
+      three_top: [],
+      three_tod: [],
+      two_top: [],
+      two_bottom: [],
+      run_top: [],
+      run_bottom: [],
+    });
+  };
+
   // Calculate totals
   const calculateTotals = () => {
     let totalItems = 0;
@@ -500,8 +512,8 @@ const BettingPage = () => {
         { duration: 5000 }
       );
 
-      // Clear all bets after submit
-      handleClearAll();
+      // Clear all bets after submit (silently)
+      clearAllSilently();
     } catch (err) {
       toast.error(parseErrorMessage(err), { duration: 5000 });
     } finally {
