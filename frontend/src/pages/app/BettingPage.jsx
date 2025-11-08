@@ -13,6 +13,11 @@ import { useAuthStore } from '../../store/authStore';
 const BetItemRow = ({ item, betType, index, lotteryDraw, handleRemoveBet, handleUpdateAmount }) => {
   const [editAmount, setEditAmount] = useState(item.amount.toString());
 
+  // Sync editAmount with item.amount when it changes (e.g., from bulk update)
+  useEffect(() => {
+    setEditAmount(item.amount.toString());
+  }, [item.amount]);
+
   const handleAmountChange = (e) => {
     const newValue = e.target.value;
     setEditAmount(newValue);
@@ -89,6 +94,7 @@ const SummaryContent = ({
   handleClearAll,
   handleRemoveBet,
   handleUpdateAmount,
+  handleUpdateAllAmounts,
   submitting,
   note,
   setNote,
@@ -146,6 +152,33 @@ const SummaryContent = ({
           </div>
         )}
       </div>
+
+      {/* Bulk Amount Field */}
+      {totalItems > 0 && (
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            เดิมพันราคาเท่ากัน
+          </label>
+          <input
+            type="number"
+            min="1"
+            placeholder="กรอกยอดเงินเพื่อเปลี่ยนทุกรายการ"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:border-primary-gold focus:outline-none"
+            onKeyPress={(e) => {
+              if (e.key === 'Enter') {
+                const value = parseInt(e.target.value);
+                if (value && value > 0) {
+                  handleUpdateAllAmounts(value);
+                  e.target.value = '';
+                }
+              }
+            }}
+          />
+          <div className="text-xs text-gray-500 mt-1">
+            กด Enter เพื่อเปลี่ยนยอดเงินทุกรายการ
+          </div>
+        </div>
+      )}
 
       {/* Note Field */}
       {totalItems > 0 && (
@@ -389,6 +422,27 @@ const BettingPage = () => {
       ...betItems,
       [betType]: updatedItems,
     });
+  };
+
+  // Update all bet amounts at once
+  const handleUpdateAllAmounts = (newAmount) => {
+    const updatedBetItems = {};
+
+    // Loop through all bet types
+    Object.keys(betItems).forEach((betType) => {
+      if (betItems[betType].length > 0) {
+        const settings = getBetSettings(betType);
+        updatedBetItems[betType] = betItems[betType].map((item) => ({
+          ...item,
+          amount: newAmount,
+          potential_win: newAmount * settings.payout_rate,
+        }));
+      } else {
+        updatedBetItems[betType] = [];
+      }
+    });
+
+    setBetItems(updatedBetItems);
   };
 
   // Clear all bets for selected types
@@ -960,6 +1014,7 @@ const BettingPage = () => {
               totalAmount={totalAmount}
               handleRemoveBet={handleRemoveBet}
               handleUpdateAmount={handleUpdateAmount}
+              handleUpdateAllAmounts={handleUpdateAllAmounts}
               handleClearAll={handleClearAll}
               handleSubmit={handleSubmit}
               submitting={submitting}
@@ -998,6 +1053,7 @@ const BettingPage = () => {
                 totalAmount={totalAmount}
                 handleRemoveBet={handleRemoveBet}
                 handleUpdateAmount={handleUpdateAmount}
+                handleUpdateAllAmounts={handleUpdateAllAmounts}
                 handleSubmit={handleSubmit}
                 handleClearAll={handleClearAll}
                 submitting={submitting}
