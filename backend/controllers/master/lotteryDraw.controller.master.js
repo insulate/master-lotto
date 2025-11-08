@@ -471,8 +471,14 @@ export const deleteLotteryDraw = async (req, res, next) => {
       throw new AppError('สามารถลบได้เฉพาะงวดที่เปิดรับแทงหรือยกเลิกแล้วเท่านั้น', 400);
     }
 
-    // TODO: Check if there are any bets placed (will implement in future)
-    // For now, allow deletion
+    // Check if there are any bets placed for this lottery draw
+    const betCount = await Bet.countDocuments({ lottery_draw_id: id });
+    if (betCount > 0) {
+      throw new AppError(
+        `ไม่สามารถลบได้ เนื่องจากมีบิลการแทง ${betCount} บิลในงวดนี้แล้ว`,
+        400
+      );
+    }
 
     // Store lottery_type before deletion
     const lottery_type = lotteryDraw.lottery_type;

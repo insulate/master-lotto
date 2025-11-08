@@ -214,6 +214,12 @@ const lotteryDrawSchema = new mongoose.Schema(
       required: true,
       index: true,
     },
+
+    // วันที่ประกาศผล (เติมเมื่อประกาศผลรางวัล)
+    result_announced_at: {
+      type: Date,
+      default: null,
+    },
   },
   {
     timestamps: true, // createdAt, updatedAt

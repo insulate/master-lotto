@@ -4,6 +4,11 @@ import AppError from '../utils/AppError.js';
 // Authenticate JWT Token
 export const authenticate = (req, res, next) => {
   try {
+    // Check if JWT_SECRET is defined
+    if (!process.env.JWT_SECRET) {
+      throw new Error('JWT_SECRET is not defined in environment variables');
+    }
+
     // Get token from header
     const authHeader = req.headers.authorization;
 
@@ -16,7 +21,7 @@ export const authenticate = (req, res, next) => {
 
     // Verify token
     try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
       // Add user info to request
       req.user = {
