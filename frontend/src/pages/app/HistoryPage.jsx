@@ -228,9 +228,9 @@ const HistoryPage = () => {
                   <thead className="bg-gradient-to-r from-primary-gold to-primary-dark-gold text-white">
                     <tr>
                       <th className="px-4 py-3 text-left text-sm font-bold">ประเภทหวย</th>
-                      <th className="px-4 py-3 text-left text-sm font-bold">วันที่ออกรางวัล</th>
-                      <th className="px-4 py-3 text-left text-sm font-bold">วันที่แทง</th>
+                      <th className="px-4 py-3 text-left text-sm font-bold">วันที่</th>
                       <th className="px-4 py-3 text-left text-sm font-bold">เลขที่แทง</th>
+                      <th className="px-4 py-3 text-left text-sm font-bold">หมายเหตุ</th>
                       <th className="px-4 py-3 text-right text-sm font-bold">ยอดแทง</th>
                       <th className="px-4 py-3 text-center text-sm font-bold">สถานะ</th>
                       <th className="px-4 py-3 text-center text-sm font-bold"></th>
@@ -254,27 +254,25 @@ const HistoryPage = () => {
                             </span>
                           </td>
 
-                          {/* Draw Date */}
+                          {/* Dates (Draw Date & Bet Date) */}
                           <td className="px-4 py-3">
-                            <div className="flex items-center gap-1 text-sm text-gray-700">
-                              <Calendar className="w-4 h-4" />
-                              <span>
-                                {bet.lottery_draw_id?.draw_date
-                                  ? new Date(bet.lottery_draw_id.draw_date).toLocaleDateString('th-TH', {
-                                      year: 'numeric',
-                                      month: 'short',
-                                      day: 'numeric',
-                                    })
-                                  : '-'}
-                              </span>
-                            </div>
-                          </td>
-
-                          {/* Bet Date */}
-                          <td className="px-4 py-3">
-                            <div className="flex items-center gap-1 text-sm text-gray-700">
-                              <Clock className="w-4 h-4" />
-                              <span>{formatDate(bet.createdAt)}</span>
+                            <div className="space-y-1">
+                              <div className="flex items-center gap-1 text-sm text-gray-700">
+                                <Calendar className="w-4 h-4" />
+                                <span>
+                                  {bet.lottery_draw_id?.draw_date
+                                    ? new Date(bet.lottery_draw_id.draw_date).toLocaleDateString('th-TH', {
+                                        year: 'numeric',
+                                        month: 'short',
+                                        day: 'numeric',
+                                      })
+                                    : '-'}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-1 text-xs text-gray-500">
+                                <Clock className="w-3 h-3" />
+                                <span>{formatDate(bet.createdAt)}</span>
+                              </div>
                             </div>
                           </td>
 
@@ -297,6 +295,17 @@ const HistoryPage = () => {
                                 );
                               })}
                             </div>
+                          </td>
+
+                          {/* Note */}
+                          <td className="px-4 py-3">
+                            {bet.note ? (
+                              <div className="text-sm text-gray-700 max-w-xs truncate" title={bet.note}>
+                                {bet.note}
+                              </div>
+                            ) : (
+                              <span className="text-gray-400 text-sm">-</span>
+                            )}
                           </td>
 
                           {/* Total Amount */}
@@ -334,7 +343,7 @@ const HistoryPage = () => {
                   </tbody>
                   <tfoot className="bg-gray-50 border-t-2 border-primary-gold/30">
                     <tr>
-                      <td colSpan="5" className="px-4 py-4 text-right">
+                      <td colSpan="4" className="px-4 py-4 text-right">
                         <span className="text-lg font-bold text-gray-700">ยอดแทงรวมทั้งหมด:</span>
                       </td>
                       <td className="px-4 py-4 text-right">
@@ -342,6 +351,7 @@ const HistoryPage = () => {
                           {bets.reduce((sum, bet) => sum + bet.total_amount, 0).toLocaleString()} ฿
                         </span>
                       </td>
+                      <td className="px-4 py-4"></td>
                       <td className="px-4 py-4"></td>
                     </tr>
                   </tfoot>
@@ -409,6 +419,14 @@ const HistoryPage = () => {
                         })}
                       </div>
                     </div>
+
+                    {/* Note */}
+                    {bet.note && (
+                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-3">
+                        <div className="text-xs font-semibold text-blue-700 mb-1">หมายเหตุ:</div>
+                        <div className="text-sm text-gray-800">{bet.note}</div>
+                      </div>
+                    )}
 
                     {/* Total Amount */}
                     <div className="pt-3 border-t border-gray-200 space-y-2">
@@ -524,6 +542,14 @@ const HistoryPage = () => {
                   </div>
                 </div>
               </div>
+
+              {/* Note */}
+              {selectedBet.note && (
+                <div className="mb-6 bg-blue-50 border-2 border-blue-200 rounded-lg p-4">
+                  <div className="text-sm font-semibold text-blue-700 mb-2">หมายเหตุ:</div>
+                  <div className="text-gray-800">{selectedBet.note}</div>
+                </div>
+              )}
 
               {/* Bet Items Table */}
               <div className="border-2 border-primary-gold/30 rounded-lg overflow-hidden">

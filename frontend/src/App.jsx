@@ -19,7 +19,6 @@ import ChangePasswordPage from './pages/profile/ChangePasswordPage';
 import HomePage from './pages/app/HomePage';
 import BettingPage from './pages/app/BettingPage';
 import HistoryPage from './pages/app/HistoryPage';
-import BetDetailPage from './pages/app/BetDetailPage';
 import ProfilePage from './pages/app/ProfilePage';
 import { useAuthStore } from './store/authStore';
 
@@ -190,7 +189,6 @@ function App() {
             <Route path="betting" element={<BettingPage />} />
             <Route path="betting/:lotteryId" element={<BettingPage />} />
             <Route path="history" element={<HistoryPage />} />
-            <Route path="history/:betId" element={<BetDetailPage />} />
             <Route path="profile" element={<ProfilePage />} />
             <Route index element={<Navigate to="home" replace />} />
           </Route>

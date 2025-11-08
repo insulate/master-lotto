@@ -16,7 +16,7 @@ export const placeBet = async (req, res, next) => {
 
   try {
     const memberId = req.user._id;
-    const { lottery_draw_id, bet_items } = req.body;
+    const { lottery_draw_id, bet_items, note } = req.body;
 
     // 1. Validate request body
     if (!lottery_draw_id) {
@@ -231,6 +231,7 @@ export const placeBet = async (req, res, next) => {
           total_amount: totalAmount,
           total_potential_win: totalPotentialWin,
           status: 'pending',
+          note: note?.trim() || null, // Save note if provided
           commission_data: {
             agent: {
               rates: agentCommissionRates?.rates || {},

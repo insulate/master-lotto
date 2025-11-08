@@ -130,6 +130,14 @@ const betSchema = new mongoose.Schema(
       min: 0,
     },
 
+    // หมายเหตุจากผู้ใช้
+    note: {
+      type: String,
+      maxlength: 100,
+      trim: true,
+      default: null,
+    },
+
     // ข้อมูลค่าคอมมิชชั่น
     commission_data: {
       // ค่าคอม Agent

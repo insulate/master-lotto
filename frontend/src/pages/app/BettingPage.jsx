@@ -90,6 +90,8 @@ const SummaryContent = ({
   handleRemoveBet,
   handleUpdateAmount,
   submitting,
+  note,
+  setNote,
   onClose = null, // Optional close function for mobile
 }) => {
   return (
@@ -144,6 +146,26 @@ const SummaryContent = ({
           </div>
         )}
       </div>
+
+      {/* Note Field */}
+      {totalItems > 0 && (
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            หมายเหตุ (ถ้ามี)
+          </label>
+          <textarea
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+            maxLength={100}
+            rows={2}
+            placeholder="ใส่รายละเอียดของบิล (ไม่เกิน 100 ตัวอักษร)"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:border-primary-gold focus:outline-none resize-none"
+          />
+          <div className="text-xs text-gray-500 mt-1 text-right">
+            {note.length}/100 ตัวอักษร
+          </div>
+        </div>
+      )}
 
       {/* Action Buttons */}
       <div className="space-y-3 mt-6 pt-4 border-t-2 border-gray-200">
@@ -236,6 +258,7 @@ const BettingPage = () => {
 
   // Form state
   const [number, setNumber] = useState('');
+  const [note, setNote] = useState('');
 
   // UI state for mobile
   const [showSummary, setShowSummary] = useState(false);
@@ -498,7 +521,8 @@ const BettingPage = () => {
       // Call API
       const response = await betService.placeBet({
         lottery_draw_id: lotteryDraw._id,
-        bet_items: apiBetItems
+        bet_items: apiBetItems,
+        note: note.trim() || undefined // Send note if not empty
       });
 
       const { deducted, remaining } = response.data;
@@ -512,8 +536,9 @@ const BettingPage = () => {
         { duration: 5000 }
       );
 
-      // Clear all bets after submit (silently)
+      // Clear all bets and note after submit (silently)
       clearAllSilently();
+      setNote('');
     } catch (err) {
       toast.error(parseErrorMessage(err), { duration: 5000 });
     } finally {
@@ -938,6 +963,8 @@ const BettingPage = () => {
               handleClearAll={handleClearAll}
               handleSubmit={handleSubmit}
               submitting={submitting}
+              note={note}
+              setNote={setNote}
             />
           </div>
         </div>
@@ -974,6 +1001,8 @@ const BettingPage = () => {
                 handleSubmit={handleSubmit}
                 handleClearAll={handleClearAll}
                 submitting={submitting}
+                note={note}
+                setNote={setNote}
                 onClose={() => setShowSummary(false)}
               />
             </div>
