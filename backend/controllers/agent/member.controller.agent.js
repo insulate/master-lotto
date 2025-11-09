@@ -109,8 +109,23 @@ export const createMember = async (req, res, next) => {
     });
 
     // Deduct credit from agent
-    agent.credit -= memberCredit;
-    await agent.save();
+    if (memberCredit > 0) {
+      agent.credit -= memberCredit;
+      await agent.save();
+
+      // Create credit transaction record
+      await CreditTransaction.create({
+        performed_by: agentId,
+        downline_id: member._id,
+        action: 'add',
+        amount: memberCredit,
+        credit_before: 0,
+        credit_after: memberCredit,
+        balance_before: 0,
+        balance_after: 0,
+        note: 'เครดิตเริ่มต้น'
+      });
+    }
 
     return successResponse(res, 'สร้างผู้เล่นสำเร็จ', {
       member,

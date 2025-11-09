@@ -74,6 +74,44 @@ test.describe('Master - Agents Management', () => {
 
     // Verify count increased
     await expect(page.locator('text=พบ')).toBeVisible();
+
+    // Verify initial credit transaction was created via API
+    const token = await page.evaluate(() => localStorage.getItem('access_token'));
+
+    if (token) {
+      // Get all agents to find the newly created one
+      const agentsResponse = await page.request.get('http://localhost:3000/api/v1/master/agents', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      const agentsData = await agentsResponse.json();
+
+      if (agentsData.success && agentsData.data && agentsData.data.agents) {
+        const createdAgent = agentsData.data.agents.find(a => a.username === username);
+
+        if (createdAgent) {
+          // Fetch credit history for the created agent
+          const historyResponse = await page.request.get(`http://localhost:3000/api/v1/master/agents/${createdAgent._id}/credit-history`, {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
+          const historyData = await historyResponse.json();
+
+          // Verify transaction exists
+          expect(historyData.success).toBe(true);
+          expect(historyData.data.transactions).toHaveLength(1);
+
+          const transaction = historyData.data.transactions[0];
+          expect(transaction.action).toBe('add');
+          expect(transaction.amount).toBe(10000);
+          expect(transaction.credit_before).toBe(0);
+          expect(transaction.credit_after).toBe(10000);
+          expect(transaction.note).toBe('เครดิตเริ่มต้น');
+        }
+      }
+    }
   });
 
   test('should edit agent information successfully', async ({ page }) => {

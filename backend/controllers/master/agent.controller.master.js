@@ -107,6 +107,21 @@ export const createAgent = async (req, res, next) => {
 
     // Master credit is not affected - master has unlimited credit
 
+    // Create credit transaction record if initial credit is given
+    if (agentCredit > 0) {
+      await CreditTransaction.create({
+        performed_by: masterId,
+        downline_id: agent._id,
+        action: 'add',
+        amount: agentCredit,
+        credit_before: 0,
+        credit_after: agentCredit,
+        balance_before: 0,
+        balance_after: 0,
+        note: 'เครดิตเริ่มต้น'
+      });
+    }
+
     return successResponse(res, 'สร้างเอเย่นต์สำเร็จ', {
       agent
     }, 201);
