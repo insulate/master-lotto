@@ -37,6 +37,11 @@ export default defineConfig({
 
     /* Video on failure */
     video: 'retain-on-failure',
+
+    /* Slow down execution for visual debugging (only when SLOW_MO is set) */
+    launchOptions: process.env.SLOW_MO ? {
+      slowMo: parseInt(process.env.SLOW_MO) || 1000,
+    } : undefined,
   },
 
   /* Configure projects for major browsers */

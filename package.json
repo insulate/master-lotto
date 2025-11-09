@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "cd backend && npm run dev & cd frontend && npm run dev",
-    "test": "playwright test --project=chromium",
+    "test": "npm run seed && playwright test --project=chromium",
     "test-all": "playwright test",
     "seed": "cd backend && npm run seed"
   },
