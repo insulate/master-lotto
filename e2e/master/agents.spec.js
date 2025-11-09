@@ -108,7 +108,7 @@ test.describe('Master - Agents Management', () => {
 
     // Verify updated information in table
     await expect(page.getByRole('cell', { name: updatedName, exact: true })).toBeVisible();
-    await expect(page.locator('text=Line: @updated, Tel: 099-999-9999')).toBeVisible();
+    await expect(page.locator('text=Line: @updated, Tel: 099-999-9999').first()).toBeVisible();
   });
 
   test('should disable agent successfully', async ({ page }) => {
@@ -133,34 +133,36 @@ test.describe('Master - Agents Management', () => {
     await expect(page.getByRole('button', { name: 'เปิดใช้งาน' })).toBeVisible();
   });
 
-  // test('should enable agent successfully', async ({ page }) => {
-  //   // First, disable an agent
-  //   await page.getByRole('button', { name: 'ระงับ' }).first().click();
-  //   await page.getByRole('button', { name: 'ยืนยัน' }).click();
+  test('should enable agent successfully', async ({ page }) => {
+    // First, disable an agent
+    await page.getByRole('button', { name: 'ระงับ' }).first().click();
 
-  //   // Wait for disable to complete
-  //   await expect(page.getByRole('status')).toContainText('ระงับเอเย่นต์');
+    // Wait for disable confirmation modal
+    await expect(page.getByRole('heading', { name: 'ยืนยันการระงับเอเย่นต์', level: 3 })).toBeVisible();
+    await page.getByRole('button', { name: 'ยืนยัน' }).click();
 
-  //   // Now enable it
-  //   await page.getByRole('button', { name: 'เปิดใช้งาน' }).first().click();
+    // Wait for disable modal to close
+    await expect(page.getByRole('heading', { name: 'ยืนยันการระงับเอเย่นต์', level: 3 })).not.toBeVisible({ timeout: 10000 });
 
-  //   // Wait for confirmation modal
-  //   await expect(page.getByRole('heading', { name: 'ยืนยันการเปิดใช้งาน', level: 3 })).toBeVisible();
-  //   await expect(page.locator('text=คุณต้องการเปิดใช้งานเอเย่นต์')).toBeVisible();
+    // Now enable it
+    await page.getByRole('button', { name: 'เปิดใช้งาน' }).first().click();
 
-  //   // Confirm enable
-  //   await page.getByRole('button', { name: 'ยืนยัน' }).click();
+    // Wait for enable confirmation modal
+    await expect(page.getByRole('heading', { name: 'ยืนยันการเปิดใช้งาน', level: 3 })).toBeVisible();
+    await expect(page.locator('text=คุณต้องการเปิดใช้งานเอเย่นต์')).toBeVisible();
 
-  //   // Check success toast
-  //   await expect(page.getByRole('status')).toContainText('เปิดใช้งานเอเย่นต์');
-  //   await expect(page.getByRole('status')).toContainText('สำเร็จ');
+    // Confirm enable
+    await page.getByRole('button', { name: 'ยืนยัน' }).click();
 
-  //   // Verify status changed to active
-  //   await expect(page.getByRole('cell', { name: 'ใช้งาน', exact: true })).toBeVisible();
+    // Wait for enable modal to close (indicates success)
+    await expect(page.getByRole('heading', { name: 'ยืนยันการเปิดใช้งาน', level: 3 })).not.toBeVisible({ timeout: 10000 });
 
-  //   // Verify disable button is now visible
-  //   await expect(page.getByRole('button', { name: 'ระงับ' })).toBeVisible();
-  // });
+    // Verify status changed to active (use first() to handle multiple active agents)
+    await expect(page.getByRole('cell', { name: 'ใช้งาน', exact: true }).first()).toBeVisible();
+
+    // Verify disable button is now visible (use first() to handle multiple active agents)
+    await expect(page.getByRole('button', { name: 'ระงับ' }).first()).toBeVisible();
+  });
 
   // test('should filter agents by status', async ({ page }) => {
   //   // Get initial count
