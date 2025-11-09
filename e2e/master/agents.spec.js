@@ -111,27 +111,27 @@ test.describe('Master - Agents Management', () => {
     await expect(page.locator('text=Line: @updated, Tel: 099-999-9999')).toBeVisible();
   });
 
-  // test('should disable agent successfully', async ({ page }) => {
-  //   // Click disable button for the first active agent
-  //   await page.getByRole('button', { name: 'ระงับ' }).first().click();
+  test('should disable agent successfully', async ({ page }) => {
+    // Click disable button for the first active agent
+    await page.getByRole('button', { name: 'ระงับ' }).first().click();
 
-  //   // Wait for confirmation modal
-  //   await expect(page.getByRole('heading', { name: 'ยืนยันการระงับเอเย่นต์', level: 3 })).toBeVisible();
-  //   await expect(page.locator('text=คุณต้องการระงับเอเย่นต์')).toBeVisible();
+    // Wait for confirmation modal
+    await expect(page.getByRole('heading', { name: 'ยืนยันการระงับเอเย่นต์', level: 3 })).toBeVisible();
+    await expect(page.locator('text=คุณต้องการระงับเอเย่นต์')).toBeVisible();
 
-  //   // Confirm disable
-  //   await page.getByRole('button', { name: 'ยืนยัน' }).click();
+    // Confirm disable
+    await page.getByRole('button', { name: 'ยืนยัน' }).click();
 
-  //   // Check success toast
-  //   await expect(page.getByRole('status')).toContainText('ระงับเอเย่นต์');
-  //   await expect(page.getByRole('status')).toContainText('สำเร็จ');
+    // Check success toast
+    await expect(page.getByRole('status')).toContainText('ระงับเอเย่นต์');
+    await expect(page.getByRole('status')).toContainText('สำเร็จ');
 
-  //   // Verify status changed to disabled
-  //   await expect(page.getByRole('cell', { name: 'ระงับ', exact: true })).toBeVisible();
+    // Verify status changed to disabled
+    await expect(page.getByRole('cell', { name: 'ระงับ', exact: true })).toBeVisible();
 
-  //   // Verify enable button is now visible
-  //   await expect(page.getByRole('button', { name: 'เปิดใช้งาน' })).toBeVisible();
-  // });
+    // Verify enable button is now visible
+    await expect(page.getByRole('button', { name: 'เปิดใช้งาน' })).toBeVisible();
+  });
 
   // test('should enable agent successfully', async ({ page }) => {
   //   // First, disable an agent
