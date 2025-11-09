@@ -76,41 +76,40 @@ test.describe('Master - Agents Management', () => {
     await expect(page.locator('text=พบ')).toBeVisible();
   });
 
-  // test('should edit agent information successfully', async ({ page }) => {
-  //   // Click edit button for the first agent
-  //   await page.getByRole('button', { name: 'แก้ไข' }).first().click();
+  test('should edit agent information successfully', async ({ page }) => {
+    // Click edit button for the first agent
+    await page.getByRole('button', { name: 'แก้ไข' }).first().click();
 
-  //   // Wait for modal to open
-  //   await expect(page.getByRole('heading', { name: 'แก้ไขข้อมูลเอเย่นต์', level: 3 })).toBeVisible();
+    // Wait for modal to open
+    await expect(page.getByRole('heading', { name: 'แก้ไขข้อมูลเอเย่นต์', level: 3 })).toBeVisible();
 
-  //   // Check username is disabled
-  //   const usernameField = page.getByRole('textbox').first();
-  //   await expect(usernameField).toBeDisabled();
-  //   await expect(page.locator('text=Username ไม่สามารถแก้ไขได้')).toBeVisible();
+    // Check username is disabled (find disabled textbox in modal)
+    const usernameField = page.locator('input[type="text"][disabled]');
+    await expect(usernameField).toBeDisabled();
+    await expect(page.locator('text=Username ไม่สามารถแก้ไขได้')).toBeVisible();
 
-  //   // Get current name and modify it
-  //   const nameField = page.getByRole('textbox', { name: 'ชื่อและนามสกุล' });
-  //   const currentName = await nameField.inputValue();
-  //   const updatedName = currentName + ' Updated';
+    // Get current name and modify it
+    const nameField = page.getByRole('textbox', { name: 'ชื่อและนามสกุล' });
+    const currentName = await nameField.inputValue();
+    const updatedName = currentName + ' Updated';
 
-  //   // Update name
-  //   await nameField.fill(updatedName);
+    // Update name
+    await nameField.fill(updatedName);
 
-  //   // Update contact info
-  //   const contactField = page.getByRole('textbox', { name: 'เบอร์โทร, Line ID' });
-  //   await contactField.fill('Line: @updated, Tel: 099-999-9999');
+    // Update contact info
+    const contactField = page.getByRole('textbox', { name: 'เบอร์โทร, Line ID' });
+    await contactField.fill('Line: @updated, Tel: 099-999-9999');
 
-  //   // Submit form
-  //   await page.getByRole('button', { name: 'บันทึกการแก้ไข' }).click();
+    // Submit form
+    await page.getByRole('button', { name: 'บันทึกการแก้ไข' }).click();
 
-  //   // Check success toast
-  //   await expect(page.getByRole('status')).toContainText('แก้ไขข้อมูลเอเย่นต์');
-  //   await expect(page.getByRole('status')).toContainText('สำเร็จ');
+    // Wait for modal to close (indicates success)
+    await expect(page.getByRole('heading', { name: 'แก้ไขข้อมูลเอเย่นต์', level: 3 })).not.toBeVisible({ timeout: 10000 });
 
-  //   // Verify updated information in table
-  //   await expect(page.getByRole('cell', { name: updatedName, exact: true })).toBeVisible();
-  //   await expect(page.locator('text=Line: @updated, Tel: 099-999-9999')).toBeVisible();
-  // });
+    // Verify updated information in table
+    await expect(page.getByRole('cell', { name: updatedName, exact: true })).toBeVisible();
+    await expect(page.locator('text=Line: @updated, Tel: 099-999-9999')).toBeVisible();
+  });
 
   // test('should disable agent successfully', async ({ page }) => {
   //   // Click disable button for the first active agent
