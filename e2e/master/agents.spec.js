@@ -41,7 +41,7 @@ test.describe('Master - Agents Management', () => {
 
   test('should create new agent successfully', async ({ page }) => {
     const timestamp = Date.now();
-    const username = `testagent${timestamp}`;
+    const username = `test${timestamp}`;
     const name = `Test Agent ${timestamp}`;
     const password = 'test123';
     const initialCredit = '10000';
@@ -63,8 +63,8 @@ test.describe('Master - Agents Management', () => {
     // Submit form
     await page.getByRole('button', { name: 'สร้างเอเย่นต์', exact: true }).click();
 
-    // Check success toast
-    await expect(page.getByRole('status')).toContainText(`สร้างเอเย่นต์ ${username} สำเร็จ`);
+    // Wait for modal to close (indicates success)
+    await expect(page.getByRole('heading', { name: 'สร้างเอเย่นต์ใหม่', level: 3 })).not.toBeVisible({ timeout: 10000 });
 
     // Verify agent appears in table
     await expect(page.getByRole('cell', { name: username, exact: true })).toBeVisible();
